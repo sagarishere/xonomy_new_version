@@ -979,41 +979,41 @@ Xonomy.plusminus = function (htmlID, forceExpand) {
 	}, 300);
 };
 Xonomy.updateCollapsoid = function (htmlID) {
-    const element = document.getElementById(htmlID);
+	const element = document.getElementById(htmlID);
 	let whisper = "";
 	const elementName = element.getAttribute("data-name");
 	const spec = Xonomy.docSpec.elements[elementName];
-    if (spec.collapsoid) {
-        whisper = spec.collapsoid(Xonomy.harvestElement(element));
-    } else {
-        let abbreviated = false;
+	if (spec.collapsoid) {
+		whisper = spec.collapsoid(Xonomy.harvestElement(element));
+	} else {
+		let abbreviated = false;
 		// Find all .textnode descendants of element, excluding those inside any direct child .prominentChildren
 		const textnodes = Array.from(element.querySelectorAll('.textnode'));
 		// Get all direct children .prominentChildren of element
-		const directProminentChildren = Array.from(element.children).filter(function(child) {
+		const directProminentChildren = Array.from(element.children).filter(function (child) {
 			return child.classList && child.classList.contains('prominentChildren');
 		});
-        // For each textnode, check if it is NOT a descendant of any directProminentChildren
-        textnodes.forEach(function (textnode) {
-            const insideProminent = directProminentChildren.some(function(promChild) {
+		// For each textnode, check if it is NOT a descendant of any directProminentChildren
+		textnodes.forEach(function (textnode) {
+			const insideProminent = directProminentChildren.some(function (promChild) {
 				return promChild.contains(textnode);
 			});
-            if (!insideProminent) {
-                const txt = Xonomy.harvestText(textnode).value;
-                for (let i = 0; i < txt.length; i++) {
-                    if (whisper.length < 35) whisper += txt[i]; else abbreviated = true;
-                }
-                whisper += " ";
-            }
-        });
-        whisper = whisper.replace(/  +/g, " ").replace(/ +$/g, "").replace(/^ +/g, "");
-        if (abbreviated && !element.classList.contains("oneliner") && whisper != "...") whisper += "...";
-    }
-    if (whisper == "" || !whisper) whisper = "...";
+			if (!insideProminent) {
+				const txt = Xonomy.harvestText(textnode).value;
+				for (let i = 0; i < txt.length; i++) {
+					if (whisper.length < 35) whisper += txt[i]; else abbreviated = true;
+				}
+				whisper += " ";
+			}
+		});
+		whisper = whisper.replace(/  +/g, " ").replace(/ +$/g, "").replace(/^ +/g, "");
+		if (abbreviated && !element.classList.contains("oneliner") && whisper != "...") whisper += "...";
+	}
+	if (whisper == "" || !whisper) whisper = "...";
 	const childrenCollapsed = element.querySelector(':scope > .childrenCollapsed');
-    if (childrenCollapsed) {
-        childrenCollapsed.innerHTML = whisper;
-    }
+	if (childrenCollapsed) {
+		childrenCollapsed.innerHTML = whisper;
+	}
 };
 
 Xonomy.lastClickWhat = "";
@@ -1409,40 +1409,40 @@ Xonomy.wycCache = {};
 Xonomy.wycQueue = [];
 Xonomy.wycIsRunning = false;
 Xonomy.wyc = function (url, callback) { //a "when-you-can" function for delayed rendering: gets json from url, passes it to callback, and delayed-returns html-as-string from callback
-    Xonomy.wycLastID++;
-    const wycID = "xonomy_wyc_" + Xonomy.wycLastID;
-    if (Xonomy.wycCache[url]) return callback(Xonomy.wycCache[url]);
-    Xonomy.wycQueue.push(function () { //push job to WYC queue
-        Xonomy.wycIsRunning = true;
-        Xonomy.wycQueue.shift(); //remove myself from the WYC queue
-        if (Xonomy.wycCache[url]) {
-            // Vanilla JS replacement for $("#" + wycID).replaceWith(...)
-            const wycElem = document.getElementById(wycID);
-            if (wycElem) {
-                const tempDiv = document.createElement("div");
-                tempDiv.innerHTML = callback(Xonomy.wycCache[url]);
-                wycElem.replaceWith(tempDiv.firstChild);
-            }
-            if (Xonomy.wycQueue.length > 0) Xonomy.wycQueue[0](); else Xonomy.wycIsRunning = false; //run the next WYC job, or say that WYC has finished running
-        } else {
-            // Vanilla JS replacement for $.ajax
-            fetch(url, { method: "POST", headers: { 'Accept': 'application/json' } })
-                .then(function (response) { return response.json(); })
-                .then(function (data) {
-                    const wycElem = document.getElementById(wycID);
-                    if (wycElem) {
-                        const tempDiv = document.createElement("div");
-                        tempDiv.innerHTML = callback(data);
-                        wycElem.replaceWith(tempDiv.firstChild);
-                    }
-                    if (Xonomy.wycCache.length > 1000) Xonomy.wycCache.length = [];
-                    Xonomy.wycCache[url] = data;
-                    if (Xonomy.wycQueue.length > 0) Xonomy.wycQueue[0](); else Xonomy.wycIsRunning = false; //run the next WYC job, or say that WYC has finished running
-                });
-        }
-    });
-    if (!Xonomy.wycIsRunning && Xonomy.wycQueue.length > 0) Xonomy.wycQueue[0]();
-    return "<span class='wyc' id='" + wycID + "'></span>";
+	Xonomy.wycLastID++;
+	const wycID = "xonomy_wyc_" + Xonomy.wycLastID;
+	if (Xonomy.wycCache[url]) return callback(Xonomy.wycCache[url]);
+	Xonomy.wycQueue.push(function () { //push job to WYC queue
+		Xonomy.wycIsRunning = true;
+		Xonomy.wycQueue.shift(); //remove myself from the WYC queue
+		if (Xonomy.wycCache[url]) {
+			// Vanilla JS replacement for $("#" + wycID).replaceWith(...)
+			const wycElem = document.getElementById(wycID);
+			if (wycElem) {
+				const tempDiv = document.createElement("div");
+				tempDiv.innerHTML = callback(Xonomy.wycCache[url]);
+				wycElem.replaceWith(tempDiv.firstChild);
+			}
+			if (Xonomy.wycQueue.length > 0) Xonomy.wycQueue[0](); else Xonomy.wycIsRunning = false; //run the next WYC job, or say that WYC has finished running
+		} else {
+			// Vanilla JS replacement for $.ajax
+			fetch(url, { method: "POST", headers: { 'Accept': 'application/json' } })
+				.then(function (response) { return response.json(); })
+				.then(function (data) {
+					const wycElem = document.getElementById(wycID);
+					if (wycElem) {
+						const tempDiv = document.createElement("div");
+						tempDiv.innerHTML = callback(data);
+						wycElem.replaceWith(tempDiv.firstChild);
+					}
+					if (Xonomy.wycCache.length > 1000) Xonomy.wycCache.length = [];
+					Xonomy.wycCache[url] = data;
+					if (Xonomy.wycQueue.length > 0) Xonomy.wycQueue[0](); else Xonomy.wycIsRunning = false; //run the next WYC job, or say that WYC has finished running
+				});
+		}
+	});
+	if (!Xonomy.wycIsRunning && Xonomy.wycQueue.length > 0) Xonomy.wycQueue[0]();
+	return "<span class='wyc' id='" + wycID + "'></span>";
 };
 
 Xonomy.toggleSubmenu = function (menuItem) {
@@ -1960,41 +1960,41 @@ Xonomy.duplicateElement = function (htmlID) {
 	window.setTimeout(function () { Xonomy.setFocus(newElem.id, "openingTagName"); }, 100);
 };
 Xonomy.moveElementUp = function (htmlID) {
-    Xonomy.clickoff();
-    const me = document.getElementById(htmlID);
-    if (!me.closest('.layby > .content')) {
-        Xonomy.insertDropTargets(htmlID);
-        // Get all .elementDropper elements in .xonomy, then add 'me' to the end
-        const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
-        droppers.push(me);
-        // Find the index of 'me' in the array, then move it up (replace previous dropper with 'me')
-        const i = droppers.indexOf(me) - 1;
-        if (i >= 0) {
-            const dropper = droppers[i];
-            dropper.parentNode.replaceChild(me, dropper);
-            Xonomy.changed();
-            // Fade in animation
-            me.style.opacity = 0;
-            me.style.display = '';
-            let opacity = 0;
-            const fadeDuration = 400;
-            let start = null;
-            function fadeInStep(timestamp) {
-                if (!start) start = timestamp;
-                const elapsed = timestamp - start;
-                opacity = Math.min(elapsed / fadeDuration, 1);
-                me.style.opacity = opacity;
-                if (elapsed < fadeDuration) {
-                    requestAnimationFrame(fadeInStep);
-                } else {
-                    me.style.opacity = 1;
-                }
-            }
-            requestAnimationFrame(fadeInStep);
-        }
-        Xonomy.dragend();
-    }
-    window.setTimeout(function () { Xonomy.setFocus(htmlID, "openingTagName"); }, 100);
+	Xonomy.clickoff();
+	const me = document.getElementById(htmlID);
+	if (!me.closest('.layby > .content')) {
+		Xonomy.insertDropTargets(htmlID);
+		// Get all .elementDropper elements in .xonomy, then add 'me' to the end
+		const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
+		droppers.push(me);
+		// Find the index of 'me' in the array, then move it up (replace previous dropper with 'me')
+		const i = droppers.indexOf(me) - 1;
+		if (i >= 0) {
+			const dropper = droppers[i];
+			dropper.parentNode.replaceChild(me, dropper);
+			Xonomy.changed();
+			// Fade in animation
+			me.style.opacity = 0;
+			me.style.display = '';
+			let opacity = 0;
+			const fadeDuration = 400;
+			let start = null;
+			function fadeInStep(timestamp) {
+				if (!start) start = timestamp;
+				const elapsed = timestamp - start;
+				opacity = Math.min(elapsed / fadeDuration, 1);
+				me.style.opacity = opacity;
+				if (elapsed < fadeDuration) {
+					requestAnimationFrame(fadeInStep);
+				} else {
+					me.style.opacity = 1;
+				}
+			}
+			requestAnimationFrame(fadeInStep);
+		}
+		Xonomy.dragend();
+	}
+	window.setTimeout(function () { Xonomy.setFocus(htmlID, "openingTagName"); }, 100);
 };
 Xonomy.moveElementDown = function (htmlID) {
 	Xonomy.clickoff();
@@ -2383,7 +2383,7 @@ Xonomy.dragOut = function (ev) {
 	} else {
 		// Remove 'activeDropper' from all elements inside .xonomy
 		var activeDroppers = document.querySelectorAll(".xonomy .activeDropper");
-		activeDroppers.forEach(function(el) {
+		activeDroppers.forEach(function (el) {
 			el.classList.remove("activeDropper");
 		});
 	}
@@ -2391,14 +2391,56 @@ Xonomy.dragOut = function (ev) {
 Xonomy.drop = function (ev) {
 	ev.preventDefault();
 	var node = document.getElementById(Xonomy.draggingID); //the thing we are moving
-	if ($(ev.currentTarget).hasClass("layby")) {
-		$(node).hide();
-		$(".xonomy .layby > .content").append(node);
-		$(node).fadeIn(function () { Xonomy.changed(); });
+	if (ev.currentTarget.classList.contains("layby")) {
+		// Hide node (for fade-in)
+		node.style.opacity = 0;
+		node.style.display = "";
+		// Append to layby content
+		var laybyContent = document.querySelector(".xonomy .layby > .content");
+		if (laybyContent) laybyContent.appendChild(node);
+		// Fade in animation
+		let opacity = 0;
+		const fadeDuration = 400;
+		let start = null;
+		function fadeInStep(timestamp) {
+			if (!start) start = timestamp;
+			const elapsed = timestamp - start;
+			opacity = Math.min(elapsed / fadeDuration, 1);
+			node.style.opacity = opacity;
+			if (elapsed < fadeDuration) {
+				requestAnimationFrame(fadeInStep);
+			} else {
+				node.style.opacity = 1;
+				Xonomy.changed();
+			}
+		}
+		requestAnimationFrame(fadeInStep);
 	} else {
-		$(node).hide();
-		$(ev.target.parentNode).replaceWith(node);
-		$(node).fadeIn(function () { Xonomy.changed(); });
+		// Hide node (for fade-in)
+		node.style.opacity = 0;
+		node.style.display = "";
+		// Replace drop target's parent with node
+		var targetParent = ev.target.parentNode;
+		if (targetParent && targetParent.parentNode) {
+			targetParent.parentNode.replaceChild(node, targetParent);
+		}
+		// Fade in animation
+		let opacity = 0;
+		const fadeDuration = 400;
+		let start = null;
+		function fadeInStep(timestamp) {
+			if (!start) start = timestamp;
+			const elapsed = timestamp - start;
+			opacity = Math.min(elapsed / fadeDuration, 1);
+			node.style.opacity = opacity;
+			if (elapsed < fadeDuration) {
+				requestAnimationFrame(fadeInStep);
+			} else {
+				node.style.opacity = 1;
+				Xonomy.changed();
+			}
+		}
+		requestAnimationFrame(fadeInStep);
 	}
 	Xonomy.openCloseLayby();
 	Xonomy.recomputeLayby();
