@@ -1539,24 +1539,39 @@ Xonomy.formatCaption = function (caption) {
 
 Xonomy.deleteAttribute = function (htmlID, parameter) {
 	Xonomy.clickoff();
-	var obj = document.getElementById(htmlID);
-	var parentID = obj.parentNode.parentNode.parentNode.id;
+	const obj = document.getElementById(htmlID);
+	const parentID = obj.parentNode.parentNode.parentNode.id;
 	obj.parentNode.removeChild(obj);
 	Xonomy.changed();
 	window.setTimeout(function () { Xonomy.setFocus(parentID, "openingTagName"); }, 100);
 };
 Xonomy.deleteElement = function (htmlID, parameter) {
 	Xonomy.clickoff();
-	var obj = document.getElementById(htmlID);
-	var parentID = obj.parentNode.parentNode.id;
-	$(obj).fadeOut(function () {
-		var parentNode = obj.parentNode;
-		parentNode.removeChild(obj);
-		Xonomy.changed();
-		if ($(parentNode).closest(".layby").length == 0) {
-			window.setTimeout(function () { Xonomy.setFocus(parentID, "openingTagName"); }, 100);
+	const obj = document.getElementById(htmlID);
+	const parentID = obj.parentNode.parentNode.id;
+
+	// Vanilla JS fadeOut
+	let opacity = 1;
+	const fadeDuration = 400; // ms, similar to jQuery default
+	let start = null;
+	function fadeOutStep(timestamp) {
+		if (!start) start = timestamp;
+		const elapsed = timestamp - start;
+		opacity = Math.max(1 - (elapsed / fadeDuration), 0);
+		obj.style.opacity = opacity;
+		if (elapsed < fadeDuration) {
+			requestAnimationFrame(fadeOutStep);
+		} else {
+			obj.style.opacity = 0;
+			const parentNode = obj.parentNode;
+			parentNode.removeChild(obj);
+			Xonomy.changed();
+			if (!parentNode.closest('.layby')) {
+				window.setTimeout(function () { Xonomy.setFocus(parentID, "openingTagName"); }, 100);
+			}
 		}
-	});
+	}
+	requestAnimationFrame(fadeOutStep);
 };
 Xonomy.newAttribute = function (htmlID, parameter) {
 	Xonomy.clickoff();
