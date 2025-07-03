@@ -470,22 +470,31 @@ Xonomy.harvestElement = function (htmlElement, jsParent) {
 		js.name = htmlElement.getAttribute("data-name");
 		js.htmlID = htmlElement.id;
 		js.attributes = [];
-		var htmlAttributes = $(htmlElement).find(".tag.opening > .attributes").toArray()[0];
-		for (var i = 0; i < htmlAttributes.childNodes.length; i++) {
-			var htmlAttribute = htmlAttributes.childNodes[i];
-			if ($(htmlAttribute).hasClass("attribute")) js["attributes"].push(Xonomy.harvestAttribute(htmlAttribute, js));
+		// var htmlAttributes = $(htmlElement).find(".tag.opening > .attributes").toArray()[0];
+		var htmlAttributes = htmlElement.querySelector('.tag.opening > .attributes');
+		if (htmlAttributes) {
+			for (var i = 0; i < htmlAttributes.childNodes.length; i++) {
+				var htmlAttribute = htmlAttributes.childNodes[i];
+				if (htmlAttribute.nodeType === 1 && htmlAttribute.classList.contains("attribute")) js["attributes"].push(Xonomy.harvestAttribute(htmlAttribute, js));
+			}
 		}
 		js.children = [];
-		var htmlChildren = $(htmlElement).children(".prominentChildren").toArray()[0];
-		for (var i = 0; i < htmlChildren.childNodes.length; i++) {
-			var htmlChild = htmlChildren.childNodes[i];
-			js["children"].push(Xonomy.harvestElement(htmlChild, js));
+		// var htmlChildren = $(htmlElement).children(".prominentChildren").toArray()[0];
+		var htmlProminentChildren = Array.prototype.find.call(htmlElement.children, function (child) { return child.classList && child.classList.contains('prominentChildren'); });
+		if (htmlProminentChildren) {
+			for (var i = 0; i < htmlProminentChildren.childNodes.length; i++) {
+				var htmlChild = htmlProminentChildren.childNodes[i];
+				if (htmlChild.nodeType === 1) js["children"].push(Xonomy.harvestElement(htmlChild, js));
+			}
 		}
-		var htmlChildren = $(htmlElement).children(".children").toArray()[0];
-		for (var i = 0; i < htmlChildren.childNodes.length; i++) {
-			var htmlChild = htmlChildren.childNodes[i];
-			if ($(htmlChild).hasClass("element")) js["children"].push(Xonomy.harvestElement(htmlChild, js));
-			else if ($(htmlChild).hasClass("textnode")) js["children"].push(Xonomy.harvestText(htmlChild, js));
+		// var htmlChildren = $(htmlElement).children(".children").toArray()[0];
+		var htmlChildren = Array.prototype.find.call(htmlElement.children, function (child) { return child.classList && child.classList.contains('children'); });
+		if (htmlChildren) {
+			for (var i = 0; i < htmlChildren.childNodes.length; i++) {
+				var htmlChild = htmlChildren.childNodes[i];
+				if (htmlChild.nodeType === 1 && htmlChild.classList.contains("element")) js["children"].push(Xonomy.harvestElement(htmlChild, js));
+				else if (htmlChild.nodeType === 1 && htmlChild.classList.contains("textnode")) js["children"].push(Xonomy.harvestText(htmlChild, js));
+			}
 		}
 		js = Xonomy.enrichElement(js);
 		Xonomy.harvestCache[htmlID] = js;
