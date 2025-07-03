@@ -2481,16 +2481,34 @@ Xonomy.openCloseLayby = function () { //open the layby if it's full, close it if
 	}
 };
 Xonomy.openLayby = function () {
-	$(".xonomy .layby").removeClass("closed").addClass("open");
+	// Vanilla JS replacement for: $(".xonomy .layby").removeClass("closed").addClass("open");
+	var laybys = document.querySelectorAll('.xonomy .layby');
+	laybys.forEach(function (layby) {
+		layby.classList.remove('closed');
+		layby.classList.add('open');
+	});
 };
 Xonomy.closeLayby = function () {
 	window.setTimeout(function () {
-		$(".xonomy .layby").removeClass("open").addClass("closed");
+		var laybys = document.querySelectorAll('.xonomy .layby');
+		laybys.forEach(function (layby) {
+			layby.classList.remove('open');
+			layby.classList.add('closed');
+		});
 	}, 10);
 };
 Xonomy.emptyLayby = function () {
-	$(".xonomy .layby .content").html("");
-	$(".xonomy .layby").removeClass("nonempty").addClass("empty");
+	// Clear the content of all .xonomy .layby .content elements
+	var contents = document.querySelectorAll('.xonomy .layby .content');
+	contents.forEach(function (content) {
+		content.innerHTML = '';
+	});
+	// Update classes on all .xonomy .layby elements
+	var laybys = document.querySelectorAll('.xonomy .layby');
+	laybys.forEach(function (layby) {
+		layby.classList.remove('nonempty');
+		layby.classList.add('empty');
+	});
 };
 Xonomy.recomputeLayby = function () {
 	if ($(".xonomy .layby > .content > *").length > 0) {
