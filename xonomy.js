@@ -49,7 +49,9 @@ Xonomy.isNamespaceDeclaration = function (attributeName) {
 Xonomy.namespaces = {}; //eg. "xmlns:mbm": "http://lexonista.com"
 
 Xonomy.xml2js = function (xml, jsParent) {
-	if (typeof (xml) == "string") xml = $.parseXML(xml);
+	if (typeof (xml) == "string") {
+		xml = (new window.DOMParser()).parseFromString(xml, "application/xml");
+	}
 	if (xml.documentElement) xml = xml.documentElement;
 	var js = new Xonomy.surrogate(jsParent);
 	js.type = "element";
@@ -308,115 +310,138 @@ Xonomy.lastIDNum = 0;
 
 Xonomy.docSpec = null;
 Xonomy.refresh = function () {
-	//$(".xonomy .textnode[data-value='']").each(function(){ //delete empty text nodes if the parent element is not allowed to have text
-	$(".xonomy .textnode").each(function () { //delete empty text nodes if the parent element is not allowed to have text
-		var $this = $(this);
-		var $parent = $this.closest(".element");
-		var parentName = $parent.data("name");
-		var elSpec = Xonomy.docSpec.elements[parentName];
-		if (elSpec && !elSpec.hasText(Xonomy.harvestElement($parent.toArray()[0]))) {
-			if ($this.attr("data-value") == "") {
-				$this.remove();
+	// Remove empty text nodes if the parent element is not allowed to have text
+	document.querySelectorAll('.xonomy .textnode').forEach(function (el) {
+		var parent = el.closest('.element');
+		var parentName = parent ? parent.getAttribute('data-name') : null;
+		var elSpec = parentName ? Xonomy.docSpec.elements[parentName] : null;
+		if (elSpec && !elSpec.hasText(Xonomy.harvestElement(parent))) {
+			if (el.getAttribute('data-value') === "") {
+				el.remove();
 			} else {
-				var origText = $this.attr("data-value");
+				var origText = el.getAttribute('data-value');
 				var trimmedText = origText.trim();
-				if (trimmedText != origText) {
+				if (trimmedText !== origText) {
 					var jsText = { type: "text", value: trimmedText };
 					var html = Xonomy.renderText(jsText);
-					$this.replaceWith(html);
+					el.outerHTML = html;
 				}
 			}
 		}
 	});
-	$(".xonomy .children ").each(function () { //determine whether each element does or doesn't have children:
-		if (this.childNodes.length == 0 && !$(this.parentNode).hasClass("hasText")) $(this.parentNode).addClass("noChildren");
-		else {
-			$(this.parentNode).removeClass("noChildren");
-			Xonomy.updateCollapsoid(this.parentNode.id);
+	// Determine whether each element does or doesn't have children
+	document.querySelectorAll('.xonomy .children').forEach(function (el) {
+		if (el.childNodes.length === 0 && !(el.parentNode.classList.contains('hasText'))) {
+			el.parentNode.classList.add('noChildren');
+		} else {
+			el.parentNode.classList.remove('noChildren');
+			Xonomy.updateCollapsoid(el.parentNode.id);
 		}
 	});
-	$(".xonomy .element.hasText > .children > .element").each(function () { //determine whether each child element of hasText element should have empty text nodes on either side
-		if ($(this).prev().length == 0 || !$(this).prev().hasClass("textnode")) {
-			$(this).before(Xonomy.renderText({ type: "text", value: "" }));
+	// Ensure each child element of hasText element has empty text nodes on either side
+	document.querySelectorAll('.xonomy .element.hasText > .children > .element').forEach(function (el) {
+		var prev = el.previousElementSibling;
+		if (!prev || !prev.classList.contains('textnode')) {
+			el.insertAdjacentHTML('beforebegin', Xonomy.renderText({ type: "text", value: "" }));
 		}
-		if ($(this).next().length == 0 || !$(this).next().hasClass("textnode")) {
-			$(this).after(Xonomy.renderText({ type: "text", value: "" }));
+		var next = el.nextElementSibling;
+		if (!next || !next.classList.contains('textnode')) {
+			el.insertAdjacentHTML('afterend', Xonomy.renderText({ type: "text", value: "" }));
 		}
 	});
-	var merged = false; while (!merged) { //merge adjacent text nodes
-		merged = true; var textnodes = $(".xonomy .textnode").toArray();
+	// Merge adjacent text nodes
+	var merged = false;
+	while (!merged) {
+		merged = true;
+		var textnodes = Array.from(document.querySelectorAll('.xonomy .textnode'));
 		for (var i = 0; i < textnodes.length; i++) {
-			var $this = $(textnodes[i]);
-			if ($this.next().hasClass("textnode")) {
-				var js1 = Xonomy.harvestText($this.toArray()[0]);
-				var js2 = Xonomy.harvestText($this.next().toArray()[0]);
+			var thisNode = textnodes[i];
+			var nextNode = thisNode.nextElementSibling;
+			if (nextNode && nextNode.classList.contains('textnode')) {
+				var js1 = Xonomy.harvestText(thisNode);
+				var js2 = Xonomy.harvestText(nextNode);
 				js1.value += js2.value;
-				$this.next().remove();
-				$this.replaceWith(Xonomy.renderText(js1));
+				nextNode.remove();
+				thisNode.outerHTML = Xonomy.renderText(js1);
 				merged = false;
 				break;
 			}
 		}
 	}
-	$(".xonomy .attribute ").each(function () { //reorder attributes if necessary
-		var atName = this.getAttribute("data-name");
-		var elName = this.parentNode.parentNode.parentNode.getAttribute("data-name");
+	// Reorder attributes if necessary
+	document.querySelectorAll('.xonomy .attribute').forEach(function (el) {
+		var atName = el.getAttribute('data-name');
+		var elName = el.parentNode.parentNode.parentNode.getAttribute('data-name');
 		var elSpec = Xonomy.docSpec.elements[elName];
-		var mustBeAfter = []; for (var sibName in elSpec.attributes) {
-			if (sibName == atName) break; else mustBeAfter.push(sibName);
+		var mustBeAfter = [];
+		for (var sibName in elSpec.attributes) {
+			if (sibName === atName) break; else mustBeAfter.push(sibName);
 		}
-		var mustBeBefore = []; var seen = false; for (var sibName in elSpec.attributes) {
-			if (sibName == atName) seen = true; else if (seen) mustBeBefore.push(sibName);
+		var mustBeBefore = [], seen = false;
+		for (var sibName in elSpec.attributes) {
+			if (sibName === atName) seen = true; else if (seen) mustBeBefore.push(sibName);
 		}
-		if (mustBeBefore.length > 0) { //is it after an attribute it cannot be after? then move it up until it's not!
-			var $this = $(this);
-			var ok; do {
+		if (mustBeBefore.length > 0) {
+			var ok;
+			do {
 				ok = true;
-				for (var ii = 0; ii < mustBeBefore.length; ii++) {
-					if ($this.prevAll("*[data-name='" + mustBeBefore[ii] + "']").toArray().length > 0) {
-						$this.prev().before($this);
-						ok = false;
-					}
+				var prev = el.previousElementSibling;
+				while (prev && mustBeBefore.includes(prev.getAttribute('data-name'))) {
+					prev.parentNode.insertBefore(el, prev);
+					ok = false;
+					prev = el.previousElementSibling;
 				}
 			} while (!ok)
 		}
-		if (mustBeAfter.length > 0) { //is it before an attribute it cannot be before? then move it down until it's not!
-			var $this = $(this);
-			var ok; do {
+		if (mustBeAfter.length > 0) {
+			var ok;
+			do {
 				ok = true;
-				for (var ii = 0; ii < mustBeAfter.length; ii++) {
-					if ($this.nextAll("*[data-name='" + mustBeAfter[ii] + "']").toArray().length > 0) {
-						$this.next().after($this);
-						ok = false;
-					}
+				var next = el.nextElementSibling;
+				while (next && mustBeAfter.includes(next.getAttribute('data-name'))) {
+					next.parentNode.insertBefore(next, el);
+					ok = false;
+					next = el.nextElementSibling;
 				}
 			} while (!ok)
 		}
 	});
-	$(".xonomy .attributes").each(function () { //determine whether each attribute list has any shy attributes:
-		if ($(this).children(".shy").toArray().length == 0) {
-			$(this.parentNode).children(".rollouter").hide().removeClass("rolledout");
-			$(this).removeClass("rolledout").css("display", "");
+	// Determine whether each attribute list has any shy attributes
+	document.querySelectorAll('.xonomy .attributes').forEach(function (el) {
+		if (el.querySelectorAll('.shy').length === 0) {
+			var rollouter = el.parentNode.querySelector('.rollouter');
+			if (rollouter) {
+				rollouter.style.display = 'none';
+				rollouter.classList.remove('rolledout');
+			}
+			el.classList.remove('rolledout');
+			el.style.display = '';
 		} else {
-			$(this.parentNode).children(".rollouter").show();
+			var rollouter = el.parentNode.querySelector('.rollouter');
+			if (rollouter) rollouter.style.display = '';
 		}
 	});
-	$(".xonomy .element").each(function () { //refresh display names, display values and captions:
-		var elSpec = Xonomy.docSpec.elements[this.getAttribute("data-name")];
-		if (elSpec.displayName) $(this).children(".tag").children(".name").html(Xonomy.textByLang(elSpec.displayName(Xonomy.harvestElement(this))));
+	// Refresh display names, display values and captions
+	document.querySelectorAll('.xonomy .element').forEach(function (el) {
+		var elSpec = Xonomy.docSpec.elements[el.getAttribute('data-name')];
+		if (elSpec.displayName) el.querySelector('.tag .name').innerHTML = Xonomy.textByLang(elSpec.displayName(Xonomy.harvestElement(el)));
 		if (elSpec.caption) {
-			var jsEl = Xonomy.harvestElement(this);
-			$(this).children(".inlinecaption").html(Xonomy.textByLang(elSpec.caption(jsEl)));
+			var jsEl = Xonomy.harvestElement(el);
+			var inlinecaption = el.querySelector('.inlinecaption');
+			if (inlinecaption) inlinecaption.innerHTML = Xonomy.textByLang(elSpec.caption(jsEl));
 		}
 		if (elSpec.displayValue) {
-			var jsEl = Xonomy.harvestElement(this);
-			if (!jsEl.hasElements()) $(this).children(".children").html(Xonomy.textByLang(Xonomy.renderDisplayText(jsEl.getText(), elSpec.displayValue(jsEl))));
+			var jsEl = Xonomy.harvestElement(el);
+			if (!jsEl.hasElements()) {
+				var children = el.querySelector('.children');
+				if (children) children.innerHTML = Xonomy.textByLang(Xonomy.renderDisplayText(jsEl.getText(), elSpec.displayValue(jsEl)));
+			}
 		}
-		$(this).children(".tag.opening").children(".attributes").children(".attribute").each(function () {
-			var atSpec = elSpec.attributes[this.getAttribute("data-name")];
-			if (atSpec.displayName) $(this).children(".name").html(Xonomy.textByLang(atSpec.displayName(Xonomy.harvestAttribute(this))));
-			if (atSpec.displayValue) $(this).children(".value").html(Xonomy.textByLang(atSpec.displayValue(Xonomy.harvestAttribute(this))));
-			if (atSpec.caption) $(this).children(".inlinecaption").html("&nbsp;" + Xonomy.textByLang(atSpec.caption(Xonomy.harvestAttribute(this))) + "&nbsp;");
+		el.querySelectorAll('.tag.opening > .attributes > .attribute').forEach(function (attrEl) {
+			var atSpec = elSpec.attributes[attrEl.getAttribute('data-name')];
+			if (atSpec.displayName) attrEl.querySelector('.name').innerHTML = Xonomy.textByLang(atSpec.displayName(Xonomy.harvestAttribute(attrEl)));
+			if (atSpec.displayValue) attrEl.querySelector('.value').innerHTML = Xonomy.textByLang(atSpec.displayValue(Xonomy.harvestAttribute(attrEl)));
+			if (atSpec.caption) attrEl.querySelector('.inlinecaption').innerHTML = "&nbsp;" + Xonomy.textByLang(atSpec.caption(Xonomy.harvestAttribute(attrEl))) + "&nbsp;";
 		});
 	});
 };
@@ -533,7 +558,7 @@ Xonomy.render = function (data, editor, docSpec) { //renders the contents of an 
 	$(editor).show();
 
 	if (docSpec.allowLayby) {
-		var laybyHtml = "<div class='layby closed empty' onclick='if($(this).hasClass(\"closed\")) Xonomy.openLayby()' ondragover='Xonomy.dragOver(event)' ondragleave='Xonomy.dragOut(event)' ondrop='Xonomy.drop(event)''>";
+		var laybyHtml = "<div class='layby closed empty' onclick='if($(this).hasClass(\"closed\")) Xonomy.openLayby()' ondragover='Xonomy.dragOver(event)' ondragleave='Xonomy.dragOut(event)' ondrop='Xonomy.drop(event)'''>";
 		laybyHtml += "<span class='button closer' onclick='Xonomy.closeLayby();'>&nbsp;</span>";
 		laybyHtml += "<span class='button purger' onclick='Xonomy.emptyLayby()'>&nbsp;</span>";
 		laybyHtml += "<div class='content'></div>";
