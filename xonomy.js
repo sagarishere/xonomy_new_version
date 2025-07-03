@@ -1837,15 +1837,27 @@ Xonomy.newElementAfter = function (htmlID, parameter) {
 	window.setTimeout(function () { Xonomy.setFocus(newElem.id, "openingTagName"); }, 100);
 };
 Xonomy.replace = function (htmlID, jsNode) {
-	var what = Xonomy.currentFocus;
+	const what = Xonomy.currentFocus;
 	Xonomy.clickoff();
-	var html = "";
+	let html = "";
 	if (jsNode.type == "element") html = Xonomy.renderElement(jsNode);
 	if (jsNode.type == "attribute") html = Xonomy.renderAttribute(jsNode);
 	if (jsNode.type == "text") html = Xonomy.renderText(jsNode);
-	$("#" + htmlID).replaceWith(html);
+
+	// Vanilla JS replacement for jQuery's replaceWith
+	const oldElem = document.getElementById(htmlID);
+	const tempDiv = document.createElement('div');
+	tempDiv.innerHTML = html;
+	const newElem = tempDiv.firstElementChild;
+	if (oldElem && newElem) {
+		oldElem.parentNode.replaceChild(newElem, oldElem);
+	}
 	Xonomy.changed();
-	window.setTimeout(function () { Xonomy.setFocus($(html).prop("id"), what); }, 100);
+	window.setTimeout(function () {
+		if (newElem && newElem.id) {
+			Xonomy.setFocus(newElem.id, what);
+		}
+	}, 100);
 };
 Xonomy.editRaw = function (htmlID, parameter) {
 	var div = document.getElementById(htmlID);
