@@ -2562,24 +2562,87 @@ Xonomy.goDown = function () {
 	if (Xonomy.currentFocus != "openingTagName" && Xonomy.currentFocus != "closingTagName" && Xonomy.currentFocus != "text" && Xonomy.currentFocus != "char") {
 		Xonomy.goRight();
 	} else {
-		var $el = $("#" + Xonomy.currentHtmlId);
-		var $me = $el;
-		if (Xonomy.currentFocus == "openingTagName") var $me = $el.find(".tag.opening").first();
-		if (Xonomy.currentFocus == "closingTagName") var $me = $el.find(".tag.closing").last();
+		var el = document.getElementById(Xonomy.currentHtmlId);
+		var me = el;
+		if (Xonomy.currentFocus == "openingTagName") {
+			me = el.querySelector('.tag.opening');
+		}
+		if (Xonomy.currentFocus == "closingTagName") {
+			var closings = el.querySelectorAll('.tag.closing');
+			me = closings[closings.length - 1];
+		}
 
-		var $candidates = $(".xonomy .focusable:visible").not(".attributeName").not(".attributeValue").not(".childrenCollapsed").not(".rollouter");
-		$candidates = $candidates.not(".char").add($el);
-		if (Xonomy.currentFocus == "openingTagName" && $el.hasClass("oneliner")) $candidates = $candidates.not("#" + Xonomy.currentHtmlId + " .tag.closing").not("#" + Xonomy.currentHtmlId + " .children *");
-		if (Xonomy.currentFocus == "openingTagName" && $el.hasClass("oneliner")) $candidates = $candidates.not("#" + Xonomy.currentHtmlId + " .textnode");
-		if (Xonomy.currentFocus == "openingTagName") $candidates = $candidates.not(".prominentChildren *");
-		if ($el.hasClass("collapsed")) $candidates = $candidates.not("#" + Xonomy.currentHtmlId + " .tag.closing");
-		if ($el.hasClass("textnode") && $el.closest(".prominentChildren").length == 0 && $(".xonomy").hasClass("nerd")) var $candidates = $el.closest(".element").find(".tag.closing:visible").last();
-		if ($el.hasClass("textnode") && $(".xonomy").hasClass("laic")) var $candidates = $el.closest(".element").next().find(".focusable:visible").first();
+		// Get all .xonomy .focusable:visible
+		var allCandidates = Array.from(document.querySelectorAll('.xonomy .focusable'));
+		var candidates = allCandidates.filter(function (c) {
+			// Only visible elements
+			return c.offsetParent !== null;
+		});
+		// Remove .attributeName, .attributeValue, .childrenCollapsed, .rollouter
+		candidates = candidates.filter(function (c) {
+			return !c.classList.contains('attributeName') &&
+				!c.classList.contains('attributeValue') &&
+				!c.classList.contains('childrenCollapsed') &&
+				!c.classList.contains('rollouter');
+		});
+		// Remove .char, but add el itself
+		candidates = candidates.filter(function (c) { return !c.classList.contains('char'); });
+		if (!candidates.includes(el)) candidates.push(el);
 
-		var $next = $candidates.eq($candidates.index($me[0]) + 1);
-		if ($next.hasClass("opening")) Xonomy.setFocus($next.closest(".element").prop("id"), "openingTagName");
-		else if ($next.hasClass("closing")) Xonomy.setFocus($next.closest(".element").prop("id"), "closingTagName");
-		else if ($next.hasClass("textnode")) Xonomy.setFocus($next.prop("id"), "text");
+		// If openingTagName and oneliner, remove .tag.closing and .children * and .textnode inside this element
+		if (Xonomy.currentFocus == "openingTagName" && el.classList.contains("oneliner")) {
+			var toRemove = el.querySelectorAll('.tag.closing, .children *');
+			candidates = candidates.filter(function (c) {
+				return !Array.from(toRemove).includes(c);
+			});
+			var textnodes = el.querySelectorAll('.textnode');
+			candidates = candidates.filter(function (c) {
+				return !Array.from(textnodes).includes(c);
+			});
+		}
+		// Remove .prominentChildren *
+		if (Xonomy.currentFocus == "openingTagName") {
+			var promChildren = el.querySelectorAll('.prominentChildren *');
+			candidates = candidates.filter(function (c) {
+				return !Array.from(promChildren).includes(c);
+			});
+		}
+		// If collapsed, remove .tag.closing inside this element
+		if (el.classList.contains("collapsed")) {
+			var tagClosings = el.querySelectorAll('.tag.closing');
+			candidates = candidates.filter(function (c) {
+				return !Array.from(tagClosings).includes(c);
+			});
+		}
+		// If textnode and not in .prominentChildren and .xonomy has class nerd, jump to last .tag.closing in closest .element
+		if (el.classList.contains("textnode") && !(el.closest('.prominentChildren')) && document.querySelector('.xonomy').classList.contains('nerd')) {
+			var closestElement = el.closest('.element');
+			var tagClosings = closestElement ? closestElement.querySelectorAll('.tag.closing') : [];
+			var visibleTagClosings = Array.from(tagClosings).filter(function (c) { return c.offsetParent !== null; });
+			if (visibleTagClosings.length > 0) {
+				var last = visibleTagClosings[visibleTagClosings.length - 1];
+				candidates = [last];
+			}
+		}
+		// If textnode and .xonomy has class laic, jump to first .focusable:visible in next .element
+		if (el.classList.contains("textnode") && document.querySelector('.xonomy').classList.contains('laic')) {
+			var closestElement = el.closest('.element');
+			var nextElement = closestElement ? closestElement.nextElementSibling : null;
+			if (nextElement) {
+				var nextFocusables = Array.from(nextElement.querySelectorAll('.focusable')).filter(function (c) { return c.offsetParent !== null; });
+				if (nextFocusables.length > 0) {
+					candidates = [nextFocusables[0]];
+				}
+			}
+		}
+		// Find index of me in candidates
+		var idx = candidates.indexOf(me);
+		var next = candidates[idx + 1];
+		if (next) {
+			if (next.classList.contains("opening")) Xonomy.setFocus(next.closest(".element").id, "openingTagName");
+			else if (next.classList.contains("closing")) Xonomy.setFocus(next.closest(".element").id, "closingTagName");
+			else if (next.classList.contains("textnode")) Xonomy.setFocus(next.id, "text");
+		}
 	}
 };
 Xonomy.goUp = function () {
