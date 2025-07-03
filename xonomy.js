@@ -534,11 +534,17 @@ Xonomy.harvestText = function (htmlText, jsParent) {
 Xonomy.harvestParentOf = function (js) {
 	var jsParent = null;
 	if (js.htmlID) {
-		var $parent = $("#" + js.htmlID).parent().closest(".element");
-		if ($parent.toArray().length == 1) {
-			jsParent = Xonomy.harvestElement($parent.toArray()[0]);
-			for (var i = 0; i < jsParent.attributes.length; i++) if (jsParent.attributes[i].htmlID == js.htmlID) jsParent.attributes[i] = js;
-			for (var i = 0; i < jsParent.children.length; i++) if (jsParent.children[i].htmlID == js.htmlID) jsParent.children[i] = js;
+		var elem = document.getElementById(js.htmlID);
+		if (elem) {
+			var parent = elem.parentElement;
+			while (parent && (!parent.classList || !parent.classList.contains('element'))) {
+				parent = parent.parentElement;
+			}
+			if (parent) {
+				jsParent = Xonomy.harvestElement(parent);
+				for (var i = 0; i < jsParent.attributes.length; i++) if (jsParent.attributes[i].htmlID == js.htmlID) jsParent.attributes[i] = js;
+				for (var i = 0; i < jsParent.children.length; i++) if (jsParent.children[i].htmlID == js.htmlID) jsParent.children[i] = js;
+			}
 		}
 	}
 	return jsParent;
