@@ -2569,13 +2569,19 @@ Xonomy.changed = function (jsElement) { //called when the document changes
 	Xonomy.docSpec.onchange(jsElement); //report that the document has changed
 };
 Xonomy.validate = function () {
-	var js = Xonomy.harvestElement($(".xonomy .element").toArray()[0], null);
-	$(".xonomy .invalid").removeClass("invalid");
+	// Get the first .xonomy .element
+	var rootElement = document.querySelector('.xonomy .element');
+	var js = Xonomy.harvestElement(rootElement, null);
+	// Remove 'invalid' class from all elements with it
+	document.querySelectorAll('.xonomy .invalid').forEach(function(el) {
+		el.classList.remove('invalid');
+	});
 	Xonomy.warnings = [];
 	Xonomy.docSpec.validate(js); //validate the document
 	for (var iWarning = 0; iWarning < Xonomy.warnings.length; iWarning++) {
 		var warning = Xonomy.warnings[iWarning];
-		$("#" + warning.htmlID).addClass("invalid");
+		var warnElem = document.getElementById(warning.htmlID);
+		if (warnElem) warnElem.classList.add('invalid');
 	}
 };
 Xonomy.warnings = []; //array of {htmlID: "", text: ""}
