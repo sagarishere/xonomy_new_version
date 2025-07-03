@@ -1505,8 +1505,10 @@ Xonomy.attributeMenu = function (htmlID) {
 };
 Xonomy.elementMenu = function (htmlID) {
 	Xonomy.harvestCache = {};
-	var elName = $("#" + htmlID).attr("data-name"); //obtain element's name
-	var spec = Xonomy.docSpec.elements[elName];
+	// Vanilla JS replacement for $("#" + htmlID).attr("data-name")
+	const elem = document.getElementById(htmlID);
+	const elName = elem ? elem.getAttribute("data-name") : null; //obtain element's name
+	const spec = Xonomy.docSpec.elements[elName];
 	function getter(indices) {
 		return 'Xonomy.docSpec.elements["' + elName + '"].menu[' + indices.join('].menu[') + ']';
 	}
