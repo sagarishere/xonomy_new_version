@@ -1618,18 +1618,38 @@ Xonomy.deleteElement = function (htmlID, parameter) {
 };
 Xonomy.newAttribute = function (htmlID, parameter) {
 	Xonomy.clickoff();
-	var $element = $("#" + htmlID);
-	var html = Xonomy.renderAttribute({ type: "attribute", name: parameter.name, value: parameter.value }, $element.data("name"));
-	$("#" + htmlID + " > .tag.opening > .attributes").append(html);
+	const element = document.getElementById(htmlID);
+	const parentName = element.getAttribute('data-name');
+	const html = Xonomy.renderAttribute({ type: "attribute", name: parameter.name, value: parameter.value }, parentName);
+
+	// Parse the HTML string and append the new attribute element
+	const tempDiv = document.createElement('div');
+	tempDiv.innerHTML = html;
+	const newAttrElem = tempDiv.firstElementChild;
+	const attributesContainer = element.querySelector('.tag.opening > .attributes');
+	attributesContainer.appendChild(newAttrElem);
+
 	Xonomy.changed();
-	//if the attribute we have just added is shy, force rollout:
-	if ($("#" + htmlID + " > .tag.opening > .attributes").children("[data-name='" + parameter.name + "'].shy").toArray().length > 0) {
-		if (!$("#" + htmlID).children(".tag.opening").children(".rollouter").hasClass("rolledout")) {
-			$("#" + htmlID).children(".tag.opening").children(".rollouter").addClass("rolledout");
-			$("#" + htmlID).children(".tag.opening").children(".attributes").addClass("rolledout").hide().slideDown("fast");
+
+	// If the attribute we have just added is shy, force rollout:
+	if (attributesContainer.querySelector('[data-name="' + parameter.name + '"].shy')) {
+		const tagOpening = element.querySelector('.tag.opening');
+		const rollouter = tagOpening ? tagOpening.querySelector('.rollouter') : null;
+		if (rollouter && !rollouter.classList.contains('rolledout')) {
+			rollouter.classList.add('rolledout');
+			attributesContainer.classList.add('rolledout');
+			attributesContainer.style.display = 'none';
+			// Simulate slideDown
+			setTimeout(function () { attributesContainer.style.display = ''; }, 0);
 		}
 	}
-	if (parameter.value == "") Xonomy.click($(html).prop("id"), "attributeValue"); else Xonomy.setFocus($(html).prop("id"), "attributeValue");
+
+	// Focus/click logic
+	if (parameter.value == "") {
+		Xonomy.click(newAttrElem.id, "attributeValue");
+	} else {
+		Xonomy.setFocus(newAttrElem.id, "attributeValue");
+	}
 };
 Xonomy.newElementChild = function (htmlID, parameter) {
 	Xonomy.clickoff();
@@ -2188,7 +2208,7 @@ Xonomy.key = function (event) {
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				Xonomy.scrollableContainer.scrollTop(Xonomy.scrollableContainer.scrollTop() - 60);
-			} else if ((event.ctrlKey || event.metaKey) && (["ArrowLeft","ArrowRight"].indexOf(event.key) > -1 || [37,39].indexOf(event.keyCode) > -1)) { //arrow keys with Ctrl or Cmd (Mac OS)
+			} else if ((event.ctrlKey || event.metaKey) && (["ArrowLeft", "ArrowRight"].indexOf(event.key) > -1 || [37, 39].indexOf(event.keyCode) > -1)) { //arrow keys with Ctrl or Cmd (Mac OS)
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				var $el = $("#" + Xonomy.currentHtmlId);
@@ -2200,7 +2220,7 @@ Xonomy.key = function (event) {
 						Xonomy.plusminus(Xonomy.currentHtmlId);
 					}
 				}
-			} else if ((["ArrowLeft","ArrowUp","ArrowRight","ArrowDown"].indexOf(event.key) > -1 || [37,38,39,40].indexOf(event.keyCode) > -1) && !event.altKey) { //arrow keys
+			} else if ((["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"].indexOf(event.key) > -1 || [37, 38, 39, 40].indexOf(event.keyCode) > -1) && !event.altKey) { //arrow keys
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				if (!Xonomy.currentHtmlId) { //nothing is current yet
@@ -2359,3 +2379,4 @@ Xonomy.goLeft = function () {
 	if ($next.hasClass("rollouter")) Xonomy.setFocus($next.closest(".element").prop("id"), "rollouter");
 	if ($next.hasClass("char")) Xonomy.setFocus($next.prop("id"), "char");
 };
+
