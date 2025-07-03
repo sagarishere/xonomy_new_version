@@ -1986,54 +1986,54 @@ Xonomy.moveElementDown = function (htmlID) {
 	window.setTimeout(function () { Xonomy.setFocus(htmlID, "openingTagName"); }, 100);
 };
 Xonomy.canMoveElementUp = function (htmlID) {
-    let ret = false;
+	let ret = false;
 	const me = document.getElementById(htmlID);
 	// Check if the element is inside a layby > .content
 	let inLaybyContent = false;
 	let parent = me.parentElement;
-    while (parent) {
-        if (parent.classList && parent.classList.contains('content') && parent.parentElement && parent.parentElement.classList.contains('layby')) {
-            inLaybyContent = true;
-            break;
-        }
-        parent = parent.parentElement;
-    }
-    if (!inLaybyContent) {
-        Xonomy.insertDropTargets(htmlID);
+	while (parent) {
+		if (parent.classList && parent.classList.contains('content') && parent.parentElement && parent.parentElement.classList.contains('layby')) {
+			inLaybyContent = true;
+			break;
+		}
+		parent = parent.parentElement;
+	}
+	if (!inLaybyContent) {
+		Xonomy.insertDropTargets(htmlID);
 		// Get all .elementDropper elements in .xonomy, then add 'me' to the end
 		const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
-        droppers.push(me);
+		droppers.push(me);
 		// Find the index of 'me' in the array
 		const i = droppers.indexOf(me) - 1;
-        if (i >= 0) ret = true;
-        Xonomy.dragend();
-    }
-    return ret;
+		if (i >= 0) ret = true;
+		Xonomy.dragend();
+	}
+	return ret;
 };
 Xonomy.canMoveElementDown = function (htmlID) {
-    let ret = false;
-    const me = document.getElementById(htmlID);
-    // Check if the element is inside a layby > .content
-    let inLaybyContent = false;
-    let parent = me.parentElement;
-    while (parent) {
-        if (parent.classList && parent.classList.contains('content') && parent.parentElement && parent.parentElement.classList.contains('layby')) {
-            inLaybyContent = true;
-            break;
-        }
-        parent = parent.parentElement;
-    }
-    if (!inLaybyContent) {
-        Xonomy.insertDropTargets(htmlID);
-        // Get all .elementDropper elements in .xonomy, then add 'me' to the end
-        const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
-        droppers.push(me);
-        // Find the index of 'me' in the array
-        const i = droppers.indexOf(me) + 1;
-        if (i < droppers.length) ret = true;
-        Xonomy.dragend();
-    }
-    return ret;
+	let ret = false;
+	const me = document.getElementById(htmlID);
+	// Check if the element is inside a layby > .content
+	let inLaybyContent = false;
+	let parent = me.parentElement;
+	while (parent) {
+		if (parent.classList && parent.classList.contains('content') && parent.parentElement && parent.parentElement.classList.contains('layby')) {
+			inLaybyContent = true;
+			break;
+		}
+		parent = parent.parentElement;
+	}
+	if (!inLaybyContent) {
+		Xonomy.insertDropTargets(htmlID);
+		// Get all .elementDropper elements in .xonomy, then add 'me' to the end
+		const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
+		droppers.push(me);
+		// Find the index of 'me' in the array
+		const i = droppers.indexOf(me) + 1;
+		if (i < droppers.length) ret = true;
+		Xonomy.dragend();
+	}
+	return ret;
 };
 Xonomy.mergeWithPrevious = function (htmlID, parameter) {
 	const domDead = document.getElementById(htmlID);
@@ -2049,43 +2049,70 @@ Xonomy.mergeWithNext = function (htmlID, parameter) {
 };
 Xonomy.mergeElements = function (elDead, elLive) {
 	Xonomy.clickoff();
-	var domDead = document.getElementById(elDead.htmlID);
+	const domDead = document.getElementById(elDead.htmlID);
 	if (elLive && elLive.type == "element") {
-		for (var i = 0; i < elDead.attributes.length; i++) { //merge attributes
-			var atDead = elDead.attributes[i];
+		const domLive = document.getElementById(elLive.htmlID);
+		// Merge attributes
+		for (var i = 0; i < elDead.attributes.length; i++) {
+			const atDead = elDead.attributes[i];
 			if (!elLive.hasAttribute(atDead.name) || elLive.getAttributeValue(atDead.name) == "") {
 				elLive.setAttribute(atDead.name, atDead.value);
-				if (elLive.hasAttribute(atDead.name)) $("#" + elLive.getAttribute(atDead.name).htmlID).remove();
-				$("#" + elLive.htmlID).find(".attributes").first().append($("#" + elDead.attributes[i].htmlID));
+				// Remove old attribute DOM node if it exists
+				var attrObj = elLive.getAttribute(atDead.name);
+				if (attrObj && attrObj.htmlID) {
+					var domAttr = document.getElementById(attrObj.htmlID);
+					if (domAttr) domAttr.remove();
+				}
+				// Move attribute DOM node from elDead to elLive
+				var domAttrDead = document.getElementById(atDead.htmlID);
+				if (domAttrDead && domLive) {
+					var attrContainer = domLive.querySelector('.tag.opening > .attributes');
+					if (attrContainer) attrContainer.appendChild(domAttrDead);
+				}
 			}
 		}
-		var specDead = Xonomy.docSpec.elements[elDead.name];
-		var specLive = Xonomy.docSpec.elements[elLive.name];
+		const specDead = Xonomy.docSpec.elements[elDead.name];
+		const specLive = Xonomy.docSpec.elements[elLive.name];
+		const domLiveChildren = domLive ? domLive.querySelector('.children') : null;
 		if (specDead.hasText(elDead) || specLive.hasText(elLive)) { //if either element is meant to have text, concatenate their children
 			if (elLive.getText() != "" && elDead.getText() != "") {
 				elLive.addText(" ");
-				$("#" + elLive.htmlID).find(".children").first().append(Xonomy.renderText({ type: "text", value: " " }));
+				if (domLiveChildren) {
+					// Create a new text node DOM element for the space
+					const tempDiv = document.createElement('div');
+					tempDiv.innerHTML = Xonomy.renderText({ type: "text", value: " " });
+					const spaceNode = tempDiv.firstElementChild;
+					if (spaceNode) domLiveChildren.appendChild(spaceNode);
+				}
 			}
 			for (var i = 0; i < elDead.children.length; i++) {
 				elLive.children.push(elDead.children[i]);
-				$("#" + elLive.htmlID).find(".children").first().append($("#" + elDead.children[i].htmlID));
+				var childHtmlID = elDead.children[i].htmlID;
+				if (childHtmlID) {
+					var domChild = document.getElementById(childHtmlID);
+					if (domChild && domLiveChildren) domLiveChildren.appendChild(domChild);
+				}
 			}
 		} else { //if no text, merge their children one by one
 			for (var i = 0; i < elDead.children.length; i++) {
-				var xmlDeadChild = Xonomy.js2xml(elDead.children[i]);
+				const xmlDeadChild = Xonomy.js2xml(elDead.children[i]);
 				var has = false;
-				for (y = 0; y < elLive.children.length; y++) {
-					var xmlLiveChild = Xonomy.js2xml(elLive.children[y]);
+				for (let y = 0; y < elLive.children.length; y++) {
+					const xmlLiveChild = Xonomy.js2xml(elLive.children[y]);
 					if (xmlDeadChild == xmlLiveChild) { has = true; break; }
 				}
 				if (!has) {
 					elLive.children.push(elDead.children[i]);
-					$("#" + elLive.htmlID).find(".children").first().append($("#" + elDead.children[i].htmlID));
-					Xonomy.elementReorder(elDead.children[i].htmlID);
+					var childHtmlID = elDead.children[i].htmlID;
+					if (childHtmlID) {
+						var domChild = document.getElementById(childHtmlID);
+						if (domChild && domLiveChildren) domLiveChildren.appendChild(domChild);
+						Xonomy.elementReorder(childHtmlID);
+					}
 				}
 			}
 		}
-		domDead.parentNode.removeChild(domDead);
+		if (domDead && domDead.parentNode) domDead.parentNode.removeChild(domDead);
 		Xonomy.changed();
 		window.setTimeout(function () { Xonomy.setFocus(elLive.htmlID, "openingTagName"); }, 100);
 	} else {
