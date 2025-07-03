@@ -2586,12 +2586,12 @@ Xonomy.textByLang = function (str) {
 	var ret = str;
 	var segs = str.split("|");
 	for (var i = 0; i < segs.length; i++) {
-		var seg = $.trim(segs[i]);
+		var seg = segs[i].trim();
 		if (seg.indexOf(Xonomy.lang + ":") == 0) {
 			ret = seg.substring((Xonomy.lang + ":").length, ret.length);
 		}
 	}
-	ret = $.trim(ret);
+	ret = ret.trim();
 	return ret;
 };
 
