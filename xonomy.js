@@ -1897,11 +1897,42 @@ Xonomy.duplicateElement = function (htmlID) {
 	html = html.replace(/ id=['"]/g, function (x) { return x + prefixID + "_" });
 	html = html.replace(/Xonomy\.click\(['"]/g, function (x) { return x + prefixID + "_" });
 	html = html.replace(/Xonomy\.plusminus\(['"]/g, function (x) { return x + prefixID + "_" });
-	var $html = $(html).hide();
-	$("#" + htmlID).after($html);
+
+	// Create a DOM element from the HTML string
+	var tempDiv = document.createElement('div');
+	tempDiv.innerHTML = html;
+	var newElem = tempDiv.firstElementChild;
+	newElem.style.opacity = 0;
+	newElem.style.display = '';
+
+	// Insert the new element after the original
+	var origElem = document.getElementById(htmlID);
+	if (origElem.nextSibling) {
+		origElem.parentNode.insertBefore(newElem, origElem.nextSibling);
+	} else {
+		origElem.parentNode.appendChild(newElem);
+	}
+
 	Xonomy.changed();
-	$html.fadeIn();
-	window.setTimeout(function () { Xonomy.setFocus($html.prop("id"), "openingTagName"); }, 100);
+
+	// Fade in animation (same as newElementChild)
+	let opacity = 0;
+	const fadeDuration = 400; // ms
+	let start = null;
+	function fadeInStep(timestamp) {
+		if (!start) start = timestamp;
+		const elapsed = timestamp - start;
+		opacity = Math.min(elapsed / fadeDuration, 1);
+		newElem.style.opacity = opacity;
+		if (elapsed < fadeDuration) {
+			requestAnimationFrame(fadeInStep);
+		} else {
+			newElem.style.opacity = 1;
+		}
+	}
+	requestAnimationFrame(fadeInStep);
+
+	window.setTimeout(function () { Xonomy.setFocus(newElem.id, "openingTagName"); }, 100);
 };
 Xonomy.moveElementUp = function (htmlID) {
 	Xonomy.clickoff();
