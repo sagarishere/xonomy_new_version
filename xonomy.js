@@ -2511,10 +2511,18 @@ Xonomy.emptyLayby = function () {
 	});
 };
 Xonomy.recomputeLayby = function () {
-	if ($(".xonomy .layby > .content > *").length > 0) {
-		$(".xonomy .layby").removeClass("empty").addClass("nonempty");
+	var laybyContentChildren = document.querySelectorAll('.xonomy .layby > .content > *');
+	var laybyElements = document.querySelectorAll('.xonomy .layby');
+	if (laybyContentChildren.length > 0) {
+		laybyElements.forEach(function (el) {
+			el.classList.remove('empty');
+			el.classList.add('nonempty');
+		});
 	} else {
-		$(".xonomy .layby").removeClass("nonempty").addClass("empty");
+		laybyElements.forEach(function (el) {
+			el.classList.remove('nonempty');
+			el.classList.add('empty');
+		});
 	}
 }
 Xonomy.newElementLayby = function (xml) {
