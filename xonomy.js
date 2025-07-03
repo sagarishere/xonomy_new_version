@@ -979,27 +979,41 @@ Xonomy.plusminus = function (htmlID, forceExpand) {
 	}, 300);
 };
 Xonomy.updateCollapsoid = function (htmlID) {
-	var $element = $("#" + htmlID);
-	var whisper = "";
-	var elementName = $element.data("name");
-	var spec = Xonomy.docSpec.elements[elementName];
-	if (spec.collapsoid) {
-		whisper = spec.collapsoid(Xonomy.harvestElement($element.toArray()[0]));
-	} else {
-		var abbreviated = false;
-		//		$element.find(".textnode").not(".prominentChildren *").each(function(){
-		$element.find(".textnode").not($element.find("> .prominentChildren *")).each(function () {
-			var txt = Xonomy.harvestText(this).value;
-			for (var i = 0; i < txt.length; i++) {
-				if (whisper.length < 35) whisper += txt[i]; else abbreviated = true;
-			}
-			whisper += " ";
-		});
-		whisper = whisper.replace(/  +/g, " ").replace(/ +$/g, "").replace(/^ +/g, "");
-		if (abbreviated && !$element.hasClass("oneliner") && whisper != "...") whisper += "...";
-	}
-	if (whisper == "" || !whisper) whisper = "...";
-	$element.children(".childrenCollapsed").html(whisper);
+    var element = document.getElementById(htmlID);
+    var whisper = "";
+    var elementName = element.getAttribute("data-name");
+    var spec = Xonomy.docSpec.elements[elementName];
+    if (spec.collapsoid) {
+        whisper = spec.collapsoid(Xonomy.harvestElement(element));
+    } else {
+        var abbreviated = false;
+        // Find all .textnode descendants of element, excluding those inside any direct child .prominentChildren
+        var textnodes = Array.from(element.querySelectorAll('.textnode'));
+        // Get all direct children .prominentChildren of element
+        var directProminentChildren = Array.from(element.children).filter(function(child) {
+            return child.classList && child.classList.contains('prominentChildren');
+        });
+        // For each textnode, check if it is NOT a descendant of any directProminentChildren
+        textnodes.forEach(function (textnode) {
+            var insideProminent = directProminentChildren.some(function(promChild) {
+                return promChild.contains(textnode);
+            });
+            if (!insideProminent) {
+                var txt = Xonomy.harvestText(textnode).value;
+                for (var i = 0; i < txt.length; i++) {
+                    if (whisper.length < 35) whisper += txt[i]; else abbreviated = true;
+                }
+                whisper += " ";
+            }
+        });
+        whisper = whisper.replace(/  +/g, " ").replace(/ +$/g, "").replace(/^ +/g, "");
+        if (abbreviated && !element.classList.contains("oneliner") && whisper != "...") whisper += "...";
+    }
+    if (whisper == "" || !whisper) whisper = "...";
+    var childrenCollapsed = element.querySelector(':scope > .childrenCollapsed');
+    if (childrenCollapsed) {
+        childrenCollapsed.innerHTML = whisper;
+    }
 };
 
 Xonomy.lastClickWhat = "";
