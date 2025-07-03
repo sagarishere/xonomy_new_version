@@ -1952,15 +1952,34 @@ Xonomy.moveElementUp = function (htmlID) {
 };
 Xonomy.moveElementDown = function (htmlID) {
 	Xonomy.clickoff();
-	var $me = $("#" + htmlID);
-	if ($me.closest(".layby > .content").length == 0) {
+	const me = document.getElementById(htmlID);
+	if (!me.closest('.layby > .content')) {
 		Xonomy.insertDropTargets(htmlID);
-		var $droppers = $(".xonomy .elementDropper").add($me);
-		var i = $droppers.index($me[0]) + 1;
-		if (i < $droppers.length) {
-			$($droppers[i]).replaceWith($me);
+		const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
+		droppers.push(me);
+		const i = droppers.indexOf(me) + 1;
+		if (i < droppers.length) {
+			const dropper = droppers[i];
+			dropper.parentNode.replaceChild(me, dropper);
 			Xonomy.changed();
-			$me.hide().fadeIn();
+			// Fade in animation
+			me.style.opacity = 0;
+			me.style.display = '';
+			let opacity = 0;
+			const fadeDuration = 400;
+			let start = null;
+			function fadeInStep(timestamp) {
+				if (!start) start = timestamp;
+				const elapsed = timestamp - start;
+				opacity = Math.min(elapsed / fadeDuration, 1);
+				me.style.opacity = opacity;
+				if (elapsed < fadeDuration) {
+					requestAnimationFrame(fadeInStep);
+				} else {
+					me.style.opacity = 1;
+				}
+			}
+			requestAnimationFrame(fadeInStep);
 		}
 		Xonomy.dragend();
 	}
