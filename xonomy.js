@@ -1862,11 +1862,12 @@ Xonomy.replace = function (htmlID, jsNode) {
 Xonomy.editRaw = function (htmlID, parameter) {
 	var div = document.getElementById(htmlID);
 	var jsElement = Xonomy.harvestElement(div);
-	if (parameter.fromJs) var txt = parameter.fromJs(jsElement);
-	else if (parameter.fromXml) var txt = parameter.fromXml(Xonomy.js2xml(jsElement));
-	else var txt = Xonomy.js2xml(jsElement);
+	var txt;
+	if (parameter.fromJs) txt = parameter.fromJs(jsElement);
+	else if (parameter.fromXml) txt = parameter.fromXml(Xonomy.js2xml(jsElement));
+	else txt = Xonomy.js2xml(jsElement);
 	document.body.appendChild(Xonomy.makeBubble(Xonomy.askLongString(txt))); //create bubble
-	Xonomy.showBubble($(div)); //anchor bubble to element
+	Xonomy.showBubble(div); //anchor bubble to element
 	Xonomy.answer = function (val) {
 		var jsNewElement;
 		if (parameter.toJs) jsNewElement = parameter.toJs(val, jsElement);
@@ -1875,10 +1876,18 @@ Xonomy.editRaw = function (htmlID, parameter) {
 
 		var obj = document.getElementById(htmlID);
 		var html = Xonomy.renderElement(jsNewElement);
-		$(obj).replaceWith(html);
+		// Replace obj with the new element (vanilla JS equivalent of $(obj).replaceWith(html))
+		var tempDiv = document.createElement('div');
+		tempDiv.innerHTML = html;
+		var newElem = tempDiv.firstElementChild;
+		if (obj && newElem) {
+			obj.parentNode.replaceChild(newElem, obj);
+		}
 		Xonomy.clickoff();
 		Xonomy.changed();
-		window.setTimeout(function () { Xonomy.setFocus($(html).prop("id"), "openingTagName"); }, 100);
+		window.setTimeout(function () {
+			Xonomy.setFocus(newElem.id, "openingTagName");
+		}, 100);
 	};
 };
 Xonomy.duplicateElement = function (htmlID) {
