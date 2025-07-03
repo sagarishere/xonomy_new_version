@@ -1628,72 +1628,72 @@ Xonomy.newElementChild = function (htmlID, parameter) {
 	window.setTimeout(function () { Xonomy.setFocus(newElem.id, "openingTagName"); }, 100);
 };
 Xonomy.elementReorder = function (htmlID) {
-    const that = document.getElementById(htmlID);
+	const that = document.getElementById(htmlID);
 	const elSpec = Xonomy.docSpec.elements[that.getAttribute("data-name")];
-    // Helper to get all previous siblings with a given data-name
-    function prevAllWithDataName(elem, dataName) {
-        const result = [];
+	// Helper to get all previous siblings with a given data-name
+	function prevAllWithDataName(elem, dataName) {
+		const result = [];
 		let prev = elem.previousElementSibling;
-        while (prev) {
-            if (prev.getAttribute && prev.getAttribute("data-name") === dataName) {
-                result.push(prev);
-            }
-            prev = prev.previousElementSibling;
-        }
-        return result;
-    }
-    // Helper to get all next siblings with a given data-name
-    function nextAllWithDataName(elem, dataName) {
-        const result = [];
+		while (prev) {
+			if (prev.getAttribute && prev.getAttribute("data-name") === dataName) {
+				result.push(prev);
+			}
+			prev = prev.previousElementSibling;
+		}
+		return result;
+	}
+	// Helper to get all next siblings with a given data-name
+	function nextAllWithDataName(elem, dataName) {
+		const result = [];
 		let next = elem.nextElementSibling;
-        while (next) {
-            if (next.getAttribute && next.getAttribute("data-name") === dataName) {
-                result.push(next);
-            }
-            next = next.nextElementSibling;
-        }
-        return result;
-    }
-    if (elSpec.mustBeBefore) { //is it after an element it cannot be after? then move it up until it's not!
-        var jsElement = Xonomy.harvestElement(that);
+		while (next) {
+			if (next.getAttribute && next.getAttribute("data-name") === dataName) {
+				result.push(next);
+			}
+			next = next.nextElementSibling;
+		}
+		return result;
+	}
+	if (elSpec.mustBeBefore) { //is it after an element it cannot be after? then move it up until it's not!
+		var jsElement = Xonomy.harvestElement(that);
 		const mustBeBefore = elSpec.mustBeBefore(jsElement);
-        var ok;
-        do {
-            ok = true;
-            for (var ii = 0; ii < mustBeBefore.length; ii++) {
-                const prevs = prevAllWithDataName(that, mustBeBefore[ii]);
-                if (prevs.length > 0) {
-                    // Move 'that' before its previous sibling
-                    var prev = that.previousElementSibling;
-                    if (prev) {
-                        prev.parentNode.insertBefore(that, prev);
-                        ok = false;
-                    }
-                }
-            }
-        } while (!ok)
-    }
-    if (elSpec.mustBeAfter) { //is it before an element it cannot be before? then move it down until it's not!
-        var jsElement = Xonomy.harvestElement(that);
+		var ok;
+		do {
+			ok = true;
+			for (var ii = 0; ii < mustBeBefore.length; ii++) {
+				const prevs = prevAllWithDataName(that, mustBeBefore[ii]);
+				if (prevs.length > 0) {
+					// Move 'that' before its previous sibling
+					var prev = that.previousElementSibling;
+					if (prev) {
+						prev.parentNode.insertBefore(that, prev);
+						ok = false;
+					}
+				}
+			}
+		} while (!ok)
+	}
+	if (elSpec.mustBeAfter) { //is it before an element it cannot be before? then move it down until it's not!
+		var jsElement = Xonomy.harvestElement(that);
 		const mustBeAfter = elSpec.mustBeAfter(jsElement);
-        var ok;
-        do {
-            ok = true;
-            for (var ii = 0; ii < mustBeAfter.length; ii++) {
-                const nexts = nextAllWithDataName(that, mustBeAfter[ii]);
-                if (nexts.length > 0) {
-                    // Move 'that' after its next sibling
-                    var next = that.nextElementSibling;
-                    if (next && next.nextSibling) {
-                        next.parentNode.insertBefore(that, next.nextSibling);
-                    } else if (next) {
-                        next.parentNode.appendChild(that);
-                    }
-                    ok = false;
-                }
-            }
-        } while (!ok)
-    }
+		var ok;
+		do {
+			ok = true;
+			for (var ii = 0; ii < mustBeAfter.length; ii++) {
+				const nexts = nextAllWithDataName(that, mustBeAfter[ii]);
+				if (nexts.length > 0) {
+					// Move 'that' after its next sibling
+					var next = that.nextElementSibling;
+					if (next && next.nextSibling) {
+						next.parentNode.insertBefore(that, next.nextSibling);
+					} else if (next) {
+						next.parentNode.appendChild(that);
+					}
+					ok = false;
+				}
+			}
+		} while (!ok)
+	}
 };
 Xonomy.newElementBefore = function (htmlID, parameter) {
 	Xonomy.clickoff();
