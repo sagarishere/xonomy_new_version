@@ -1142,10 +1142,16 @@ Xonomy.clickoff = function () { //event handler for the document-wide click-off 
 		Xonomy.currentHtmlId = null;
 		Xonomy.currentFocus = null;
 		Xonomy.destroyBubble();
-		$(".xonomy .current").removeClass("current");
-		$(".xonomy .focused").removeClass("focused");
+		document.querySelectorAll('.xonomy .current').forEach(function(el) {
+			el.classList.remove('current');
+		});
+		document.querySelectorAll('.xonomy .focused').forEach(function(el) {
+			el.classList.remove('focused');
+		});
 		if (Xonomy.clearChars) {
-			$(".xonomy .char.on").removeClass("on");
+			document.querySelectorAll('.xonomy .char.on').forEach(function(el) {
+				el.classList.remove('on');
+			});
 			Xonomy.clearChars = false;
 		}
 	}
