@@ -932,84 +932,92 @@ Xonomy.click = function (htmlID, what) {
 		Xonomy.lastClickWhat = what;
 		Xonomy.currentHtmlId = htmlID;
 		Xonomy.currentFocus = what;
-		$(".xonomy .char.on").removeClass("on");
-		var isReadOnly = ($("#" + htmlID).hasClass("readonly") || $("#" + htmlID).closest(".readonly").toArray().length > 0);
+		// $(".xonomy .char.on").removeClass("on");
+		var charOn = document.querySelectorAll('.xonomy .char.on');
+		charOn.forEach(function (el) { el.classList.remove('on'); });
+		var elem = document.getElementById(htmlID);
+		var isReadOnly = elem.classList.contains("readonly") || elem.closest('.readonly') !== null;
 		if (!isReadOnly && (what == "openingTagName" || what == "closingTagName")) {
-			$("#" + htmlID).addClass("current"); //make the element current
+			elem.classList.add("current"); //make the element current
 			var content = Xonomy.elementMenu(htmlID); //compose bubble content
 			if (content != "" && content != "<div class='menu'></div>") {
 				document.body.appendChild(Xonomy.makeBubble(content)); //create bubble
-				if (what == "openingTagName") Xonomy.showBubble($("#" + htmlID + " > .tag.opening > .name")); //anchor bubble to opening tag
-				if (what == "closingTagName") Xonomy.showBubble($("#" + htmlID + " > .tag.closing > .name")); //anchor bubble to closing tag
+				if (what == "openingTagName") Xonomy.showBubble(elem.querySelector('> .tag.opening > .name'));
+				if (what == "closingTagName") Xonomy.showBubble(elem.querySelector('> .tag.closing > .name'));
 			}
-			var surrogateElem = Xonomy.harvestElement(document.getElementById(htmlID));
-			$("#" + htmlID).trigger("xonomy-click-element", [surrogateElem]);
+			var surrogateElem = Xonomy.harvestElement(elem);
+			// Trigger custom event
+			var event = new CustomEvent('xonomy-click-element', { detail: surrogateElem });
+			elem.dispatchEvent(event);
 		}
 		if (!isReadOnly && what == "attributeName") {
-			$("#" + htmlID).addClass("current"); //make the attribute current
+			elem.classList.add("current"); //make the attribute current
 			var content = Xonomy.attributeMenu(htmlID); //compose bubble content
 			if (content != "" && content != "<div class='menu'></div>") {
 				document.body.appendChild(Xonomy.makeBubble(content)); //create bubble
-				Xonomy.showBubble($("#" + htmlID + " > .name")); //anchor bubble to attribute name
+				Xonomy.showBubble(elem.querySelector('> .name'));
 			}
-			var surrogateAttr = Xonomy.harvestAttribute(document.getElementById(htmlID));
-			$("#" + htmlID).trigger("xonomy-click-attribute", [surrogateAttr]);
+			var surrogateAttr = Xonomy.harvestAttribute(elem);
+			var event = new CustomEvent('xonomy-click-attribute', { detail: surrogateAttr });
+			elem.dispatchEvent(event);
 		}
 		if (!isReadOnly && what == "attributeValue") {
-			$("#" + htmlID + " > .valueContainer").addClass("current"); //make attribute value current
-			var name = $("#" + htmlID).attr("data-name"); //obtain attribute's name
-			var value = $("#" + htmlID).attr("data-value"); //obtain current value
-			var elName = $("#" + htmlID).closest(".element").attr("data-name");
+			var valueContainer = elem.querySelector('> .valueContainer');
+			if (valueContainer) valueContainer.classList.add("current"); //make attribute value current
+			var name = elem.getAttribute("data-name"); //obtain attribute's name
+			var value = elem.getAttribute("data-value"); //obtain current value
+			var elName = elem.closest('.element').getAttribute('data-name');
 			Xonomy.verifyDocSpecAttribute(elName, name);
 			var spec = Xonomy.docSpec.elements[elName].attributes[name];
-			var jsMe = Xonomy.harvestAttribute(document.getElementById(htmlID));
+			var jsMe = Xonomy.harvestAttribute(elem);
 			var content = spec.asker(value, spec.askerParameter(jsMe), jsMe); //compose bubble content
 			if (content != "" && content != "<div class='menu'></div>") {
 				document.body.appendChild(Xonomy.makeBubble(content)); //create bubble
-				Xonomy.showBubble($("#" + htmlID + " > .valueContainer > .value")); //anchor bubble to value
+				Xonomy.showBubble(elem.querySelector('> .valueContainer > .value'));
 				Xonomy.answer = function (val) {
-					var obj = document.getElementById(htmlID);
 					var html = Xonomy.renderAttribute({ type: "attribute", name: name, value: val }, elName);
-					$(obj).replaceWith(html);
+					elem.outerHTML = html;
 					Xonomy.changed();
-					window.setTimeout(function () { Xonomy.clickoff(); Xonomy.setFocus($(html).prop("id"), what) }, 100);
+					window.setTimeout(function () { Xonomy.clickoff(); Xonomy.setFocus(document.getElementById(htmlID).id, what) }, 100);
 				};
 			}
 		}
 		if (!isReadOnly && what == "text") {
-			$("#" + htmlID).addClass("current");
-			var value = $("#" + htmlID).attr("data-value"); //obtain current value
-			var elName = $("#" + htmlID).closest(".element").attr("data-name");
+			elem.classList.add("current");
+			var value = elem.getAttribute("data-value"); //obtain current value
+			var elName = elem.closest('.element').getAttribute('data-name');
 			var spec = Xonomy.docSpec.elements[elName];
+			var content;
 			if (typeof (spec.asker) != "function") {
-				var content = Xonomy.askLongString(value, null, Xonomy.harvestElement($("#" + htmlID).closest(".element").toArray()[0])); //compose bubble content
+				content = Xonomy.askLongString(value, null, Xonomy.harvestElement(elem.closest('.element'))); //compose bubble content
 			} else {
-				var jsMe = Xonomy.harvestElement($("#" + htmlID).closest(".element").toArray()[0]);
-				var content = spec.asker(value, spec.askerParameter(jsMe), jsMe); //use specified asker
+				var jsMe = Xonomy.harvestElement(elem.closest('.element'));
+				content = spec.asker(value, spec.askerParameter(jsMe), jsMe); //use specified asker
 			}
 			if (content != "" && content != "<div class='menu'></div>") {
 				document.body.appendChild(Xonomy.makeBubble(content)); //create bubble
-				Xonomy.showBubble($("#" + htmlID + " > .value")); //anchor bubble to value
+				Xonomy.showBubble(elem.querySelector('> .value'));
 				Xonomy.answer = function (val) {
-					var obj = document.getElementById(htmlID);
 					var jsText = { type: "text", value: val };
 					var html = Xonomy.renderText(jsText);
-					{
-						var prevHtmlId = $(obj).prev(".element").prop("id")
-						var prevWhat = "closingTagName";
-						if (!prevHtmlId) {
-							prevHtmlId = $(obj).closest(".element").prop("id");
-							prevWhat = "openingTagName";
-						}
+					var prevHtmlId, prevWhat;
+					var prevElem = elem.previousElementSibling;
+					if (prevElem && prevElem.classList.contains('element')) {
+						prevHtmlId = prevElem.id;
+						prevWhat = "closingTagName";
+					} else {
+						var closestElem = elem.closest('.element');
+						prevHtmlId = closestElem ? closestElem.id : null;
+						prevWhat = "openingTagName";
 					}
-					$(obj).replaceWith(html);
+					elem.outerHTML = html;
 					Xonomy.changed(Xonomy.harvestText(document.getElementById(jsText.htmlID)));
 					window.setTimeout(function () {
-						var id = $(html).prop("id");
+						var newElem = document.getElementById(jsText.htmlID);
 						Xonomy.clickoff();
-						if ($("#" + id).length > 0) {
-							Xonomy.setFocus($(html).prop("id"), what);
-						} else {
+						if (newElem) {
+							Xonomy.setFocus(newElem.id, what);
+						} else if (prevHtmlId) {
 							Xonomy.setFocus(prevHtmlId, prevWhat);
 						}
 					}, 100);
@@ -1017,7 +1025,6 @@ Xonomy.click = function (htmlID, what) {
 			}
 		}
 		if (what == "warner") {
-			//$("#"+htmlID).addClass("current");
 			var content = ""; //compose bubble content
 			for (var iWarning = 0; iWarning < Xonomy.warnings.length; iWarning++) {
 				var warning = Xonomy.warnings[iWarning];
@@ -1026,19 +1033,27 @@ Xonomy.click = function (htmlID, what) {
 				}
 			}
 			document.body.appendChild(Xonomy.makeBubble(content)); //create bubble
-			Xonomy.showBubble($("#" + htmlID + " .warner .inside").first()); //anchor bubble to warner
+			var warnerInside = elem.querySelector('.warner .inside');
+			if (warnerInside) Xonomy.showBubble(warnerInside); //anchor bubble to warner
 		}
-		if (what == "rollouter" && $("#" + htmlID + " > .tag.opening > .attributes").children(".shy").toArray().length > 0) {
-			if ($("#" + htmlID).children(".tag.opening").children(".rollouter").hasClass("rolledout")) {
-				$("#" + htmlID).children(".tag.opening").children(".rollouter").removeClass("rolledout");
-				$("#" + htmlID).children(".tag.opening").children(".attributes").slideUp("fast", function () {
-					$(this).removeClass("rolledout").css("display", "");
-				})
-			} else {
-				$("#" + htmlID).children(".tag.opening").children(".rollouter").addClass("rolledout");
-				$("#" + htmlID).children(".tag.opening").children(".attributes").addClass("rolledout").hide().slideDown("fast");
+		if (what == "rollouter") {
+			var tagOpening = elem.querySelector('.tag.opening');
+			var attributes = tagOpening ? tagOpening.querySelector('.attributes') : null;
+			var rollouter = tagOpening ? tagOpening.querySelector('.rollouter') : null;
+			if (attributes && attributes.querySelector('.shy')) {
+				if (rollouter && rollouter.classList.contains('rolledout')) {
+					rollouter.classList.remove('rolledout');
+					attributes.classList.remove('rolledout');
+					attributes.style.display = '';
+				} else if (rollouter) {
+					rollouter.classList.add('rolledout');
+					attributes.classList.add('rolledout');
+					attributes.style.display = 'none';
+					// Simulate slideDown
+					setTimeout(function () { attributes.style.display = ''; }, 0);
+				}
+				window.setTimeout(function () { Xonomy.setFocus(htmlID, "rollouter") }, 100);
 			}
-			window.setTimeout(function () { Xonomy.setFocus(htmlID, "rollouter") }, 100);
 		}
 		Xonomy.notclick = true;
 	}
