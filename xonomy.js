@@ -1324,9 +1324,9 @@ Xonomy.remoteCreate = function (createUrl, searchUrl, urlPlaceholder, defaultStr
 	return false;
 };
 Xonomy.pickerMenu = function (picklist, defaultString) {
-	var html = "";
+	let html = "";
 	html += "<div class='menu'>";
-	for (var i = 0; i < picklist.length; i++) {
+	for (let i = 0; i < picklist.length; i++) {
 		var item = picklist[i];
 		if (typeof (item) == "string") item = { value: item, caption: "" };
 		html += "<div class='menuItem focusme techno" + (item.value == defaultString ? " current" : "") + "' tabindex='1' onclick='Xonomy.answer(\"" + Xonomy.xmlEscape(item.value) + "\")'>";
@@ -1353,7 +1353,7 @@ Xonomy.wycQueue = [];
 Xonomy.wycIsRunning = false;
 Xonomy.wyc = function (url, callback) { //a "when-you-can" function for delayed rendering: gets json from url, passes it to callback, and delayed-returns html-as-string from callback
 	Xonomy.wycLastID++;
-	var wycID = "xonomy_wyc_" + Xonomy.wycLastID;
+	const wycID = "xonomy_wyc_" + Xonomy.wycLastID;
 	if (Xonomy.wycCache[url]) return callback(Xonomy.wycCache[url]);
 	Xonomy.wycQueue.push(function () { //push job to WYC queue
 		Xonomy.wycIsRunning = true;
