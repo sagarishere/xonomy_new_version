@@ -2169,7 +2169,7 @@ Xonomy.key = function (event) {
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				Xonomy.destroyBubble();
-			} else if (event.which == 13) { //enter key
+			} else if (event.key === "Enter" || event.keyCode === 13) { //enter key
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				if (Xonomy.currentFocus == "childrenCollapsed") Xonomy.plusminus(Xonomy.currentHtmlId, true);
@@ -2180,27 +2180,27 @@ Xonomy.key = function (event) {
 					Xonomy.click(Xonomy.currentHtmlId, Xonomy.currentFocus);
 					Xonomy.clickoff();
 				}
-			} else if ((event.ctrlKey || event.metaKey) && event.which == 40) { //down key with Ctrl or Cmd (Mac OS)
+			} else if ((event.ctrlKey || event.metaKey) && (event.key === "ArrowDown" || event.keyCode === 40)) { //down key with Ctrl or Cmd (Mac OS)
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				Xonomy.scrollableContainer.scrollTop(Xonomy.scrollableContainer.scrollTop() + 60);
-			} else if ((event.ctrlKey || event.metaKey) && event.which == 38) { //up key with Ctrl or Cmd (Mac OS)
+			} else if ((event.ctrlKey || event.metaKey) && (event.key === "ArrowUp" || event.keyCode === 38)) { //up key with Ctrl or Cmd (Mac OS)
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				Xonomy.scrollableContainer.scrollTop(Xonomy.scrollableContainer.scrollTop() - 60);
-			} else if ((event.ctrlKey || event.metaKey) && [37, 39].indexOf(event.which) > -1) { //arrow keys with Ctrl or Cmd (Mac OS)
+			} else if ((event.ctrlKey || event.metaKey) && (["ArrowLeft","ArrowRight"].indexOf(event.key) > -1 || [37,39].indexOf(event.keyCode) > -1)) { //arrow keys with Ctrl or Cmd (Mac OS)
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				var $el = $("#" + Xonomy.currentHtmlId);
 				if ($el.hasClass("element") && !$el.hasClass("uncollapsible")) {
-					if (event.which == 39 && $el.hasClass("collapsed")) { //expand it!
+					if (event.key === "ArrowRight" || event.keyCode === 39 && $el.hasClass("collapsed")) { //expand it!
 						Xonomy.plusminus(Xonomy.currentHtmlId);
 					}
-					if (event.which == 37 && !$el.hasClass("collapsed")) { //collapse it!
+					if (event.key === "ArrowLeft" || event.keyCode === 37 && !$el.hasClass("collapsed")) { //collapse it!
 						Xonomy.plusminus(Xonomy.currentHtmlId);
 					}
 				}
-			} else if ([37, 38, 39, 40].indexOf(event.which) > -1 && !event.altKey) { //arrow keys
+			} else if ((["ArrowLeft","ArrowUp","ArrowRight","ArrowDown"].indexOf(event.key) > -1 || [37,38,39,40].indexOf(event.keyCode) > -1) && !event.altKey) { //arrow keys
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				if (!Xonomy.currentHtmlId) { //nothing is current yet
@@ -2208,10 +2208,10 @@ Xonomy.key = function (event) {
 				} else if ($(".xonomy .focused").length == 0) { //something is current but nothing is focused yet
 					Xonomy.setFocus(Xonomy.currentHtmlId, Xonomy.currentFocus);
 				} else { //something is current, do arrow action
-					if (event.which == 40) Xonomy.goDown(); //down key
-					if (event.which == 38) Xonomy.goUp(); //up key
-					if (event.which == 39) Xonomy.goRight(); //right key
-					if (event.which == 37) Xonomy.goLeft(); //left key
+					if (event.key === "ArrowDown" || event.keyCode === 40) Xonomy.goDown(); //down key
+					if (event.key === "ArrowUp" || event.keyCode === 38) Xonomy.goUp(); //up key
+					if (event.key === "ArrowRight" || event.keyCode === 39) Xonomy.goRight(); //right key
+					if (event.key === "ArrowLeft" || event.keyCode === 37) Xonomy.goLeft(); //left key
 				}
 			}
 		} else if (!$("#xonomyBubble").length > 0) {
