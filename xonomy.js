@@ -1179,15 +1179,15 @@ Xonomy.makeBubble = function (content) {
 	return bubble;
 };
 Xonomy.showBubble = function (anchor) {
-    const bubble = document.getElementById("xonomyBubble");
+	const bubble = document.getElementById("xonomyBubble");
 
 	// Get anchor position relative to document
 	const anchorRect = anchor.getBoundingClientRect();
 	const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 	const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 	const offset = {
-					top: anchorRect.top + scrollTop,
-					left: anchorRect.left + scrollLeft
+		top: anchorRect.top + scrollTop,
+		left: anchorRect.left + scrollLeft
 	};
 
 	// Get screen and bubble dimensions
@@ -1196,86 +1196,86 @@ Xonomy.showBubble = function (anchor) {
 	const bubbleHeight = bubble.offsetHeight;
 	let width = anchor.offsetWidth; if (width > 40) width = 40;
 	let height = anchor.offsetHeight; if (height > 25) height = 25;
-    if (Xonomy.mode == "laic") { width = width - 25; height = height + 10; }
+	if (Xonomy.mode == "laic") { width = width - 25; height = height + 10; }
 
-    function verticalPlacement() {
-        let top = "";
+	function verticalPlacement() {
+		let top = "";
 		let bottom = "";
-        if (offset.top + height + bubbleHeight <= screenHeight) {
-            // enough space - open down
-            top = (offset.top + height) + "px";
-        } else if (screenHeight - offset.top + 5 + bubbleHeight > 0) {
-            // 5px above for some padding. Anchor using bottom so animation opens upwards.
-            bottom = (screenHeight - offset.top + 5) + "px";
-        } else {
-            // neither downwards nor upwards is enough space => center the bubble
-            top = (screenHeight - bubbleHeight) / 2 + "px";
-        }
-        return { top: top, bottom: bottom };
-    }
+		if (offset.top + height + bubbleHeight <= screenHeight) {
+			// enough space - open down
+			top = (offset.top + height) + "px";
+		} else if (screenHeight - offset.top + 5 + bubbleHeight > 0) {
+			// 5px above for some padding. Anchor using bottom so animation opens upwards.
+			bottom = (screenHeight - offset.top + 5) + "px";
+		} else {
+			// neither downwards nor upwards is enough space => center the bubble
+			top = (screenHeight - bubbleHeight) / 2 + "px";
+		}
+		return { top: top, bottom: bottom };
+	}
 
 	const placement = verticalPlacement();
-    if (offset.left < screenWidth / 2) {
-        placement.left = (offset.left + width - 15) + "px";
-    } else {
-        bubble.classList.add("rightAnchored");
-        placement.right = (screenWidth - offset.left) + "px";
-    }
-    // Set placement styles (vanilla JS replacement for $bubble.css(placement))
-    bubble.style.top = placement.top || "";
-    bubble.style.bottom = placement.bottom || "";
-    bubble.style.left = placement.left || "";
-    bubble.style.right = placement.right || "";
+	if (offset.left < screenWidth / 2) {
+		placement.left = (offset.left + width - 15) + "px";
+	} else {
+		bubble.classList.add("rightAnchored");
+		placement.right = (screenWidth - offset.left) + "px";
+	}
+	// Set placement styles (vanilla JS replacement for $bubble.css(placement))
+	bubble.style.top = placement.top || "";
+	bubble.style.bottom = placement.bottom || "";
+	bubble.style.left = placement.left || "";
+	bubble.style.right = placement.right || "";
 
-    // Show the bubble with a simple fade-in effect (optional)
-    bubble.style.display = "block";
-    bubble.style.opacity = 0;
-    bubble.style.transition = "opacity 0.2s";
-    requestAnimationFrame(function () {
-        bubble.style.opacity = 1;
-    });
+	// Show the bubble with a simple fade-in effect (optional)
+	bubble.style.display = "block";
+	bubble.style.opacity = 0;
+	bubble.style.transition = "opacity 0.2s";
+	requestAnimationFrame(function () {
+		bubble.style.opacity = 1;
+	});
 
 	// Focus logic
 	let focusElem = null;
-    if (Xonomy.keyNav) {
-        focusElem = bubble.querySelector(".focusme");
-    } else {
-        focusElem = bubble.querySelector("input.focusme, select.focusme, textarea.focusme");
-    }
-    if (focusElem) focusElem.focus();
+	if (Xonomy.keyNav) {
+		focusElem = bubble.querySelector(".focusme");
+	} else {
+		focusElem = bubble.querySelector("input.focusme, select.focusme, textarea.focusme");
+	}
+	if (focusElem) focusElem.focus();
 
-    // Remove any previous keyup event listeners to avoid duplicates
-    bubble.onkeyup = null;
-    // Keyup event for ESC
-    bubble.addEventListener("keyup", function (event) {
-        if (event.which == 27) Xonomy.destroyBubble();
-    });
+	// Remove any previous keyup event listeners to avoid duplicates
+	bubble.onkeyup = null;
+	// Keyup event for ESC
+	bubble.addEventListener("keyup", function (event) {
+		if (event.key === "Escape" || event.keyCode === 27) Xonomy.destroyBubble();
+	});
 
-    // Key navigation for menu items if keyNav is enabled
-    if (Xonomy.keyNav) {
-        var focusDivs = bubble.querySelectorAll("div.focusme");
-        focusDivs.forEach(function (div) {
-            div.onkeyup = null;
-            div.addEventListener("keyup", function (event) {
-                if (event.which == 40) { //down key
-                    var items = Array.from(bubble.querySelectorAll(".focusme"));
-                    var idx = items.indexOf(div);
+	// Key navigation for menu items if keyNav is enabled
+	if (Xonomy.keyNav) {
+		var focusDivs = bubble.querySelectorAll("div.focusme");
+		focusDivs.forEach(function (div) {
+			div.onkeyup = null;
+			div.addEventListener("keyup", function (event) {
+				if (event.which == 40) { //down key
+					var items = Array.from(bubble.querySelectorAll(".focusme"));
+					var idx = items.indexOf(div);
 					const next = items[idx + 1];
-                    if (next) next.focus();
-                }
-                if (event.which == 38) { //up key
-                    var items = Array.from(bubble.querySelectorAll("div.focusme"));
-                    var idx = items.indexOf(div);
+					if (next) next.focus();
+				}
+				if (event.which == 38) { //up key
+					var items = Array.from(bubble.querySelectorAll("div.focusme"));
+					var idx = items.indexOf(div);
 					const prev = items[idx - 1];
-                    if (prev) prev.focus();
-                }
-                if (event.which == 13) { //enter key
-                    div.click();
-                    Xonomy.notclick = false;
-                }
-            });
-        });
-    }
+					if (prev) prev.focus();
+				}
+				if (event.which == 13) { //enter key
+					div.click();
+					Xonomy.notclick = false;
+				}
+			});
+		});
+	}
 };
 
 Xonomy.askString = function (defaultString, askerParameter, jsMe) {
@@ -2165,7 +2165,7 @@ Xonomy.setFocus = function (htmlID, what) {
 Xonomy.key = function (event) {
 	if (!Xonomy.notKeyUp) {
 		if (!event.shiftKey && !$("#xonomyBubble").length > 0) {
-			if (event.which == 27) { //escape key
+			if (event.key === "Escape" || event.keyCode === 27) { //escape key
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				Xonomy.destroyBubble();
