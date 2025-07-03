@@ -1160,8 +1160,10 @@ Xonomy.clickoff = function () { //event handler for the document-wide click-off 
 
 Xonomy.destroyBubble = function () {
 	if (document.getElementById("xonomyBubble")) {
-		var bubble = document.getElementById("xonomyBubble");
-		$(bubble).find(":focus").blur();
+		const bubble = document.getElementById("xonomyBubble");
+		// Find any focused element inside the bubble and blur it
+		const focused = bubble.querySelector(":focus");
+		if (focused) focused.blur();
 		bubble.parentNode.removeChild(bubble);
 		if (Xonomy.keyboardEventCatcher) Xonomy.keyboardEventCatcher.focus();
 	}
