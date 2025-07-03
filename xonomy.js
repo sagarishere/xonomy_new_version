@@ -2744,27 +2744,62 @@ Xonomy.goUp = function () {
 	}
 };
 Xonomy.goRight = function () {
-	var $el = $("#" + Xonomy.currentHtmlId);
-	var $me = $el;
-	if (Xonomy.currentFocus == "openingTagName") var $me = $el.find(".tag.opening").first();
-	if (Xonomy.currentFocus == "closingTagName") var $me = $el.find(".tag.closing").last();
-	if (Xonomy.currentFocus == "attributeName") var $me = $el.find(".attributeName").first();
-	if (Xonomy.currentFocus == "attributeValue") var $me = $el.find(".attributeValue").first();
-	if (Xonomy.currentFocus == "childrenCollapsed") var $me = $el.find(".childrenCollapsed").not(".prominentChildren *").first();
-	if (Xonomy.currentFocus == "rollouter") var $me = $el.find(".rollouter").first();
+	var el = document.getElementById(Xonomy.currentHtmlId);
+	var me = el;
+	if (Xonomy.currentFocus == "openingTagName") {
+		var opening = el.querySelector(".tag.opening");
+		if (opening) me = opening;
+	}
+	if (Xonomy.currentFocus == "closingTagName") {
+		var closings = el.querySelectorAll(".tag.closing");
+		if (closings.length > 0) me = closings[closings.length - 1];
+	}
+	if (Xonomy.currentFocus == "attributeName") {
+		var attrName = el.querySelector(".attributeName");
+		if (attrName) me = attrName;
+	}
+	if (Xonomy.currentFocus == "attributeValue") {
+		var attrValue = el.querySelector(".attributeValue");
+		if (attrValue) me = attrValue;
+	}
+	if (Xonomy.currentFocus == "childrenCollapsed") {
+		// .childrenCollapsed but not inside .prominentChildren
+		var all = Array.from(el.querySelectorAll(":scope > .childrenCollapsed"));
+		var filtered = all.filter(function (c) {
+			return !c.closest(".prominentChildren");
+		});
+		if (filtered.length > 0) me = filtered[0];
+	}
+	if (Xonomy.currentFocus == "rollouter") {
+		var rollouter = el.querySelector(".rollouter");
+		if (rollouter) me = rollouter;
+	}
 
-	var $candidates = $(".xonomy .focusable:visible");
-	$candidates = $candidates.not(".char").add(".hasInlineMenu > .children > .textnode .char:visible");
+	// Get all .xonomy .focusable:visible
+	var allCandidates = Array.from(document.querySelectorAll('.xonomy .focusable'));
+	var candidates = allCandidates.filter(function (c) {
+		return c.offsetParent !== null;
+	});
+	// Remove .char
+	candidates = candidates.filter(function (c) { return !c.classList.contains('char'); });
+	// Add visible .char inside .hasInlineMenu > .children > .textnode
+	var chars = Array.from(document.querySelectorAll('.hasInlineMenu > .children > .textnode .char'));
+	chars = chars.filter(function (c) { return c.offsetParent !== null; });
+	candidates = candidates.concat(chars);
 
-	var $next = $candidates.eq($candidates.index($me[0]) + 1);
-	if ($next.hasClass("attributeName")) Xonomy.setFocus($next.closest(".attribute").prop("id"), "attributeName");
-	if ($next.hasClass("attributeValue")) Xonomy.setFocus($next.closest(".attribute").prop("id"), "attributeValue");
-	if ($next.hasClass("opening")) Xonomy.setFocus($next.closest(".element").prop("id"), "openingTagName");
-	if ($next.hasClass("closing")) Xonomy.setFocus($next.closest(".element").prop("id"), "closingTagName");
-	if ($next.hasClass("textnode")) Xonomy.setFocus($next.prop("id"), "text");
-	if ($next.hasClass("childrenCollapsed")) Xonomy.setFocus($next.closest(".element").prop("id"), "childrenCollapsed");
-	if ($next.hasClass("rollouter")) Xonomy.setFocus($next.closest(".element").prop("id"), "rollouter");
-	if ($next.hasClass("char")) Xonomy.setFocus($next.prop("id"), "char");
+	// Find index of me in candidates
+	var idx = candidates.indexOf(me);
+	var next = candidates[idx + 1];
+	if (next) {
+		if (next.classList.contains("attributeName")) Xonomy.setFocus(next.closest(".attribute").id, "attributeName");
+		else if (next.classList.contains("attributeValue")) Xonomy.setFocus(next.closest(".attribute").id, "attributeValue");
+		else if (next.classList.contains("opening")) Xonomy.setFocus(next.closest(".element").id, "openingTagName");
+		else if (next.classList.contains("closing")) Xonomy.setFocus(next.closest(".element").id, "closingTagName");
+		else if (next.classList.contains("textnode")) Xonomy.setFocus(next.id, "text");
+		else if (next.classList.contains("childrenCollapsed")) Xonomy.setFocus(next.closest(".element").id, "childrenCollapsed");
+		else if (next.classList.contains("rollouter")) Xonomy.setFocus(next.closest(".element").id, "rollouter");
+		else if (next.classList.contains("char")) Xonomy.setFocus(next.id, "char");
+	}
 };
 Xonomy.goLeft = function () {
 	var $el = $("#" + Xonomy.currentHtmlId);
