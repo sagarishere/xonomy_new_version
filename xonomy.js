@@ -1288,7 +1288,7 @@ Xonomy.askRemote = function (defaultString, param, jsMe) {
 };
 Xonomy.lastAskerParam = null;
 Xonomy.remoteSearch = function (searchUrl, urlPlaceholder, defaultString) {
-	var text = $("#xonomyBubble input.textbox").val();
+	const text = $("#xonomyBubble input.textbox").val();
 	searchUrl = searchUrl.replace(urlPlaceholder, encodeURIComponent(text));
 	$("#xonomyBubble .menu").replaceWith(Xonomy.wyc(searchUrl, function (picklist) {
 		const items = [];
@@ -1299,14 +1299,27 @@ Xonomy.remoteSearch = function (searchUrl, urlPlaceholder, defaultString) {
 	return false;
 };
 Xonomy.remoteCreate = function (createUrl, searchUrl, urlPlaceholder, defaultString) {
-	var text = $.trim($("#xonomyBubble input.textbox").val());
+	const inputElem = document.querySelector("#xonomyBubble input.textbox");
+	const text = inputElem ? inputElem.value.trim() : "";
 	if (text != "") {
 		createUrl = createUrl.replace(urlPlaceholder, encodeURIComponent(text));
 		searchUrl = searchUrl.replace(urlPlaceholder, encodeURIComponent(text));
-		$.ajax({ url: createUrl, dataType: "text", method: "POST" }).done(function (data) {
-			if (Xonomy.wycCache[searchUrl]) delete Xonomy.wycCache[searchUrl];
-			$("#xonomyBubble .menu").replaceWith(Xonomy.wyc(searchUrl, function (picklist) { return Xonomy.pickerMenu(picklist, defaultString); }));
-		});
+		fetch(createUrl, { method: "POST" })
+			.then(function (response) { return response.text(); })
+			.then(function (data) {
+				if (Xonomy.wycCache[searchUrl]) delete Xonomy.wycCache[searchUrl];
+				const bubble = document.getElementById("xonomyBubble");
+				if (bubble) {
+					const menuElem = bubble.querySelector(".menu");
+					if (menuElem) {
+						// Create a temporary container for the new HTML
+						const tempDiv = document.createElement("div");
+						tempDiv.innerHTML = Xonomy.wyc(searchUrl, function (picklist) { return Xonomy.pickerMenu(picklist, defaultString); });
+						// Replace the menu element
+						menuElem.replaceWith(tempDiv.firstChild);
+					}
+				}
+			});
 	}
 	return false;
 };
