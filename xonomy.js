@@ -1375,80 +1375,80 @@ Xonomy.wyc = function (url, callback) { //a "when-you-can" function for delayed 
 };
 
 Xonomy.toggleSubmenu = function (menuItem) {
-    // Helper to slide up (collapse)
-    function slideUp(element, duration, callback) {
-        element.style.height = element.offsetHeight + 'px';
-        element.style.transitionProperty = 'height, margin, padding';
-        element.style.transitionDuration = duration + 'ms';
-        element.offsetHeight; // force repaint
-        element.style.overflow = 'hidden';
-        element.style.height = 0;
-        element.style.paddingTop = 0;
-        element.style.paddingBottom = 0;
-        element.style.marginTop = 0;
-        element.style.marginBottom = 0;
-        window.setTimeout(function () {
-            element.style.display = 'none';
-            element.style.removeProperty('height');
-            element.style.removeProperty('padding-top');
-            element.style.removeProperty('padding-bottom');
-            element.style.removeProperty('margin-top');
-            element.style.removeProperty('margin-bottom');
-            element.style.removeProperty('overflow');
-            element.style.removeProperty('transition-property');
-            element.style.removeProperty('transition-duration');
-            if (typeof callback === 'function') callback();
-        }, duration);
-    }
-    // Helper to slide down (expand)
-    function slideDown(element, duration, callback) {
-        element.style.removeProperty('display');
-        let display = window.getComputedStyle(element).display;
-        if (display === 'none') display = 'block';
-        element.style.display = display;
-        let height = element.offsetHeight;
-        element.style.height = 0;
-        element.style.paddingTop = 0;
-        element.style.paddingBottom = 0;
-        element.style.marginTop = 0;
-        element.style.marginBottom = 0;
-        element.offsetHeight; // force repaint
-        element.style.transitionProperty = 'height, margin, padding';
-        element.style.transitionDuration = duration + 'ms';
-        element.style.overflow = 'hidden';
-        element.style.height = height + 'px';
-        element.style.removeProperty('padding-top');
-        element.style.removeProperty('padding-bottom');
-        element.style.removeProperty('margin-top');
-        element.style.removeProperty('margin-bottom');
-        window.setTimeout(function () {
-            element.style.removeProperty('height');
-            element.style.removeProperty('overflow');
-            element.style.removeProperty('transition-property');
-            element.style.removeProperty('transition-duration');
-            if (typeof callback === 'function') callback();
-        }, duration);
-    }
-    var menuItemEl = menuItem;
-    if (menuItemEl.classList.contains('expanded')) {
-        var submenu = menuItemEl.querySelector('.submenu');
-        if (submenu) {
-            slideUp(submenu, 200, function () {
-                menuItemEl.classList.remove('expanded');
-            });
-        } else {
-            menuItemEl.classList.remove('expanded');
-        }
-    } else {
-        var submenu = menuItemEl.querySelector('.submenu');
-        if (submenu) {
-            slideDown(submenu, 200, function () {
-                menuItemEl.classList.add('expanded');
-            });
-        } else {
-            menuItemEl.classList.add('expanded');
-        }
-    }
+	// Helper to slide up (collapse)
+	function slideUp(element, duration, callback) {
+		element.style.height = element.offsetHeight + 'px';
+		element.style.transitionProperty = 'height, margin, padding';
+		element.style.transitionDuration = duration + 'ms';
+		element.offsetHeight; // force repaint
+		element.style.overflow = 'hidden';
+		element.style.height = 0;
+		element.style.paddingTop = 0;
+		element.style.paddingBottom = 0;
+		element.style.marginTop = 0;
+		element.style.marginBottom = 0;
+		window.setTimeout(function () {
+			element.style.display = 'none';
+			element.style.removeProperty('height');
+			element.style.removeProperty('padding-top');
+			element.style.removeProperty('padding-bottom');
+			element.style.removeProperty('margin-top');
+			element.style.removeProperty('margin-bottom');
+			element.style.removeProperty('overflow');
+			element.style.removeProperty('transition-property');
+			element.style.removeProperty('transition-duration');
+			if (typeof callback === 'function') callback();
+		}, duration);
+	}
+	// Helper to slide down (expand)
+	function slideDown(element, duration, callback) {
+		element.style.removeProperty('display');
+		let display = window.getComputedStyle(element).display;
+		if (display === 'none') display = 'block';
+		element.style.display = display;
+		let height = element.offsetHeight;
+		element.style.height = 0;
+		element.style.paddingTop = 0;
+		element.style.paddingBottom = 0;
+		element.style.marginTop = 0;
+		element.style.marginBottom = 0;
+		element.offsetHeight; // force repaint
+		element.style.transitionProperty = 'height, margin, padding';
+		element.style.transitionDuration = duration + 'ms';
+		element.style.overflow = 'hidden';
+		element.style.height = height + 'px';
+		element.style.removeProperty('padding-top');
+		element.style.removeProperty('padding-bottom');
+		element.style.removeProperty('margin-top');
+		element.style.removeProperty('margin-bottom');
+		window.setTimeout(function () {
+			element.style.removeProperty('height');
+			element.style.removeProperty('overflow');
+			element.style.removeProperty('transition-property');
+			element.style.removeProperty('transition-duration');
+			if (typeof callback === 'function') callback();
+		}, duration);
+	}
+	var menuItemEl = menuItem;
+	if (menuItemEl.classList.contains('expanded')) {
+		var submenu = menuItemEl.querySelector('.submenu');
+		if (submenu) {
+			slideUp(submenu, 200, function () {
+				menuItemEl.classList.remove('expanded');
+			});
+		} else {
+			menuItemEl.classList.remove('expanded');
+		}
+	} else {
+		var submenu = menuItemEl.querySelector('.submenu');
+		if (submenu) {
+			slideDown(submenu, 200, function () {
+				menuItemEl.classList.add('expanded');
+			});
+		} else {
+			menuItemEl.classList.add('expanded');
+		}
+	}
 }
 Xonomy.internalMenu = function (htmlID, items, harvest, getter, indices) {
 	Xonomy.harvestCache = {};
@@ -1486,10 +1486,18 @@ Xonomy.internalMenu = function (htmlID, items, harvest, getter, indices) {
 };
 Xonomy.attributeMenu = function (htmlID) {
 	Xonomy.harvestCache = {};
-	var name = $("#" + htmlID).attr("data-name"); //obtain attribute's name
-	var elName = $("#" + htmlID).closest(".element").attr("data-name"); //obtain element's name
+	const elem = document.getElementById(htmlID);
+	const name = elem.getAttribute("data-name"); // obtain attribute's name
+	// Find closest ancestor with class 'element'
+	const parentElement = elem.closest ? elem.closest('.element') : (function (node) {
+		while (node && (!node.classList || !node.classList.contains('element'))) {
+			node = node.parentNode;
+		}
+		return node;
+	})(elem.parentNode);
+	const elName = parentElement ? parentElement.getAttribute("data-name") : null; // obtain element's name
 	Xonomy.verifyDocSpecAttribute(elName, name);
-	var spec = Xonomy.docSpec.elements[elName].attributes[name];
+	const spec = Xonomy.docSpec.elements[elName].attributes[name];
 	function getter(indices) {
 		return 'Xonomy.docSpec.elements["' + elName + '"].attributes["' + name + '"].menu[' + indices.join('].menu[') + ']';
 	}
