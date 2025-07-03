@@ -2142,75 +2142,168 @@ Xonomy.deleteEponymousSiblings = function (htmlID, parameter) {
 };
 
 Xonomy.insertDropTargets = function (htmlID) {
-	var $element = $("#" + htmlID);
-	$element.addClass("dragging");
-	var elementName = $element.attr("data-name");
-	var elSpec = Xonomy.docSpec.elements[elementName];
-	$(".xonomy .element:visible > .children").append("<div class='elementDropper' ondragover='Xonomy.dragOver(event)' ondragleave='Xonomy.dragOut(event)' ondrop='Xonomy.drop(event)'><div class='inside'></div></div>")
-	$(".xonomy .element:visible > .children > .element").before("<div class='elementDropper' ondragover='Xonomy.dragOver(event)' ondragleave='Xonomy.dragOut(event)' ondrop='Xonomy.drop(event)'><div class='inside'></div></div>")
-	$(".xonomy .element:visible > .children > .text").before("<div class='elementDropper' ondragover='Xonomy.dragOver(event)' ondragleave='Xonomy.dragOut(event)' ondrop='Xonomy.drop(event)'><div class='inside'></div></div>")
-	$(".xonomy .dragging .children:visible > .elementDropper").remove(); //remove drop targets fom inside the element being dragged
-	$(".xonomy .dragging").prev(".elementDropper").remove(); //remove drop targets from immediately before the element being dragged
-	$(".xonomy .dragging").next(".elementDropper").remove(); //remove drop targets from immediately after the element being dragged
-	$(".xonomy .children:visible > .element.readonly .elementDropper").remove(); //remove drop targets from inside read-only elements
+	const element = document.getElementById(htmlID);
+	element.classList.add("dragging");
+	const elementName = element.getAttribute("data-name");
+	const elSpec = Xonomy.docSpec.elements[elementName];
 
+	// Helper: check if element is visible
+	function isVisible(el) {
+		return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+	}
+
+	// Helper: insert dropper before a node
+	function insertDropperBefore(node) {
+		const dropper = document.createElement('div');
+		dropper.className = 'elementDropper';
+		dropper.setAttribute('ondragover', 'Xonomy.dragOver(event)');
+		dropper.setAttribute('ondragleave', 'Xonomy.dragOut(event)');
+		dropper.setAttribute('ondrop', 'Xonomy.drop(event)');
+		const inside = document.createElement('div');
+		inside.className = 'inside';
+		dropper.appendChild(inside);
+		node.parentNode.insertBefore(dropper, node);
+	}
+
+	// Helper: append dropper to a node
+	function appendDropperTo(node) {
+		const dropper = document.createElement('div');
+		dropper.className = 'elementDropper';
+		dropper.setAttribute('ondragover', 'Xonomy.dragOver(event)');
+		dropper.setAttribute('ondragleave', 'Xonomy.dragOut(event)');
+		dropper.setAttribute('ondrop', 'Xonomy.drop(event)');
+		const inside = document.createElement('div');
+		inside.className = 'inside';
+		dropper.appendChild(inside);
+		node.appendChild(dropper);
+	}
+
+	// 1. Append dropper to all .xonomy .element > .children (if visible)
+	document.querySelectorAll('.xonomy .element > .children').forEach(children => {
+		if (isVisible(children)) {
+			appendDropperTo(children);
+		}
+	});
+	// 2. Insert dropper before all .xonomy .element > .children > .element (if visible)
+	document.querySelectorAll('.xonomy .element > .children > .element').forEach(child => {
+		if (isVisible(child)) {
+			insertDropperBefore(child);
+		}
+	});
+	// 3. Insert dropper before all .xonomy .element > .children > .text (if visible)
+	document.querySelectorAll('.xonomy .element > .children > .text').forEach(child => {
+		if (isVisible(child)) {
+			insertDropperBefore(child);
+		}
+	});
+	// 4. Remove drop targets from inside the element being dragged
+	element.querySelectorAll('.children > .elementDropper').forEach(dropper => dropper.remove());
+	// 5. Remove drop targets from immediately before and after the element being dragged
+	if (element.previousElementSibling && element.previousElementSibling.classList.contains('elementDropper')) {
+		element.previousElementSibling.remove();
+	}
+	if (element.nextElementSibling && element.nextElementSibling.classList.contains('elementDropper')) {
+		element.nextElementSibling.remove();
+	}
+	// 6. Remove drop targets from inside read-only elements
+	document.querySelectorAll('.xonomy .children > .element.readonly .elementDropper').forEach(dropper => dropper.remove());
+
+	// Helper: harvest cache for localDropOnly, mustBeBefore, mustBeAfter
 	var harvestCache = {};
 	var harvestElement = function (div) {
-		var htmlID = $(div).prop("id");
+		var htmlID = div.id;
 		if (!harvestCache[htmlID]) harvestCache[htmlID] = Xonomy.harvestElement(div);
 		return harvestCache[htmlID];
 	};
 
-	if (elSpec.localDropOnly(harvestElement($element.toArray()[0]))) {
-		if (elSpec.canDropTo) { //remove the drop target from elements that are not the dragged element's parent
-			var droppers = $(".xonomy .elementDropper").toArray();
-			for (var i = 0; i < droppers.length; i++) {
-				var dropper = droppers[i];
-				if (dropper.parentNode != ev.target.parentNode.parentNode.parentNode) {
-					dropper.parentNode.removeChild(dropper);
+	// 7. If localDropOnly, remove drop targets from elements that are not the dragged element's parent
+	if (elSpec.localDropOnly(harvestElement(element))) {
+		if (elSpec.canDropTo) {
+			const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
+			droppers.forEach(dropper => {
+				// Find the parent .element of the dropper
+				let parent = dropper.parentNode;
+				while (parent && !parent.classList.contains('element')) {
+					parent = parent.parentNode;
+				}
+				if (parent && parent !== element.parentNode.parentNode) {
+					dropper.remove();
+				}
+			});
+		}
+	}
+	// 8. Remove drop targets from elements it cannot be dropped into
+	if (elSpec.canDropTo) {
+		const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
+		droppers.forEach(dropper => {
+			let parent = dropper.parentNode;
+			while (parent && !parent.classList.contains('element')) {
+				parent = parent.parentNode;
+			}
+			if (parent) {
+				const parentElementName = parent.getAttribute('data-name');
+				if (elSpec.canDropTo.indexOf(parentElementName) < 0) {
+					dropper.remove();
 				}
 			}
-		}
+		});
 	}
-	if (elSpec.canDropTo) { //remove the drop target from elements it cannot be dropped into
-		var droppers = $(".xonomy .elementDropper").toArray();
-		for (var i = 0; i < droppers.length; i++) {
-			var dropper = droppers[i];
-			var parentElementName = $(dropper.parentNode.parentNode).toArray()[0].getAttribute("data-name");
-			if ($.inArray(parentElementName, elSpec.canDropTo) < 0) {
-				dropper.parentNode.removeChild(dropper);
+	// Helper: get all previous siblings with data-name
+	function prevAllWithDataName(elem, dataName) {
+		const result = [];
+		let prev = elem.previousElementSibling;
+		while (prev) {
+			if (prev.getAttribute && prev.getAttribute('data-name') === dataName) {
+				result.push(prev);
 			}
+			prev = prev.previousElementSibling;
 		}
+		return result;
 	}
-	if (elSpec.mustBeBefore) { //remove the drop target from after elements it cannot be after
-		var jsElement = harvestElement($element.toArray()[0]);
-		var droppers = $(".xonomy .elementDropper").toArray();
-		for (var i = 0; i < droppers.length; i++) {
-			var dropper = droppers[i];
-			jsElement.internalParent = harvestElement(dropper.parentNode.parentNode); //pretend the element's parent is the dropper's parent
+	// Helper: get all next siblings with data-name
+	function nextAllWithDataName(elem, dataName) {
+		const result = [];
+		let next = elem.nextElementSibling;
+		while (next) {
+			if (next.getAttribute && next.getAttribute('data-name') === dataName) {
+				result.push(next);
+			}
+			next = next.nextElementSibling;
+		}
+		return result;
+	}
+	// 9. Remove drop targets from after elements it cannot be after
+	if (elSpec.mustBeBefore) {
+		var jsElement = harvestElement(element);
+		const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
+		droppers.forEach(dropper => {
+			jsElement.internalParent = harvestElement(dropper.parentNode.parentNode); // pretend the element's parent is the dropper's parent
 			var mustBeBefore = elSpec.mustBeBefore(jsElement);
 			for (var ii = 0; ii < mustBeBefore.length; ii++) {
-				if ($(dropper).prevAll("*[data-name='" + mustBeBefore[ii] + "']").toArray().length > 0) {
-					dropper.parentNode.removeChild(dropper);
+				if (prevAllWithDataName(dropper, mustBeBefore[ii]).length > 0) {
+					dropper.remove();
+					break;
 				}
 			}
-		}
+		});
 	}
-	if (elSpec.mustBeAfter) { //remove the drop target from before elements it cannot be before
-		var jsElement = harvestElement($element.toArray()[0]);
-		var droppers = $(".xonomy .elementDropper").toArray();
-		for (var i = 0; i < droppers.length; i++) {
-			var dropper = droppers[i];
-			jsElement.internalParent = harvestElement(dropper.parentNode.parentNode); //pretend the element's parent is the dropper's parent
+	// 10. Remove drop targets from before elements it cannot be before
+	if (elSpec.mustBeAfter) {
+		var jsElement = harvestElement(element);
+		const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
+		droppers.forEach(dropper => {
+			jsElement.internalParent = harvestElement(dropper.parentNode.parentNode); // pretend the element's parent is the dropper's parent
 			var mustBeAfter = elSpec.mustBeAfter(jsElement);
 			for (var ii = 0; ii < mustBeAfter.length; ii++) {
-				if ($(dropper).nextAll("*[data-name='" + mustBeAfter[ii] + "']").toArray().length > 0) {
-					dropper.parentNode.removeChild(dropper);
+				if (nextAllWithDataName(dropper, mustBeAfter[ii]).length > 0) {
+					dropper.remove();
+					break;
 				}
 			}
-		}
+		});
 	}
 };
+
 Xonomy.draggingID = null; //what are we dragging?
 Xonomy.drag = function (ev) { //called when dragging starts
 	// Wrapping all the code into a timeout handler is a workaround for a Chrome browser bug
