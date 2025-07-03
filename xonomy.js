@@ -1142,14 +1142,14 @@ Xonomy.clickoff = function () { //event handler for the document-wide click-off 
 		Xonomy.currentHtmlId = null;
 		Xonomy.currentFocus = null;
 		Xonomy.destroyBubble();
-		document.querySelectorAll('.xonomy .current').forEach(function(el) {
+		document.querySelectorAll('.xonomy .current').forEach(function (el) {
 			el.classList.remove('current');
 		});
-		document.querySelectorAll('.xonomy .focused').forEach(function(el) {
+		document.querySelectorAll('.xonomy .focused').forEach(function (el) {
 			el.classList.remove('focused');
 		});
 		if (Xonomy.clearChars) {
-			document.querySelectorAll('.xonomy .char.on').forEach(function(el) {
+			document.querySelectorAll('.xonomy .char.on').forEach(function (el) {
 				el.classList.remove('on');
 			});
 			Xonomy.clearChars = false;
@@ -1170,7 +1170,7 @@ Xonomy.destroyBubble = function () {
 };
 Xonomy.makeBubble = function (content) {
 	Xonomy.destroyBubble();
-	var bubble = document.createElement("div");
+	const bubble = document.createElement("div");
 	bubble.id = "xonomyBubble";
 	bubble.className = Xonomy.mode;
 	bubble.innerHTML = "<div class='inside' onclick='Xonomy.notclick=true;'>"
@@ -1178,69 +1178,104 @@ Xonomy.makeBubble = function (content) {
 		+ "</div>";
 	return bubble;
 };
-Xonomy.showBubble = function ($anchor) {
-	var $bubble = $("#xonomyBubble");
-	var offset = $anchor.offset();
-	var screenWidth = $("body").width();
-	var screenHeight = $(document).height();
-	var bubbleHeight = $bubble.outerHeight();
-	var width = $anchor.width(); if (width > 40) width = 40;
-	var height = $anchor.height(); if (height > 25) height = 25;
-	if (Xonomy.mode == "laic") { width = width - 25; height = height + 10; }
+Xonomy.showBubble = function (anchor) {
+    var bubble = document.getElementById("xonomyBubble");
 
-	function verticalPlacement() {
-		var top = "";
-		var bottom = "";
-		if (offset.top + height + bubbleHeight <= screenHeight) {
-			// enough space - open down
-			top = (offset.top + height) + "px";
-		} else if (screenHeight - offset.top + 5 + bubbleHeight > 0) {
-			// 5px above for some padding. Anchor using bottom so animation opens upwards.
-			bottom = (screenHeight - offset.top + 5) + "px";
-		} else {
-			// neither downwards nor upwards is enough space => center the bubble
-			top = (screenHeight - bubbleHeight) / 2 + "px";
-		}
-		return { top: top, bottom: bottom };
-	}
+    // Get anchor position relative to document
+    var anchorRect = anchor.getBoundingClientRect();
+    var scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    var offset = {
+        top: anchorRect.top + scrollTop,
+        left: anchorRect.left + scrollLeft
+    };
 
-	var placement = verticalPlacement();
-	if (offset.left < screenWidth / 2) {
-		placement.left = (offset.left + width - 15) + "px";
-	} else {
-		$bubble.addClass("rightAnchored");
-		placement.right = (screenWidth - offset.left) + "px";
-	}
-	$bubble.css(placement);
-	$bubble.slideDown("fast", function () {
-		if (Xonomy.keyNav) $bubble.find(".focusme").first().focus(); //if the context menu contains anything with the class name 'focusme', focus it.
-		else $bubble.find("input.focusme, select.focusme, textarea.focusme").first().focus();
-	});
+    // Get screen and bubble dimensions
+    var screenWidth = document.body.clientWidth;
+    var screenHeight = document.documentElement.scrollHeight;
+    var bubbleHeight = bubble.offsetHeight;
+    var width = anchor.offsetWidth; if (width > 40) width = 40;
+    var height = anchor.offsetHeight; if (height > 25) height = 25;
+    if (Xonomy.mode == "laic") { width = width - 25; height = height + 10; }
 
-	$bubble.on("keyup", function (event) {
-		if (event.which == 27) Xonomy.destroyBubble();
-	});
+    function verticalPlacement() {
+        var top = "";
+        var bottom = "";
+        if (offset.top + height + bubbleHeight <= screenHeight) {
+            // enough space - open down
+            top = (offset.top + height) + "px";
+        } else if (screenHeight - offset.top + 5 + bubbleHeight > 0) {
+            // 5px above for some padding. Anchor using bottom so animation opens upwards.
+            bottom = (screenHeight - offset.top + 5) + "px";
+        } else {
+            // neither downwards nor upwards is enough space => center the bubble
+            top = (screenHeight - bubbleHeight) / 2 + "px";
+        }
+        return { top: top, bottom: bottom };
+    }
 
-	if (Xonomy.keyNav) {
-		$bubble.find("div.focusme").on("keyup", function (event) {
-			if (event.which == 40) { //down key
-				var $item = $(event.delegateTarget);
-				var $items = $bubble.find(".focusme:visible");
-				var $next = $items.eq($items.index($item[0]) + 1);
-				$next.focus();
-			}
-			if (event.which == 38) { //up key
-				var $item = $(event.delegateTarget);
-				var $items = $bubble.find("div.focusme:visible");
-				var $next = $items.eq($items.index($item[0]) - 1);
-				$next.focus();
-			}
-			if (event.which == 13) { //enter key
-				$(event.delegateTarget).click();
-				Xonomy.notclick = false;
-			}
-		});
-	}
+    var placement = verticalPlacement();
+    if (offset.left < screenWidth / 2) {
+        placement.left = (offset.left + width - 15) + "px";
+    } else {
+        bubble.classList.add("rightAnchored");
+        placement.right = (screenWidth - offset.left) + "px";
+    }
+    // Set placement styles (vanilla JS replacement for $bubble.css(placement))
+    bubble.style.top = placement.top || "";
+    bubble.style.bottom = placement.bottom || "";
+    bubble.style.left = placement.left || "";
+    bubble.style.right = placement.right || "";
+
+    // Show the bubble with a simple fade-in effect (optional)
+    bubble.style.display = "block";
+    bubble.style.opacity = 0;
+    bubble.style.transition = "opacity 0.2s";
+    requestAnimationFrame(function () {
+        bubble.style.opacity = 1;
+    });
+
+    // Focus logic
+    var focusElem = null;
+    if (Xonomy.keyNav) {
+        focusElem = bubble.querySelector(".focusme");
+    } else {
+        focusElem = bubble.querySelector("input.focusme, select.focusme, textarea.focusme");
+    }
+    if (focusElem) focusElem.focus();
+
+    // Remove any previous keyup event listeners to avoid duplicates
+    bubble.onkeyup = null;
+    // Keyup event for ESC
+    bubble.addEventListener("keyup", function (event) {
+        if (event.which == 27) Xonomy.destroyBubble();
+    });
+
+    // Key navigation for menu items if keyNav is enabled
+    if (Xonomy.keyNav) {
+        var focusDivs = bubble.querySelectorAll("div.focusme");
+        focusDivs.forEach(function (div) {
+            div.onkeyup = null;
+            div.addEventListener("keyup", function (event) {
+                if (event.which == 40) { //down key
+                    var items = Array.from(bubble.querySelectorAll(".focusme"));
+                    var idx = items.indexOf(div);
+                    var next = items[idx + 1];
+                    if (next) next.focus();
+                }
+                if (event.which == 38) { //up key
+                    var items = Array.from(bubble.querySelectorAll("div.focusme"));
+                    var idx = items.indexOf(div);
+                    var prev = items[idx - 1];
+                    if (prev) prev.focus();
+                }
+                if (event.which == 13) { //enter key
+                    div.click();
+                    Xonomy.notclick = false;
+                }
+            });
+        });
+    }
 };
 
 Xonomy.askString = function (defaultString, askerParameter, jsMe) {
