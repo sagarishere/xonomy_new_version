@@ -1986,16 +1986,29 @@ Xonomy.moveElementDown = function (htmlID) {
 	window.setTimeout(function () { Xonomy.setFocus(htmlID, "openingTagName"); }, 100);
 };
 Xonomy.canMoveElementUp = function (htmlID) {
-	var ret = false;
-	var $me = $("#" + htmlID);
-	if ($me.closest(".layby > .content").length == 0) {
-		Xonomy.insertDropTargets(htmlID);
-		var $droppers = $(".xonomy .elementDropper").add($me);
-		var i = $droppers.index($me[0]) - 1;
-		if (i >= 0) ret = true;
-		Xonomy.dragend();
-	}
-	return ret;
+    var ret = false;
+    var me = document.getElementById(htmlID);
+    // Check if the element is inside a layby > .content
+    var inLaybyContent = false;
+    var parent = me.parentElement;
+    while (parent) {
+        if (parent.classList && parent.classList.contains('content') && parent.parentElement && parent.parentElement.classList.contains('layby')) {
+            inLaybyContent = true;
+            break;
+        }
+        parent = parent.parentElement;
+    }
+    if (!inLaybyContent) {
+        Xonomy.insertDropTargets(htmlID);
+        // Get all .elementDropper elements in .xonomy, then add 'me' to the end
+        var droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
+        droppers.push(me);
+        // Find the index of 'me' in the array
+        var i = droppers.indexOf(me) - 1;
+        if (i >= 0) ret = true;
+        Xonomy.dragend();
+    }
+    return ret;
 };
 Xonomy.canMoveElementDown = function (htmlID) {
 	var ret = false;
