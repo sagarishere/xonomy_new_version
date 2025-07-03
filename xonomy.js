@@ -909,7 +909,7 @@ Xonomy.wrap = function (htmlID, param) {
 		}
 		xml = xml.replace(ph, Xonomy.xmlEscape(txtMiddleClose));
 		// Remove nodes between start and end
-		nodesToRemove.forEach(function(node) { node.parentNode.removeChild(node); });
+		nodesToRemove.forEach(function (node) { node.parentNode.removeChild(node); });
 		// Remove end node
 		if (endElem) endElem.parentNode.removeChild(endElem);
 		var html = "";
@@ -932,7 +932,7 @@ Xonomy.unwrap = function (htmlID, param) {
 	Xonomy.clickoff();
 	var children = elem.querySelectorAll(':scope > .children > *');
 	var fragment = document.createDocumentFragment();
-	children.forEach(function(child) {
+	children.forEach(function (child) {
 		fragment.appendChild(child);
 	});
 	elem.replaceWith(fragment);
@@ -1236,8 +1236,8 @@ Xonomy.showBubble = function ($anchor) {
 };
 
 Xonomy.askString = function (defaultString, askerParameter, jsMe) {
-	var width = ($("body").width() * .4) - 75
-	var html = "";
+	const width = (document.body.clientWidth * 0.5) - 75;
+	let html = "";
 	html += "<form onsubmit='Xonomy.answer(this.val.value); return false'>";
 	html += "<input name='val' class='textbox focusme' style='width: " + width + "px;' value='" + Xonomy.xmlEscape(defaultString) + "' onkeyup='Xonomy.notKeyUp=true'/>";
 	html += " <input type='submit' value='OK'>";
@@ -1245,8 +1245,8 @@ Xonomy.askString = function (defaultString, askerParameter, jsMe) {
 	return html;
 };
 Xonomy.askLongString = function (defaultString, askerParameter, jsMe) {
-	var width = ($("body").width() * .5) - 75
-	var html = "";
+	const width = (document.body.clientWidth * 0.5) - 75;
+	let html = "";
 	html += "<form onsubmit='Xonomy.answer(this.val.value); return false'>";
 	html += "<textarea name='val' class='textbox focusme' spellcheck='false' style='width: " + width + "px; height: 150px;'>" + Xonomy.xmlEscape(defaultString) + "</textarea>";
 	html += "<div class='submitline'><input type='submit' value='OK'></div>";
@@ -1254,13 +1254,13 @@ Xonomy.askLongString = function (defaultString, askerParameter, jsMe) {
 	return html;
 };
 Xonomy.askPicklist = function (defaultString, picklist, jsMe) {
-	var html = "";
+	let html = "";
 	html += Xonomy.pickerMenu(picklist, defaultString);
 	return html;
 };
 Xonomy.askOpenPicklist = function (defaultString, picklist) {
-	var isInPicklist = false;
-	var html = "";
+	const isInPicklist = false;
+	let html = "";
 	html += Xonomy.pickerMenu(picklist, defaultString);
 	html += "<form class='undermenu' onsubmit='Xonomy.answer(this.val.value); return false'>";
 	html += "<input name='val' class='textbox focusme' value='" + (!isInPicklist ? Xonomy.xmlEscape(defaultString) : "") + "' onkeyup='Xonomy.notKeyUp=true'/>";
@@ -1269,7 +1269,7 @@ Xonomy.askOpenPicklist = function (defaultString, picklist) {
 	return html;
 };
 Xonomy.askRemote = function (defaultString, param, jsMe) {
-	var html = "";
+	let html = "";
 	if (param.searchUrl || param.createUrl) {
 		html += "<form class='overmenu' onsubmit='return Xonomy.remoteSearch(\"" + Xonomy.xmlEscape(param.searchUrl, true) + "\", \"" + Xonomy.xmlEscape(param.urlPlaceholder, true) + "\", \"" + Xonomy.xmlEscape(Xonomy.jsEscape(defaultString)) + "\")'>";
 		html += "<input name='val' class='textbox focusme' value=''/>";
@@ -1278,7 +1278,7 @@ Xonomy.askRemote = function (defaultString, param, jsMe) {
 		html += "</form>";
 	}
 	html += Xonomy.wyc(param.url, function (picklist) {
-		var items = [];
+		const items = [];
 		if (param.add) for (var i = 0; i < param.add.length; i++) items.push(param.add[i]);
 		for (var i = 0; i < picklist.length; i++) items.push(picklist[i]);
 		return Xonomy.pickerMenu(items, defaultString);
@@ -1291,7 +1291,7 @@ Xonomy.remoteSearch = function (searchUrl, urlPlaceholder, defaultString) {
 	var text = $("#xonomyBubble input.textbox").val();
 	searchUrl = searchUrl.replace(urlPlaceholder, encodeURIComponent(text));
 	$("#xonomyBubble .menu").replaceWith(Xonomy.wyc(searchUrl, function (picklist) {
-		var items = [];
+		const items = [];
 		if (text == "" && Xonomy.lastAskerParam.add) for (var i = 0; i < Xonomy.lastAskerParam.add.length; i++) items.push(Xonomy.lastAskerParam.add[i]);
 		for (var i = 0; i < picklist.length; i++) items.push(picklist[i]);
 		return Xonomy.pickerMenu(items, defaultString);
