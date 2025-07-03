@@ -1179,28 +1179,28 @@ Xonomy.makeBubble = function (content) {
 	return bubble;
 };
 Xonomy.showBubble = function (anchor) {
-    var bubble = document.getElementById("xonomyBubble");
+    const bubble = document.getElementById("xonomyBubble");
 
-    // Get anchor position relative to document
-    var anchorRect = anchor.getBoundingClientRect();
-    var scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-    var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    var offset = {
-        top: anchorRect.top + scrollTop,
-        left: anchorRect.left + scrollLeft
-    };
+	// Get anchor position relative to document
+	const anchorRect = anchor.getBoundingClientRect();
+	const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+	const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+	const offset = {
+					top: anchorRect.top + scrollTop,
+					left: anchorRect.left + scrollLeft
+	};
 
-    // Get screen and bubble dimensions
-    var screenWidth = document.body.clientWidth;
-    var screenHeight = document.documentElement.scrollHeight;
-    var bubbleHeight = bubble.offsetHeight;
-    var width = anchor.offsetWidth; if (width > 40) width = 40;
-    var height = anchor.offsetHeight; if (height > 25) height = 25;
+	// Get screen and bubble dimensions
+	const screenWidth = document.body.clientWidth;
+	const screenHeight = document.documentElement.scrollHeight;
+	const bubbleHeight = bubble.offsetHeight;
+	let width = anchor.offsetWidth; if (width > 40) width = 40;
+	let height = anchor.offsetHeight; if (height > 25) height = 25;
     if (Xonomy.mode == "laic") { width = width - 25; height = height + 10; }
 
     function verticalPlacement() {
-        var top = "";
-        var bottom = "";
+        let top = "";
+		let bottom = "";
         if (offset.top + height + bubbleHeight <= screenHeight) {
             // enough space - open down
             top = (offset.top + height) + "px";
@@ -1214,7 +1214,7 @@ Xonomy.showBubble = function (anchor) {
         return { top: top, bottom: bottom };
     }
 
-    var placement = verticalPlacement();
+	const placement = verticalPlacement();
     if (offset.left < screenWidth / 2) {
         placement.left = (offset.left + width - 15) + "px";
     } else {
@@ -1235,8 +1235,8 @@ Xonomy.showBubble = function (anchor) {
         bubble.style.opacity = 1;
     });
 
-    // Focus logic
-    var focusElem = null;
+	// Focus logic
+	let focusElem = null;
     if (Xonomy.keyNav) {
         focusElem = bubble.querySelector(".focusme");
     } else {
@@ -1260,13 +1260,13 @@ Xonomy.showBubble = function (anchor) {
                 if (event.which == 40) { //down key
                     var items = Array.from(bubble.querySelectorAll(".focusme"));
                     var idx = items.indexOf(div);
-                    var next = items[idx + 1];
+					const next = items[idx + 1];
                     if (next) next.focus();
                 }
                 if (event.which == 38) { //up key
                     var items = Array.from(bubble.querySelectorAll("div.focusme"));
                     var idx = items.indexOf(div);
-                    var prev = items[idx - 1];
+					const prev = items[idx - 1];
                     if (prev) prev.focus();
                 }
                 if (event.which == 13) { //enter key
