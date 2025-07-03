@@ -1576,7 +1576,6 @@ Xonomy.attributeMenu = function (htmlID) {
 };
 Xonomy.elementMenu = function (htmlID) {
 	Xonomy.harvestCache = {};
-	// Vanilla JS replacement for $("#" + htmlID).attr("data-name")
 	const elem = document.getElementById(htmlID);
 	const elName = elem ? elem.getAttribute("data-name") : null; //obtain element's name
 	const spec = Xonomy.docSpec.elements[elName];
@@ -1587,7 +1586,6 @@ Xonomy.elementMenu = function (htmlID) {
 };
 Xonomy.inlineMenu = function (htmlID) {
 	Xonomy.harvestCache = {};
-	// Use vanilla JS to get the element's name
 	const elem = document.getElementById(htmlID);
 	const elName = elem ? elem.getAttribute("data-name") : null; //obtain element's name
 	const spec = Xonomy.docSpec.elements[elName];
@@ -1904,7 +1902,6 @@ Xonomy.editRaw = function (htmlID, parameter) {
 
 		const obj = document.getElementById(htmlID);
 		const html = Xonomy.renderElement(jsNewElement);
-		// Replace obj with the new element (vanilla JS equivalent of $(obj).replaceWith(html))
 		const tempDiv = document.createElement('div');
 		tempDiv.innerHTML = html;
 		const newElem = tempDiv.firstElementChild;
@@ -1963,20 +1960,41 @@ Xonomy.duplicateElement = function (htmlID) {
 	window.setTimeout(function () { Xonomy.setFocus(newElem.id, "openingTagName"); }, 100);
 };
 Xonomy.moveElementUp = function (htmlID) {
-	Xonomy.clickoff();
-	var $me = $("#" + htmlID);
-	if ($me.closest(".layby > .content").length == 0) {
-		Xonomy.insertDropTargets(htmlID);
-		var $droppers = $(".xonomy .elementDropper").add($me);
-		var i = $droppers.index($me[0]) - 1;
-		if (i >= 0) {
-			$($droppers[i]).replaceWith($me);
-			Xonomy.changed();
-			$me.hide().fadeIn();
-		}
-		Xonomy.dragend();
-	}
-	window.setTimeout(function () { Xonomy.setFocus(htmlID, "openingTagName"); }, 100);
+    Xonomy.clickoff();
+    const me = document.getElementById(htmlID);
+    if (!me.closest('.layby > .content')) {
+        Xonomy.insertDropTargets(htmlID);
+        // Get all .elementDropper elements in .xonomy, then add 'me' to the end
+        const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
+        droppers.push(me);
+        // Find the index of 'me' in the array, then move it up (replace previous dropper with 'me')
+        const i = droppers.indexOf(me) - 1;
+        if (i >= 0) {
+            const dropper = droppers[i];
+            dropper.parentNode.replaceChild(me, dropper);
+            Xonomy.changed();
+            // Fade in animation
+            me.style.opacity = 0;
+            me.style.display = '';
+            let opacity = 0;
+            const fadeDuration = 400;
+            let start = null;
+            function fadeInStep(timestamp) {
+                if (!start) start = timestamp;
+                const elapsed = timestamp - start;
+                opacity = Math.min(elapsed / fadeDuration, 1);
+                me.style.opacity = opacity;
+                if (elapsed < fadeDuration) {
+                    requestAnimationFrame(fadeInStep);
+                } else {
+                    me.style.opacity = 1;
+                }
+            }
+            requestAnimationFrame(fadeInStep);
+        }
+        Xonomy.dragend();
+    }
+    window.setTimeout(function () { Xonomy.setFocus(htmlID, "openingTagName"); }, 100);
 };
 Xonomy.moveElementDown = function (htmlID) {
 	Xonomy.clickoff();
