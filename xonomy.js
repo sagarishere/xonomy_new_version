@@ -1797,14 +1797,44 @@ Xonomy.newElementBefore = function (htmlID, parameter) {
 };
 Xonomy.newElementAfter = function (htmlID, parameter) {
 	Xonomy.clickoff();
-	var jsElement = Xonomy.harvestElement(document.getElementById(htmlID));
-	var html = Xonomy.renderElement(Xonomy.xml2js(parameter, jsElement.parent()));
-	var $html = $(html).hide();
-	$("#" + htmlID).after($html);
-	Xonomy.elementReorder($html.prop("id"));
+	const jsElement = Xonomy.harvestElement(document.getElementById(htmlID));
+	const html = Xonomy.renderElement(Xonomy.xml2js(parameter, jsElement.parent()));
+
+	// Parse the HTML string and create the new element
+	const tempDiv = document.createElement('div');
+	tempDiv.innerHTML = html;
+	const newElem = tempDiv.firstElementChild;
+	newElem.style.opacity = 0;
+
+	// Insert the new element after the target element
+	const targetElem = document.getElementById(htmlID);
+	if (targetElem.nextSibling) {
+		targetElem.parentNode.insertBefore(newElem, targetElem.nextSibling);
+	} else {
+		targetElem.parentNode.appendChild(newElem);
+	}
+
+	Xonomy.elementReorder(newElem.id);
 	Xonomy.changed();
-	$html.fadeIn();
-	window.setTimeout(function () { Xonomy.setFocus($html.prop("id"), "openingTagName"); }, 100);
+
+	// Fade in animation (same as newElementChild)
+	let opacity = 0;
+	const fadeDuration = 400; // ms
+	let start = null;
+	function fadeInStep(timestamp) {
+		if (!start) start = timestamp;
+		const elapsed = timestamp - start;
+		opacity = Math.min(elapsed / fadeDuration, 1);
+		newElem.style.opacity = opacity;
+		if (elapsed < fadeDuration) {
+			requestAnimationFrame(fadeInStep);
+		} else {
+			newElem.style.opacity = 1;
+		}
+	}
+	requestAnimationFrame(fadeInStep);
+
+	window.setTimeout(function () { Xonomy.setFocus(newElem.id, "openingTagName"); }, 100);
 };
 Xonomy.replace = function (htmlID, jsNode) {
 	var what = Xonomy.currentFocus;
