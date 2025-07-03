@@ -2120,16 +2120,19 @@ Xonomy.mergeElements = function (elDead, elLive) {
 	}
 };
 Xonomy.deleteEponymousSiblings = function (htmlID, parameter) {
-	var what = Xonomy.currentFocus;
+	const what = Xonomy.currentFocus;
 	Xonomy.clickoff();
-	var obj = document.getElementById(htmlID);
-	var parent = obj.parentNode.parentNode;
-	var _htmlChildren = $(parent).children(".children").toArray()[0].childNodes;
-	var htmlChildren = []; for (var i = 0; i < _htmlChildren.length; i++) htmlChildren.push(_htmlChildren[i]);
-	for (var i = 0; i < htmlChildren.length; i++) {
-		var htmlChild = htmlChildren[i];
-		if ($(htmlChild).hasClass("element")) {
-			if ($(htmlChild).attr("data-name") == $(obj).attr("data-name") && htmlChild != obj) {
+	const obj = document.getElementById(htmlID);
+	const parent = obj.parentNode.parentNode;
+	// Find the .children container inside parent
+	const childrenContainer = parent.querySelector('.children');
+	if (!childrenContainer) return;
+	// Convert childNodes to array for safe iteration
+	const htmlChildren = Array.prototype.slice.call(childrenContainer.childNodes);
+	for (let i = 0; i < htmlChildren.length; i++) {
+		const htmlChild = htmlChildren[i];
+		if (htmlChild.nodeType === 1 && htmlChild.classList.contains('element')) {
+			if (htmlChild.getAttribute('data-name') === obj.getAttribute('data-name') && htmlChild !== obj) {
 				htmlChild.parentNode.removeChild(htmlChild);
 			}
 		}
