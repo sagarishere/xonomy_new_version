@@ -1986,11 +1986,11 @@ Xonomy.moveElementDown = function (htmlID) {
 	window.setTimeout(function () { Xonomy.setFocus(htmlID, "openingTagName"); }, 100);
 };
 Xonomy.canMoveElementUp = function (htmlID) {
-    var ret = false;
-    var me = document.getElementById(htmlID);
-    // Check if the element is inside a layby > .content
-    var inLaybyContent = false;
-    var parent = me.parentElement;
+    let ret = false;
+	const me = document.getElementById(htmlID);
+	// Check if the element is inside a layby > .content
+	let inLaybyContent = false;
+	let parent = me.parentElement;
     while (parent) {
         if (parent.classList && parent.classList.contains('content') && parent.parentElement && parent.parentElement.classList.contains('layby')) {
             inLaybyContent = true;
@@ -2000,11 +2000,11 @@ Xonomy.canMoveElementUp = function (htmlID) {
     }
     if (!inLaybyContent) {
         Xonomy.insertDropTargets(htmlID);
-        // Get all .elementDropper elements in .xonomy, then add 'me' to the end
-        var droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
+		// Get all .elementDropper elements in .xonomy, then add 'me' to the end
+		const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
         droppers.push(me);
-        // Find the index of 'me' in the array
-        var i = droppers.indexOf(me) - 1;
+		// Find the index of 'me' in the array
+		const i = droppers.indexOf(me) - 1;
         if (i >= 0) ret = true;
         Xonomy.dragend();
     }
