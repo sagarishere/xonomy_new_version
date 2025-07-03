@@ -1516,10 +1516,12 @@ Xonomy.elementMenu = function (htmlID) {
 };
 Xonomy.inlineMenu = function (htmlID) {
 	Xonomy.harvestCache = {};
-	var elName = $("#" + htmlID).attr("data-name"); //obtain element's name
-	var spec = Xonomy.docSpec.elements[elName];
+	// Use vanilla JS to get the element's name
+	const elem = document.getElementById(htmlID);
+	const elName = elem ? elem.getAttribute("data-name") : null; //obtain element's name
+	const spec = Xonomy.docSpec.elements[elName];
 	function getter(indices) {
-		return 'Xonomy.docSpec.elements["' + elName + '"].inlineMenu[' + indices.join('].menu[') + ']';
+		return 'Xonomy.docSpec.elements["' + elName + '"]' + '.inlineMenu[' + indices.join('].menu[') + ']';
 	}
 	return Xonomy.internalMenu(htmlID, spec.inlineMenu, Xonomy.harvestElement, getter);
 };
