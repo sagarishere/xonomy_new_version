@@ -811,37 +811,53 @@ Xonomy.chewText = function (txt) {
 };
 Xonomy.charClick = function (c) {
 	Xonomy.clickoff();
-	var isReadOnly = ($(c).closest(".readonly").toArray().length > 0);
+	// Check if c or any ancestor has class 'readonly'
+	var isReadOnly = false;
+	var parent = c;
+	while (parent) {
+		if (parent.classList && parent.classList.contains('readonly')) {
+			isReadOnly = true;
+			break;
+		}
+		parent = parent.parentElement;
+	}
 	if (!isReadOnly) {
 		Xonomy.notclick = true;
+		var charsOn = document.querySelectorAll('.xonomy .char.on');
 		if (
-			$(".xonomy .char.on").toArray().length == 1 && //if there is precisely one previously selected character
-			$(".xonomy .char.on").closest(".element").is($(c).closest(".element")) //and if it has the same parent element as this character
+			charsOn.length == 1 &&
+			charsOn[0].closest('.element') === c.closest('.element')
 		) {
-			var $element = $(".xonomy .char.on").closest(".element");
-			var chars = $element.find(".char").toArray();
-			var iFrom = $.inArray($(".xonomy .char.on").toArray()[0], chars);
-			var iTill = $.inArray(c, chars);
+			var element = charsOn[0].closest('.element');
+			var chars = Array.prototype.slice.call(element.querySelectorAll('.char'));
+			var iFrom = chars.indexOf(charsOn[0]);
+			var iTill = chars.indexOf(c);
 			if (iFrom > iTill) { var temp = iFrom; iFrom = iTill; iTill = temp; }
-			for (var i = 0; i < chars.length; i++) { //highlight all chars between start and end
-				if (i >= iFrom && i <= iTill) $(chars[i]).addClass("on");
+			for (var i = 0; i < chars.length; i++) {
+				if (i >= iFrom && i <= iTill) chars[i].classList.add('on');
 			}
-			//Save for later the info Xonomy needs to know what to wrap:
-			Xonomy.textFromID = $(chars[iFrom]).closest(".textnode").attr("id");
-			Xonomy.textTillID = $(chars[iTill]).closest(".textnode").attr("id");
-			Xonomy.textFromIndex = $.inArray(chars[iFrom], $("#" + Xonomy.textFromID).find(".char").toArray());
-			Xonomy.textTillIndex = $.inArray(chars[iTill], $("#" + Xonomy.textTillID).find(".char").toArray());
-			//Show inline menu etc:
-			var htmlID = $element.attr("id");
-			var content = Xonomy.inlineMenu(htmlID); //compose bubble content
+			// Save for later the info Xonomy needs to know what to wrap:
+			var textFrom = chars[iFrom].closest('.textnode');
+			var textTill = chars[iTill].closest('.textnode');
+			Xonomy.textFromID = textFrom ? textFrom.id : null;
+			Xonomy.textTillID = textTill ? textTill.id : null;
+			var charsFromText = textFrom ? Array.prototype.slice.call(textFrom.querySelectorAll('.char')) : [];
+			var charsTillText = textTill ? Array.prototype.slice.call(textTill.querySelectorAll('.char')) : [];
+			Xonomy.textFromIndex = charsFromText.indexOf(chars[iFrom]);
+			Xonomy.textTillIndex = charsTillText.indexOf(chars[iTill]);
+			// Show inline menu etc:
+			var htmlID = element.id;
+			var content = Xonomy.inlineMenu(htmlID);
 			if (content != "" && content != "<div class='menu'></div>") {
-				document.body.appendChild(Xonomy.makeBubble(content)); //create bubble
-				Xonomy.showBubble($("#" + htmlID + " .char.on").last()); //anchor bubble to highlighted chars
+				document.body.appendChild(Xonomy.makeBubble(content));
+				var charsOnList = element.querySelectorAll('.char.on');
+				if (charsOnList.length > 0) Xonomy.showBubble(charsOnList[charsOnList.length - 1]);
 			}
 			Xonomy.clearChars = true;
 		} else {
-			$(".xonomy .char.on").removeClass("on");
-			$(c).addClass("on");
+			// Remove all .on from .char
+			Array.prototype.forEach.call(document.querySelectorAll('.xonomy .char.on'), function (el) { el.classList.remove('on'); });
+			c.classList.add('on');
 			Xonomy.setFocus(c.id, "char");
 		}
 	}
