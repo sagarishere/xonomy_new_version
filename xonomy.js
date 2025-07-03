@@ -2011,27 +2011,40 @@ Xonomy.canMoveElementUp = function (htmlID) {
     return ret;
 };
 Xonomy.canMoveElementDown = function (htmlID) {
-	var ret = false;
-	var $me = $("#" + htmlID);
-	if ($me.closest(".layby > .content").length == 0) {
-		Xonomy.insertDropTargets(htmlID);
-		var $droppers = $(".xonomy .elementDropper").add($me);
-		var i = $droppers.index($me[0]) + 1;
-		if (i < $droppers.length) ret = true;
-		Xonomy.dragend();
-	}
-	return ret;
+    let ret = false;
+    const me = document.getElementById(htmlID);
+    // Check if the element is inside a layby > .content
+    let inLaybyContent = false;
+    let parent = me.parentElement;
+    while (parent) {
+        if (parent.classList && parent.classList.contains('content') && parent.parentElement && parent.parentElement.classList.contains('layby')) {
+            inLaybyContent = true;
+            break;
+        }
+        parent = parent.parentElement;
+    }
+    if (!inLaybyContent) {
+        Xonomy.insertDropTargets(htmlID);
+        // Get all .elementDropper elements in .xonomy, then add 'me' to the end
+        const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
+        droppers.push(me);
+        // Find the index of 'me' in the array
+        const i = droppers.indexOf(me) + 1;
+        if (i < droppers.length) ret = true;
+        Xonomy.dragend();
+    }
+    return ret;
 };
 Xonomy.mergeWithPrevious = function (htmlID, parameter) {
-	var domDead = document.getElementById(htmlID);
-	var elDead = Xonomy.harvestElement(domDead);
-	var elLive = elDead.getPrecedingSibling();
+	const domDead = document.getElementById(htmlID);
+	const elDead = Xonomy.harvestElement(domDead);
+	const elLive = elDead.getPrecedingSibling();
 	Xonomy.mergeElements(elDead, elLive);
 };
 Xonomy.mergeWithNext = function (htmlID, parameter) {
-	var domDead = document.getElementById(htmlID);
-	var elDead = Xonomy.harvestElement(domDead);
-	var elLive = elDead.getFollowingSibling();
+	const domDead = document.getElementById(htmlID);
+	const elDead = Xonomy.harvestElement(domDead);
+	const elLive = elDead.getFollowingSibling();
 	Xonomy.mergeElements(elDead, elLive);
 };
 Xonomy.mergeElements = function (elDead, elLive) {
