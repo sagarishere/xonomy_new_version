@@ -2573,7 +2573,7 @@ Xonomy.validate = function () {
 	var rootElement = document.querySelector('.xonomy .element');
 	var js = Xonomy.harvestElement(rootElement, null);
 	// Remove 'invalid' class from all elements with it
-	document.querySelectorAll('.xonomy .invalid').forEach(function(el) {
+	document.querySelectorAll('.xonomy .invalid').forEach(function (el) {
 		el.classList.remove('invalid');
 	});
 	Xonomy.warnings = [];
@@ -2606,13 +2606,51 @@ Xonomy.currentFocus = null;
 Xonomy.keyNav = false;
 Xonomy.startKeyNav = function (keyboardEventCatcher, scrollableContainer) {
 	Xonomy.keyNav = true;
-	var $keyboardEventCatcher = $(keyboardEventCatcher); if (!keyboardEventCatcher) $keyboardEventCatcher = $(".xonomy");
-	$scrollableContainer = $(scrollableContainer); if (!scrollableContainer) $scrollableContainer = $keyboardEventCatcher;
-	$keyboardEventCatcher.attr("tabindex", "0");
-	$keyboardEventCatcher.on("keydown", Xonomy.key);
-	$(document).on("keydown", function (e) { if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1 && $("input:focus, select:focus, textarea:focus").length == 0) e.preventDefault(); }); //prevent default browser scrolling on arrow keys
-	Xonomy.keyboardEventCatcher = $keyboardEventCatcher;
-	Xonomy.scrollableContainer = $scrollableContainer;
+	// Resolve keyboardEventCatcher
+	var keyboardCatcherElem = null;
+	if (keyboardEventCatcher instanceof Element) {
+		keyboardCatcherElem = keyboardEventCatcher;
+	} else if (typeof keyboardEventCatcher === "string" && keyboardEventCatcher.trim() !== "") {
+		keyboardCatcherElem = document.querySelector(keyboardEventCatcher);
+	}
+	if (!keyboardCatcherElem) keyboardCatcherElem = document.querySelector(".xonomy");
+
+	// Resolve scrollableContainer
+	var scrollableElem = null;
+	if (scrollableContainer instanceof Element) {
+		scrollableElem = scrollableContainer;
+	} else if (typeof scrollableContainer === "string" && scrollableContainer.trim() !== "") {
+		scrollableElem = document.querySelector(scrollableContainer);
+	}
+	if (!scrollableElem) scrollableElem = keyboardCatcherElem;
+
+	// Set tabindex
+	if (keyboardCatcherElem) keyboardCatcherElem.setAttribute("tabindex", "0");
+
+	// Remove previous event listener if any (to avoid duplicates)
+	if (keyboardCatcherElem) {
+		keyboardCatcherElem.removeEventListener("keydown", Xonomy.key);
+		keyboardCatcherElem.addEventListener("keydown", Xonomy.key);
+	}
+
+	// Remove previous document keydown handler if any
+	if (Xonomy._docKeydownHandler) document.removeEventListener("keydown", Xonomy._docKeydownHandler);
+	Xonomy._docKeydownHandler = function (e) {
+		var isArrowOrSpace = [32, 37, 38, 39, 40].indexOf(e.keyCode) > -1;
+		var active = document.activeElement;
+		var isInputFocused = active && (
+			active.tagName === "INPUT" ||
+			active.tagName === "SELECT" ||
+			active.tagName === "TEXTAREA"
+		);
+		if (isArrowOrSpace && !isInputFocused) {
+			e.preventDefault();
+		}
+	};
+	document.addEventListener("keydown", Xonomy._docKeydownHandler);
+
+	Xonomy.keyboardEventCatcher = keyboardCatcherElem;
+	Xonomy.scrollableContainer = scrollableElem;
 };
 Xonomy.setFocus = function (htmlID, what) {
 	if (Xonomy.keyNav) {
