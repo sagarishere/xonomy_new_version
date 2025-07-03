@@ -2466,10 +2466,18 @@ Xonomy.dragend = function (ev) {
 };
 
 Xonomy.openCloseLayby = function () { //open the layby if it's full, close it if it's empty
-	if ($(".xonomy .layby > .content > *").length > 0) {
-		$(".xonomy .layby").removeClass("closed").addClass("open");
+	var laybyContentChildren = document.querySelectorAll('.xonomy .layby > .content > *');
+	var laybyElements = document.querySelectorAll('.xonomy .layby');
+	if (laybyContentChildren.length > 0) {
+		laybyElements.forEach(function (el) {
+			el.classList.remove('closed');
+			el.classList.add('open');
+		});
 	} else {
-		$(".xonomy .layby").removeClass("open").addClass("closed");
+		laybyElements.forEach(function (el) {
+			el.classList.remove('open');
+			el.classList.add('closed');
+		});
 	}
 };
 Xonomy.openLayby = function () {
