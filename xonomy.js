@@ -1860,26 +1860,26 @@ Xonomy.replace = function (htmlID, jsNode) {
 	}, 100);
 };
 Xonomy.editRaw = function (htmlID, parameter) {
-	var div = document.getElementById(htmlID);
-	var jsElement = Xonomy.harvestElement(div);
-	var txt;
+	const div = document.getElementById(htmlID);
+	const jsElement = Xonomy.harvestElement(div);
+	let txt;
 	if (parameter.fromJs) txt = parameter.fromJs(jsElement);
 	else if (parameter.fromXml) txt = parameter.fromXml(Xonomy.js2xml(jsElement));
 	else txt = Xonomy.js2xml(jsElement);
 	document.body.appendChild(Xonomy.makeBubble(Xonomy.askLongString(txt))); //create bubble
 	Xonomy.showBubble(div); //anchor bubble to element
 	Xonomy.answer = function (val) {
-		var jsNewElement;
+		let jsNewElement;
 		if (parameter.toJs) jsNewElement = parameter.toJs(val, jsElement);
 		else if (parameter.toXml) jsNewElement = Xonomy.xml2js(parameter.toXml(val, jsElement), jsElement.parent());
 		else jsNewElement = Xonomy.xml2js(val, jsElement.parent());
 
-		var obj = document.getElementById(htmlID);
-		var html = Xonomy.renderElement(jsNewElement);
+		const obj = document.getElementById(htmlID);
+		const html = Xonomy.renderElement(jsNewElement);
 		// Replace obj with the new element (vanilla JS equivalent of $(obj).replaceWith(html))
-		var tempDiv = document.createElement('div');
+		const tempDiv = document.createElement('div');
 		tempDiv.innerHTML = html;
-		var newElem = tempDiv.firstElementChild;
+		const newElem = tempDiv.firstElementChild;
 		if (obj && newElem) {
 			obj.parentNode.replaceChild(newElem, obj);
 		}
