@@ -449,7 +449,8 @@ Xonomy.refresh = function () {
 Xonomy.harvestCache = {};
 Xonomy.harvest = function () { //harvests the contents of an editor
 	//Returns xml-as-string.
-	var rootElement = $(".xonomy .element").first().toArray()[0];
+	// var rootElement = $(".xonomy .element").first().toArray()[0];
+	var rootElement = document.querySelector('.xonomy .element');
 	var js = Xonomy.harvestElement(rootElement);
 	for (var key in Xonomy.namespaces) {
 		if (!js.hasAttribute(key)) js.attributes.push({
@@ -550,37 +551,63 @@ Xonomy.render = function (data, editor, docSpec) { //renders the contents of an 
 
 	//Make sure editor refers to an HTML element, if it doesn't already:
 	if (typeof (editor) == "string") editor = document.getElementById(editor);
-	if (!$(editor).hasClass("xonomy")) $(editor).addClass("xonomy"); //make sure it has class "xonomy"
-	$(editor).addClass(Xonomy.mode);
+	// if (!$(editor).hasClass("xonomy")) $(editor).addClass("xonomy"); //make sure it has class "xonomy"
+	if (!editor.classList.contains("xonomy")) editor.classList.add("xonomy");
+	// $(editor).addClass(Xonomy.mode);
+	if (!editor.classList.contains(Xonomy.mode)) editor.classList.add(Xonomy.mode);
 
-	$(editor).hide();
+	// $(editor).hide();
+	editor.style.display = "none";
 	editor.innerHTML = Xonomy.renderElement(data, editor);
-	$(editor).show();
+	// $(editor).show();
+	editor.style.display = "";
 
 	if (docSpec.allowLayby) {
-		var laybyHtml = "<div class='layby closed empty' onclick='if($(this).hasClass(\"closed\")) Xonomy.openLayby()' ondragover='Xonomy.dragOver(event)' ondragleave='Xonomy.dragOut(event)' ondrop='Xonomy.drop(event)'''>";
+		var laybyHtml = "<div class='layby closed empty' onclick='if(this.classList.contains(\"closed\")) Xonomy.openLayby()' ondragover='Xonomy.dragOver(event)' ondragleave='Xonomy.dragOut(event)' ondrop='Xonomy.drop(event)''>";
 		laybyHtml += "<span class='button closer' onclick='Xonomy.closeLayby();'>&nbsp;</span>";
 		laybyHtml += "<span class='button purger' onclick='Xonomy.emptyLayby()'>&nbsp;</span>";
 		laybyHtml += "<div class='content'></div>";
 		laybyHtml += "<div class='message'>" + Xonomy.textByLang(docSpec.laybyMessage) + "</div>";
 		laybyHtml += "</div>";
-		$(laybyHtml).appendTo($(editor));
+		// $(laybyHtml).appendTo($(editor));
+		var tempDiv = document.createElement('div');
+		tempDiv.innerHTML = laybyHtml;
+		while (tempDiv.firstChild) {
+			editor.appendChild(tempDiv.firstChild);
+		}
 	}
 
 	if (docSpec.allowModeSwitching) {
-		$("<div class='modeSwitcher'><span class='nerd'></span><span class='laic'></span></div>").appendTo($(editor)).on("click", function (e) {
+		// $("<div class='modeSwitcher'><span class='nerd'></span><span class='laic'></span></div>").appendTo($(editor)).on("click", function (e) {
+		//	if (Xonomy.mode == "nerd") { Xonomy.setMode("laic"); } else { Xonomy.setMode("nerd"); }
+		//	if (docSpec.onModeSwitch) docSpec.onModeSwitch(Xonomy.mode);
+		// });
+		var modeSwitcher = document.createElement('div');
+		modeSwitcher.className = 'modeSwitcher';
+		var nerdSpan = document.createElement('span');
+		nerdSpan.className = 'nerd';
+		var laicSpan = document.createElement('span');
+		laicSpan.className = 'laic';
+		modeSwitcher.appendChild(nerdSpan);
+		modeSwitcher.appendChild(laicSpan);
+		modeSwitcher.addEventListener('click', function (e) {
 			if (Xonomy.mode == "nerd") { Xonomy.setMode("laic"); } else { Xonomy.setMode("nerd"); }
 			if (docSpec.onModeSwitch) docSpec.onModeSwitch(Xonomy.mode);
 		});
+		editor.appendChild(modeSwitcher);
 	}
 
 	//Make sure the "click off" handler is attached:
-	$(document.body).off("click", Xonomy.clickoff);
-	$(document.body).on("click", Xonomy.clickoff);
+	// $(document.body).off("click", Xonomy.clickoff);
+	// $(document.body).on("click", Xonomy.clickoff);
+	document.body.removeEventListener("click", Xonomy.clickoff);
+	document.body.addEventListener("click", Xonomy.clickoff);
 
 	//Make sure the "drag end" handler is attached:
-	$(document.body).off("dragend", Xonomy.dragend);
-	$(document.body).on("dragend", Xonomy.dragend);
+	// $(document.body).off("dragend", Xonomy.dragend);
+	// $(document.body).on("dragend", Xonomy.dragend);
+	document.body.removeEventListener("dragend", Xonomy.dragend);
+	document.body.addEventListener("dragend", Xonomy.dragend);
 
 	Xonomy.refresh();
 	Xonomy.validate();
