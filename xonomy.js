@@ -2446,11 +2446,23 @@ Xonomy.drop = function (ev) {
 	Xonomy.recomputeLayby();
 };
 Xonomy.dragend = function (ev) {
-	$(".xonomy .attributeDropper").remove();
-	$(".xonomy .elementDropper").remove();
-	$(".xonomy .dragging").removeClass("dragging");
+	// Remove all .attributeDropper elements
+	document.querySelectorAll('.xonomy .attributeDropper').forEach(function (el) {
+		el.remove();
+	});
+	// Remove all .elementDropper elements
+	document.querySelectorAll('.xonomy .elementDropper').forEach(function (el) {
+		el.remove();
+	});
+	// Remove the 'dragging' class from all elements with it
+	document.querySelectorAll('.xonomy .dragging').forEach(function (el) {
+		el.classList.remove('dragging');
+	});
 	Xonomy.refresh();
-	$(".xonomy .layby").removeClass("activeDropper");
+	// Remove the 'activeDropper' class from all .layby elements
+	document.querySelectorAll('.xonomy .layby').forEach(function (el) {
+		el.classList.remove('activeDropper');
+	});
 };
 
 Xonomy.openCloseLayby = function () { //open the layby if it's full, close it if it's empty
