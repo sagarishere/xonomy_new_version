@@ -2528,10 +2528,36 @@ Xonomy.recomputeLayby = function () {
 Xonomy.newElementLayby = function (xml) {
 	Xonomy.clickoff();
 	var html = Xonomy.renderElement(Xonomy.xml2js(xml));
-	var $html = $(html).hide();
-	$(".xonomy .layby > .content").append($html);
+	// Create a DOM element from the HTML string
+	var tempDiv = document.createElement('div');
+	tempDiv.innerHTML = html;
+	var newElem = tempDiv.firstElementChild;
+	newElem.style.opacity = 0;
+	newElem.style.display = '';
+
+	// Append to the layby content
+	var laybyContent = document.querySelector('.xonomy .layby > .content');
+	if (laybyContent) laybyContent.appendChild(newElem);
+
 	Xonomy.refresh();
-	$html.fadeIn();
+
+	// Fade in animation (same as other new element functions)
+	let opacity = 0;
+	const fadeDuration = 400; // ms
+	let start = null;
+	function fadeInStep(timestamp) {
+		if (!start) start = timestamp;
+		const elapsed = timestamp - start;
+		opacity = Math.min(elapsed / fadeDuration, 1);
+		newElem.style.opacity = opacity;
+		if (elapsed < fadeDuration) {
+			requestAnimationFrame(fadeInStep);
+		} else {
+			newElem.style.opacity = 1;
+		}
+	}
+	requestAnimationFrame(fadeInStep);
+
 	Xonomy.openCloseLayby();
 	Xonomy.recomputeLayby();
 };
