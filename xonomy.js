@@ -2370,18 +2370,22 @@ Xonomy.drag = function (ev) { //called when dragging starts
 Xonomy.dragOver = function (ev) {
 	ev.preventDefault();
 	ev.dataTransfer.dropEffect = "move"; //only allow moving (and not eg. copying]
-	if ($(ev.currentTarget).hasClass("layby")) {
-		$(ev.currentTarget).addClass("activeDropper");
+	if (ev.currentTarget.classList.contains("layby")) {
+		ev.currentTarget.classList.add("activeDropper");
 	} else {
-		$(ev.target.parentNode).addClass("activeDropper");
+		ev.target.parentNode.classList.add("activeDropper");
 	}
 };
 Xonomy.dragOut = function (ev) {
 	ev.preventDefault();
-	if ($(ev.currentTarget).hasClass("layby")) {
-		$(ev.currentTarget).removeClass("activeDropper");
+	if (ev.currentTarget.classList.contains("layby")) {
+		ev.currentTarget.classList.remove("activeDropper");
 	} else {
-		$(".xonomy .activeDropper").removeClass("activeDropper");
+		// Remove 'activeDropper' from all elements inside .xonomy
+		var activeDroppers = document.querySelectorAll(".xonomy .activeDropper");
+		activeDroppers.forEach(function(el) {
+			el.classList.remove("activeDropper");
+		});
 	}
 };
 Xonomy.drop = function (ev) {
