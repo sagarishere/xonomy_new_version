@@ -878,7 +878,12 @@ Xonomy.wrap = function (htmlID, param) {
 		html += Xonomy.renderText({ type: "text", value: txtOpen });
 		var js = Xonomy.xml2js(xml, jsElement); html += Xonomy.renderElement(js); var newID = js.htmlID;
 		html += Xonomy.renderText({ type: "text", value: txtClose });
-		$("#" + Xonomy.textFromID).replaceWith(html);
+		var textFromElem = document.getElementById(Xonomy.textFromID);
+		if (textFromElem) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = html;
+			textFromElem.replaceWith(...tempDiv.childNodes);
+		}
 		window.setTimeout(function () { Xonomy.setFocus(newID, "openingTagName"); }, 100);
 	} else { //ab<...>cd --> a<XYZ>b<...>c</XYZ>d
 		var jsOldOpen = Xonomy.harvestText(document.getElementById(Xonomy.textFromID));
@@ -888,44 +893,85 @@ Xonomy.wrap = function (htmlID, param) {
 		var txtMiddleClose = jsOldClose.value.substring(0, Xonomy.textTillIndex + 1);
 		var txtClose = jsOldClose.value.substring(Xonomy.textTillIndex + 1);
 		xml = xml.replace(ph, Xonomy.xmlEscape(txtMiddleOpen) + ph);
-		$("#" + Xonomy.textFromID).nextUntil("#" + Xonomy.textTillID).each(function () {
-			if ($(this).hasClass("element")) xml = xml.replace(ph, Xonomy.js2xml(Xonomy.harvestElement(this)) + ph);
-			else if ($(this).hasClass("textnode")) xml = xml.replace(ph, Xonomy.js2xml(Xonomy.harvestText(this)) + ph);
-		});
+		// Vanilla JS nextUntil implementation
+		var startElem = document.getElementById(Xonomy.textFromID);
+		var endElem = document.getElementById(Xonomy.textTillID);
+		var current = startElem.nextElementSibling;
+		var nodesToRemove = [];
+		while (current && current !== endElem) {
+			if (current.classList.contains("element")) {
+				xml = xml.replace(ph, Xonomy.js2xml(Xonomy.harvestElement(current)) + ph);
+			} else if (current.classList.contains("textnode")) {
+				xml = xml.replace(ph, Xonomy.js2xml(Xonomy.harvestText(current)) + ph);
+			}
+			nodesToRemove.push(current);
+			current = current.nextElementSibling;
+		}
 		xml = xml.replace(ph, Xonomy.xmlEscape(txtMiddleClose));
-		$("#" + Xonomy.textFromID).nextUntil("#" + Xonomy.textTillID).remove();
-		$("#" + Xonomy.textTillID).remove();
+		// Remove nodes between start and end
+		nodesToRemove.forEach(function(node) { node.parentNode.removeChild(node); });
+		// Remove end node
+		if (endElem) endElem.parentNode.removeChild(endElem);
 		var html = "";
 		html += Xonomy.renderText({ type: "text", value: txtOpen });
 		var js = Xonomy.xml2js(xml, jsElement); html += Xonomy.renderElement(js); var newID = js.htmlID;
 		html += Xonomy.renderText({ type: "text", value: txtClose });
-		$("#" + Xonomy.textFromID).replaceWith(html);
+		var textFromElem = document.getElementById(Xonomy.textFromID);
+		if (textFromElem) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = html;
+			textFromElem.replaceWith(...tempDiv.childNodes);
+		}
 		window.setTimeout(function () { Xonomy.setFocus(newID, "openingTagName"); }, 100);
 	}
 	Xonomy.changed();
 };
 Xonomy.unwrap = function (htmlID, param) {
-	var parentID = $("#" + htmlID)[0].parentNode.parentNode.id;
+	var elem = document.getElementById(htmlID);
+	var parentID = elem.parentNode.parentNode.id;
 	Xonomy.clickoff();
-	$("#" + htmlID).replaceWith($("#" + htmlID + " > .children > *"));
+	var children = elem.querySelectorAll(':scope > .children > *');
+	var fragment = document.createDocumentFragment();
+	children.forEach(function(child) {
+		fragment.appendChild(child);
+	});
+	elem.replaceWith(fragment);
 	Xonomy.changed();
 	window.setTimeout(function () { Xonomy.setFocus(parentID, "openingTagName"); }, 100);
 };
 
 Xonomy.plusminus = function (htmlID, forceExpand) {
-	var $element = $("#" + htmlID);
-	var $children = $element.children(".children");
-	if ($element.hasClass("collapsed")) {
-		$children.hide();
-		$element.removeClass("collapsed");
-		if ($element.hasClass("oneliner")) $children.fadeIn("fast"); else $children.slideDown("fast");
+	var element = document.getElementById(htmlID);
+	var children = element.querySelector('.children');
+	if (element.classList.contains("collapsed")) {
+		if (children) children.style.display = 'none';
+		element.classList.remove("collapsed");
+		if (element.classList.contains("oneliner")) {
+			if (children) {
+				children.style.display = '';
+			}
+		} else {
+			if (children) {
+				children.style.display = '';
+			}
+		}
 	} else if (!forceExpand) {
 		Xonomy.updateCollapsoid(htmlID);
-		if ($element.hasClass("oneliner")) $children.fadeOut("fast", function () { $element.addClass("collapsed"); });
-		else $children.slideUp("fast", function () { $element.addClass("collapsed"); });
+		if (element.classList.contains("oneliner")) {
+			if (children) {
+				children.style.display = 'none';
+			}
+			element.classList.add("collapsed");
+		} else {
+			if (children) {
+				children.style.display = 'none';
+			}
+			element.classList.add("collapsed");
+		}
 	}
 	window.setTimeout(function () {
-		if ($("#" + Xonomy.currentHtmlId + " .opening:visible").length > 0) {
+		var currentElem = document.getElementById(Xonomy.currentHtmlId);
+		if (currentElem && currentElem.querySelector('.opening')) {
 			Xonomy.setFocus(Xonomy.currentHtmlId, "openingTagName");
 		} else {
 			Xonomy.setFocus(Xonomy.currentHtmlId, "childrenCollapsed");
