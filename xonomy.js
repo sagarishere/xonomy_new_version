@@ -2654,21 +2654,47 @@ Xonomy.startKeyNav = function (keyboardEventCatcher, scrollableContainer) {
 };
 Xonomy.setFocus = function (htmlID, what) {
 	if (Xonomy.keyNav) {
-		$(".xonomy .current").removeClass("current");
-		$(".xonomy .focused").removeClass("focused");
-		if (what == "attributeValue") $("#" + htmlID + " > .valueContainer").addClass("current").addClass("focused");
-		else $("#" + htmlID).addClass("current").addClass("focused");
+		// Remove 'current' and 'focused' classes from all relevant elements
+		document.querySelectorAll('.xonomy .current').forEach(function (el) {
+			el.classList.remove('current');
+		});
+		document.querySelectorAll('.xonomy .focused').forEach(function (el) {
+			el.classList.remove('focused');
+		});
+		if (what == "attributeValue") {
+			var valueContainer = document.querySelector(`#${CSS.escape(htmlID)} > .valueContainer`);
+			if (valueContainer) {
+				valueContainer.classList.add('current', 'focused');
+			}
+		} else {
+			var mainElem = document.getElementById(htmlID);
+			if (mainElem) {
+				mainElem.classList.add('current', 'focused');
+			}
+		}
 		Xonomy.currentHtmlId = htmlID;
 		Xonomy.currentFocus = what;
-		if (Xonomy.currentFocus == "openingTagName") $("#" + htmlID + " > .tag.opening").first().addClass("focused");
-		if (Xonomy.currentFocus == "closingTagName") $("#" + htmlID + " > .tag.closing").last().addClass("focused");
-		if (Xonomy.currentFocus == "childrenCollapsed") $("#" + htmlID + " > .childrenCollapsed").last().addClass("focused");
-		if (Xonomy.currentFocus == "rollouter") $("#" + htmlID + " > .tag.opening > .rollouter").last().addClass("focused");
+		if (Xonomy.currentFocus == "openingTagName") {
+			var opening = document.querySelector(`#${CSS.escape(htmlID)} > .tag.opening`);
+			if (opening) opening.classList.add('focused');
+		}
+		if (Xonomy.currentFocus == "closingTagName") {
+			var closings = document.querySelectorAll(`#${CSS.escape(htmlID)} > .tag.closing`);
+			if (closings.length > 0) closings[closings.length - 1].classList.add('focused');
+		}
+		if (Xonomy.currentFocus == "childrenCollapsed") {
+			var childrenCollapsed = document.querySelectorAll(`#${CSS.escape(htmlID)} > .childrenCollapsed`);
+			if (childrenCollapsed.length > 0) childrenCollapsed[childrenCollapsed.length - 1].classList.add('focused');
+		}
+		if (Xonomy.currentFocus == "rollouter") {
+			var rollouters = document.querySelectorAll(`#${CSS.escape(htmlID)} > .tag.opening > .rollouter`);
+			if (rollouters.length > 0) rollouters[rollouters.length - 1].classList.add('focused');
+		}
 	}
 };
 Xonomy.key = function (event) {
 	if (!Xonomy.notKeyUp) {
-		if (!event.shiftKey && !$("#xonomyBubble").length > 0) {
+		if (!event.shiftKey && !(document.getElementById("xonomyBubble"))) {
 			if (event.key === "Escape" || event.keyCode === 27) { //escape key
 				event.preventDefault();
 				event.stopImmediatePropagation();
@@ -2678,7 +2704,8 @@ Xonomy.key = function (event) {
 				event.stopImmediatePropagation();
 				if (Xonomy.currentFocus == "childrenCollapsed") Xonomy.plusminus(Xonomy.currentHtmlId, true);
 				if (Xonomy.currentFocus == "char") {
-					Xonomy.charClick($("#" + Xonomy.currentHtmlId)[0]);
+					var charElem = document.getElementById(Xonomy.currentHtmlId);
+					if (charElem) Xonomy.charClick(charElem);
 				}
 				else {
 					Xonomy.click(Xonomy.currentHtmlId, Xonomy.currentFocus);
@@ -2687,20 +2714,24 @@ Xonomy.key = function (event) {
 			} else if ((event.ctrlKey || event.metaKey) && (event.key === "ArrowDown" || event.keyCode === 40)) { //down key with Ctrl or Cmd (Mac OS)
 				event.preventDefault();
 				event.stopImmediatePropagation();
-				Xonomy.scrollableContainer.scrollTop(Xonomy.scrollableContainer.scrollTop() + 60);
+				if (Xonomy.scrollableContainer && typeof Xonomy.scrollableContainer.scrollTop === "number") {
+					Xonomy.scrollableContainer.scrollTop = Xonomy.scrollableContainer.scrollTop + 60;
+				}
 			} else if ((event.ctrlKey || event.metaKey) && (event.key === "ArrowUp" || event.keyCode === 38)) { //up key with Ctrl or Cmd (Mac OS)
 				event.preventDefault();
 				event.stopImmediatePropagation();
-				Xonomy.scrollableContainer.scrollTop(Xonomy.scrollableContainer.scrollTop() - 60);
+				if (Xonomy.scrollableContainer && typeof Xonomy.scrollableContainer.scrollTop === "number") {
+					Xonomy.scrollableContainer.scrollTop = Xonomy.scrollableContainer.scrollTop - 60;
+				}
 			} else if ((event.ctrlKey || event.metaKey) && (["ArrowLeft", "ArrowRight"].indexOf(event.key) > -1 || [37, 39].indexOf(event.keyCode) > -1)) { //arrow keys with Ctrl or Cmd (Mac OS)
 				event.preventDefault();
 				event.stopImmediatePropagation();
-				var $el = $("#" + Xonomy.currentHtmlId);
-				if ($el.hasClass("element") && !$el.hasClass("uncollapsible")) {
-					if (event.key === "ArrowRight" || event.keyCode === 39 && $el.hasClass("collapsed")) { //expand it!
+				var el = document.getElementById(Xonomy.currentHtmlId);
+				if (el && el.classList.contains("element") && !el.classList.contains("uncollapsible")) {
+					if ((event.key === "ArrowRight" || event.keyCode === 39) && el.classList.contains("collapsed")) { //expand it!
 						Xonomy.plusminus(Xonomy.currentHtmlId);
 					}
-					if (event.key === "ArrowLeft" || event.keyCode === 37 && !$el.hasClass("collapsed")) { //collapse it!
+					if ((event.key === "ArrowLeft" || event.keyCode === 37) && !el.classList.contains("collapsed")) { //collapse it!
 						Xonomy.plusminus(Xonomy.currentHtmlId);
 					}
 				}
@@ -2708,8 +2739,9 @@ Xonomy.key = function (event) {
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				if (!Xonomy.currentHtmlId) { //nothing is current yet
-					Xonomy.setFocus($(".xonomy .element").first().prop("id"), "openingTagName");
-				} else if ($(".xonomy .focused").length == 0) { //something is current but nothing is focused yet
+					var firstElem = document.querySelector(".xonomy .element");
+					if (firstElem) Xonomy.setFocus(firstElem.id, "openingTagName");
+				} else if (document.querySelectorAll(".xonomy .focused").length === 0) { //something is current but nothing is focused yet
 					Xonomy.setFocus(Xonomy.currentHtmlId, Xonomy.currentFocus);
 				} else { //something is current, do arrow action
 					if (event.key === "ArrowDown" || event.keyCode === 40) Xonomy.goDown(); //down key
@@ -2718,7 +2750,7 @@ Xonomy.key = function (event) {
 					if (event.key === "ArrowLeft" || event.keyCode === 37) Xonomy.goLeft(); //left key
 				}
 			}
-		} else if (!$("#xonomyBubble").length > 0) {
+		} else if (!(document.getElementById("xonomyBubble"))) {
 			Xonomy.keyboardMenu(event);
 		}
 	}
