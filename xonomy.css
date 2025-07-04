@@ -888,8 +888,17 @@
   padding-left: 40px;
 }
 .xonomy.laic .element > .children > .textnode {
-  display: block;
-  margin: 10px 0px 0px 0px;
+  margin-top: 0px;
+  display: inline-block;
+}
+.xonomy.laic .element > .children > .textnode > .value {
+  display: inline-block;
+  font-family: monospace;
+  background-color: #ffffff;
+  padding: 4px 0px;
+  border-bottom: 1px solid #999999;
+  cursor: pointer;
+  min-width: 2em;
 }
 .xonomy.laic .element.oneliner > .children > .textnode {
   margin-top: 0px;
@@ -902,9 +911,6 @@
   border-bottom: 1px solid #999999;
   cursor: pointer;
   min-width: 2em;
-}
-.xonomy.laic .element.oneliner > .children > .textnode > .value {
-  text-align: center;
 }
 .xonomy.laic .element > .tag.closing {
   display: none;
