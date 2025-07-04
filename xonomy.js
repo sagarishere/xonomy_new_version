@@ -558,7 +558,6 @@ Xonomy.render = function (data, editor, docSpec) { //renders the contents of an 
 
 	//Convert doc to a JavaScript object, if it isn't a JavaScript object already:
 	if (typeof (data) == "string") {
-		// Use DOMParser instead of $.parseXML
 		var parser = new window.DOMParser();
 		data = parser.parseFromString(data, "application/xml");
 	}
@@ -566,7 +565,7 @@ Xonomy.render = function (data, editor, docSpec) { //renders the contents of an 
 
 	//Make sure editor refers to an HTML element, if it doesn't already:
 	if (typeof (editor) == "string") editor = document.getElementById(editor);
-    //make sure it has class "xonomy"
+	//make sure it has class "xonomy"
 	if (!editor.classList.contains("xonomy")) editor.classList.add("xonomy");
 
 	if (!editor.classList.contains(Xonomy.mode)) editor.classList.add(Xonomy.mode);
@@ -741,11 +740,11 @@ Xonomy.renderAttribute = function (attribute, optionalParentName) {
 	let html = "";
 	html += '<span data-name="' + attribute.name + '" data-value="' + Xonomy.xmlEscape(attribute.value) + '" id="' + htmlID + '" class="' + classNames + '">';
 	html += '<span class="punc"> </span>';
-	var onclick = !readonly ? ' onclick="Xonomy.click(\'' + htmlID + '\', \'attributeName\')"' : '';	
+	var onclick = !readonly ? ' onclick="Xonomy.click(\'' + htmlID + '\', \'attributeName\')"' : '';
 	html += '<span class="warner"><span class="inside" onclick="Xonomy.click(\'' + htmlID + '\', \'warner\')"></span></span>';
 	html += '<span class="name attributeName focusable" title="' + title + '"' + onclick + '>' + displayName + '</span>';
 	html += '<span class="punc">=</span>';
-	var onclick = !readonly ? ' onclick="Xonomy.click(\'' + htmlID + '\', \'attributeValue\')"' : '';	
+	var onclick = !readonly ? ' onclick="Xonomy.click(\'' + htmlID + '\', \'attributeValue\')"' : '';
 	html += '<span class="valueContainer attributeValue focusable"' + onclick + '>';
 	html += '<span class="punc">"</span>';
 	html += '<span class="value">' + displayValue + '</span>';
@@ -1335,26 +1334,26 @@ Xonomy.askRemote = function (defaultString, param, jsMe) {
 };
 Xonomy.lastAskerParam = null;
 Xonomy.remoteSearch = function (searchUrl, urlPlaceholder, defaultString) {
-    // Use vanilla JS to get the value of the input
+	// Use vanilla JS to get the value of the input
 	const bubble = document.getElementById("xonomyBubble");
 	const inputElem = bubble ? bubble.querySelector("input.textbox") : null;
 	const text = inputElem ? inputElem.value : "";
-    searchUrl = searchUrl.replace(urlPlaceholder, encodeURIComponent(text));
+	searchUrl = searchUrl.replace(urlPlaceholder, encodeURIComponent(text));
 	// Use vanilla JS to find and replace the .menu element
 	const menuElem = bubble ? bubble.querySelector(".menu") : null;
-    if (menuElem) {
-        const tempDiv = document.createElement("div");
-        tempDiv.innerHTML = Xonomy.wyc(searchUrl, function (picklist) {
-            const items = [];
-            if (text == "" && Xonomy.lastAskerParam.add) {
-                for (var i = 0; i < Xonomy.lastAskerParam.add.length; i++) items.push(Xonomy.lastAskerParam.add[i]);
-            }
-            for (var i = 0; i < picklist.length; i++) items.push(picklist[i]);
-            return Xonomy.pickerMenu(items, defaultString);
-        });
-        menuElem.replaceWith(tempDiv.firstChild);
-    }
-    return false;
+	if (menuElem) {
+		const tempDiv = document.createElement("div");
+		tempDiv.innerHTML = Xonomy.wyc(searchUrl, function (picklist) {
+			const items = [];
+			if (text == "" && Xonomy.lastAskerParam.add) {
+				for (var i = 0; i < Xonomy.lastAskerParam.add.length; i++) items.push(Xonomy.lastAskerParam.add[i]);
+			}
+			for (var i = 0; i < picklist.length; i++) items.push(picklist[i]);
+			return Xonomy.pickerMenu(items, defaultString);
+		});
+		menuElem.replaceWith(tempDiv.firstChild);
+	}
+	return false;
 };
 Xonomy.remoteCreate = function (createUrl, searchUrl, urlPlaceholder, defaultString) {
 	const inputElem = document.querySelector("#xonomyBubble input.textbox");
@@ -1620,7 +1619,7 @@ Xonomy.deleteElement = function (htmlID, parameter) {
 
 	// Vanilla JS fadeOut
 	let opacity = 1;
-	const fadeDuration = 400; // ms, similar to jQuery default
+	const fadeDuration = 400; // ms
 	let start = null;
 	function fadeOutStep(timestamp) {
 		if (!start) start = timestamp;
@@ -1869,7 +1868,6 @@ Xonomy.replace = function (htmlID, jsNode) {
 	if (jsNode.type == "attribute") html = Xonomy.renderAttribute(jsNode);
 	if (jsNode.type == "text") html = Xonomy.renderText(jsNode);
 
-	// Vanilla JS replacement for jQuery's replaceWith
 	const oldElem = document.getElementById(htmlID);
 	const tempDiv = document.createElement('div');
 	tempDiv.innerHTML = html;
