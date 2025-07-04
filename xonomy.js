@@ -1331,15 +1331,26 @@ Xonomy.askRemote = function (defaultString, param, jsMe) {
 };
 Xonomy.lastAskerParam = null;
 Xonomy.remoteSearch = function (searchUrl, urlPlaceholder, defaultString) {
-	const text = $("#xonomyBubble input.textbox").val();
-	searchUrl = searchUrl.replace(urlPlaceholder, encodeURIComponent(text));
-	$("#xonomyBubble .menu").replaceWith(Xonomy.wyc(searchUrl, function (picklist) {
-		const items = [];
-		if (text == "" && Xonomy.lastAskerParam.add) for (var i = 0; i < Xonomy.lastAskerParam.add.length; i++) items.push(Xonomy.lastAskerParam.add[i]);
-		for (var i = 0; i < picklist.length; i++) items.push(picklist[i]);
-		return Xonomy.pickerMenu(items, defaultString);
-	}));
-	return false;
+    // Use vanilla JS to get the value of the input
+	const bubble = document.getElementById("xonomyBubble");
+	const inputElem = bubble ? bubble.querySelector("input.textbox") : null;
+	const text = inputElem ? inputElem.value : "";
+    searchUrl = searchUrl.replace(urlPlaceholder, encodeURIComponent(text));
+	// Use vanilla JS to find and replace the .menu element
+	const menuElem = bubble ? bubble.querySelector(".menu") : null;
+    if (menuElem) {
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = Xonomy.wyc(searchUrl, function (picklist) {
+            const items = [];
+            if (text == "" && Xonomy.lastAskerParam.add) {
+                for (var i = 0; i < Xonomy.lastAskerParam.add.length; i++) items.push(Xonomy.lastAskerParam.add[i]);
+            }
+            for (var i = 0; i < picklist.length; i++) items.push(picklist[i]);
+            return Xonomy.pickerMenu(items, defaultString);
+        });
+        menuElem.replaceWith(tempDiv.firstChild);
+    }
+    return false;
 };
 Xonomy.remoteCreate = function (createUrl, searchUrl, urlPlaceholder, defaultString) {
 	const inputElem = document.querySelector("#xonomyBubble input.textbox");
