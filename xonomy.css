@@ -614,7 +614,7 @@
   right: 0px;
   z-index: 2;
   background-color: #00cc00;
-  xbackground-color: #669acc;
+  background-color: #669acc;
   height: 3px;
   bottom: -3px;
 }
@@ -790,7 +790,7 @@
   margin-left: 3px;
 }
 #xonomyBubble.nerd #xonomyBubbleContent div.menuItem.current {
-  x-background-color: #ffffdd;
+  background-color: #ffffdd;
 }
 #xonomyBubble.nerd #xonomyBubbleContent div.menuItem:hover {
   background-color: #ffffcc;
