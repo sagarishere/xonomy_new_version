@@ -1889,8 +1889,7 @@ Xonomy.newElementAfter = function (htmlID, parameter) {
 Xonomy.replace = function (htmlID, jsNode) {
 	const what = Xonomy.currentFocus;
 	Xonomy.clickoff();
-	let html = "";
-	if (jsNode.type == "element") html = Xonomy.renderElement(jsNode);
+	let html = jsNode.type == "element" ? Xonomy.renderElement(jsNode) : "";
 	if (jsNode.type == "attribute") html = Xonomy.renderAttribute(jsNode);
 	if (jsNode.type == "text") html = Xonomy.renderText(jsNode);
 
