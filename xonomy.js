@@ -155,56 +155,56 @@ Xonomy.enrichElement = function (jsElement) {
 	};
 	jsElement.getAttribute = function (name) {
 		let ret = null;
-		for (var i = 0; i < this.attributes.length; i++) {
-			if (this.attributes[i].name == name) ret = this.attributes[i];
+		for (const attribute of this.attributes) {
+			if (attribute.name == name) ret = attribute;
 		}
 		return ret;
 	};
 	jsElement.getAttributeValue = function (name, ifNull) {
 		let ret = ifNull;
-		for (var i = 0; i < this.attributes.length; i++) {
-			if (this.attributes[i].name == name) ret = this.attributes[i].value;
+		for (const attribute of this.attributes) {
+			if (attribute.name == name) ret = attribute.value;
 		}
 		return ret;
 	};
 	jsElement.hasChildElement = function (name) {
 		let ret = false;
-		for (var i = 0; i < this.children.length; i++) {
-			if (this.children[i].name == name) ret = true;
+		for (const child of this.children) {
+			if (child.name == name) ret = true;
 		}
 		return ret;
 	};
 	jsElement.getChildElements = function (name) {
 		const ret = [];
-		for (var i = 0; i < this.children.length; i++) {
-			if (this.children[i].type == "element") {
-				if (this.children[i].name == name) ret.push(this.children[i]);
+		for (const child of this.children) {
+			if (child.type == "element") {
+				if (child.name == name) ret.push(child);
 			}
 		}
 		return ret;
 	};
 	jsElement.getDescendantElements = function (name) {
 		const ret = [];
-		for (var i = 0; i < this.children.length; i++) {
-			if (this.children[i].type == "element") {
-				if (this.children[i].name == name) ret.push(this.children[i]);
-				var temp = this.children[i].getDescendantElements(name);
-				for (var t = 0; t < temp.length; t++) ret.push(temp[t]);
+		for (const child of this.children) {
+			if (child.type == "element") {
+				if (child.name == name) ret.push(child);
+				const temp = child.getDescendantElements(name);
+				for (const t of temp) ret.push(t);
 			}
 		}
 		return ret;
 	};
 	jsElement.getText = function () {
 		let txt = "";
-		for (let i = 0; i < this.children.length; i++) {
-			if (this.children[i].type == "text") txt += this.children[i].value;
-			else if (this.children[i].type == "element") txt += this.children[i].getText();
+		for (const child of this.children) {
+			if (child.type == "text") txt += child.value;
+			else if (child.type == "element") txt += child.getText();
 		}
 		return txt;
 	};
 	jsElement.hasElements = function () {
-		for (let i = 0; i < this.children.length; i++) {
-			if (this.children[i].type == "element") return true;
+		for (const child of this.children) {
+			if (child.type == "element") return true;
 		}
 		return false;
 	};
@@ -212,10 +212,10 @@ Xonomy.enrichElement = function (jsElement) {
 		const parent = this.parent();
 		if (parent) {
 			let lastSibling = null;
-			for (let i = 0; i < parent.children.length; i++) {
-				if (parent.children[i].type == "element" && parent.children[i].htmlID != this.htmlID) {
-					lastSibling = parent.children[i];
-				} else if (parent.children[i].htmlID == this.htmlID) {
+			for (const sibling of parent.children) {
+				if (sibling.type == "element" && sibling.htmlID != this.htmlID) {
+					lastSibling = sibling;
+				} else if (sibling.htmlID == this.htmlID) {
 					return lastSibling;
 				}
 			}
@@ -226,11 +226,11 @@ Xonomy.enrichElement = function (jsElement) {
 		const parent = this.parent();
 		if (parent) {
 			let seenSelf = false;
-			for (let i = 0; i < parent.children.length; i++) {
-				if (parent.children[i].htmlID == this.htmlID) {
+			for (const sibling of parent.children) {
+				if (sibling.htmlID == this.htmlID) {
 					seenSelf = true;
-				} else if (parent.children[i].type == "element" && seenSelf) {
-					return parent.children[i];
+				} else if (sibling.type == "element" && seenSelf) {
+					return sibling;
 				}
 			}
 		}
