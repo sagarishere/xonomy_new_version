@@ -1413,7 +1413,6 @@ Xonomy.wyc = function (url, callback) { //a "when-you-can" function for delayed 
 		Xonomy.wycIsRunning = true;
 		Xonomy.wycQueue.shift(); //remove myself from the WYC queue
 		if (Xonomy.wycCache[url]) {
-			// Vanilla JS replacement for $("#" + wycID).replaceWith(...)
 			const wycElem = document.getElementById(wycID);
 			if (wycElem) {
 				const tempDiv = document.createElement("div");
@@ -1422,7 +1421,6 @@ Xonomy.wyc = function (url, callback) { //a "when-you-can" function for delayed 
 			}
 			if (Xonomy.wycQueue.length > 0) Xonomy.wycQueue[0](); else Xonomy.wycIsRunning = false; //run the next WYC job, or say that WYC has finished running
 		} else {
-			// Vanilla JS replacement for $.ajax
 			fetch(url, { method: "POST", headers: { 'Accept': 'application/json' } })
 				.then(function (response) { return response.json(); })
 				.then(function (data) {
@@ -2478,8 +2476,7 @@ Xonomy.openCloseLayby = function () { //open the layby if it's full, close it if
 	}
 };
 Xonomy.openLayby = function () {
-	// Vanilla JS replacement for: $(".xonomy .layby").removeClass("closed").addClass("open");
-	var laybys = document.querySelectorAll('.xonomy .layby');
+	const laybys = document.querySelectorAll('.xonomy .layby');
 	laybys.forEach(function (layby) {
 		layby.classList.remove('closed');
 		layby.classList.add('open');
@@ -2487,7 +2484,7 @@ Xonomy.openLayby = function () {
 };
 Xonomy.closeLayby = function () {
 	window.setTimeout(function () {
-		var laybys = document.querySelectorAll('.xonomy .layby');
+		const laybys = document.querySelectorAll('.xonomy .layby');
 		laybys.forEach(function (layby) {
 			layby.classList.remove('open');
 			layby.classList.add('closed');
@@ -2496,20 +2493,20 @@ Xonomy.closeLayby = function () {
 };
 Xonomy.emptyLayby = function () {
 	// Clear the content of all .xonomy .layby .content elements
-	var contents = document.querySelectorAll('.xonomy .layby .content');
+	const contents = document.querySelectorAll('.xonomy .layby .content');
 	contents.forEach(function (content) {
 		content.innerHTML = '';
 	});
 	// Update classes on all .xonomy .layby elements
-	var laybys = document.querySelectorAll('.xonomy .layby');
+	const laybys = document.querySelectorAll('.xonomy .layby');
 	laybys.forEach(function (layby) {
 		layby.classList.remove('nonempty');
 		layby.classList.add('empty');
 	});
 };
 Xonomy.recomputeLayby = function () {
-	var laybyContentChildren = document.querySelectorAll('.xonomy .layby > .content > *');
-	var laybyElements = document.querySelectorAll('.xonomy .layby');
+	const laybyContentChildren = document.querySelectorAll('.xonomy .layby > .content > *');
+	const laybyElements = document.querySelectorAll('.xonomy .layby');
 	if (laybyContentChildren.length > 0) {
 		laybyElements.forEach(function (el) {
 			el.classList.remove('empty');
@@ -2524,16 +2521,16 @@ Xonomy.recomputeLayby = function () {
 }
 Xonomy.newElementLayby = function (xml) {
 	Xonomy.clickoff();
-	var html = Xonomy.renderElement(Xonomy.xml2js(xml));
+	const html = Xonomy.renderElement(Xonomy.xml2js(xml));
 	// Create a DOM element from the HTML string
-	var tempDiv = document.createElement('div');
+	const tempDiv = document.createElement('div');
 	tempDiv.innerHTML = html;
-	var newElem = tempDiv.firstElementChild;
+	const newElem = tempDiv.firstElementChild;
 	newElem.style.opacity = 0;
 	newElem.style.display = '';
 
 	// Append to the layby content
-	var laybyContent = document.querySelector('.xonomy .layby > .content');
+	const laybyContent = document.querySelector('.xonomy .layby > .content');
 	if (laybyContent) laybyContent.appendChild(newElem);
 
 	Xonomy.refresh();
@@ -2567,17 +2564,17 @@ Xonomy.changed = function (jsElement) { //called when the document changes
 };
 Xonomy.validate = function () {
 	// Get the first .xonomy .element
-	var rootElement = document.querySelector('.xonomy .element');
-	var js = Xonomy.harvestElement(rootElement, null);
+	const rootElement = document.querySelector('.xonomy .element');
+	const js = Xonomy.harvestElement(rootElement, null);
 	// Remove 'invalid' class from all elements with it
 	document.querySelectorAll('.xonomy .invalid').forEach(function (el) {
 		el.classList.remove('invalid');
 	});
 	Xonomy.warnings = [];
 	Xonomy.docSpec.validate(js); //validate the document
-	for (var iWarning = 0; iWarning < Xonomy.warnings.length; iWarning++) {
-		var warning = Xonomy.warnings[iWarning];
-		var warnElem = document.getElementById(warning.htmlID);
+	for (let iWarning = 0; iWarning < Xonomy.warnings.length; iWarning++) {
+		const warning = Xonomy.warnings[iWarning];
+		const warnElem = document.getElementById(warning.htmlID);
 		if (warnElem) warnElem.classList.add('invalid');
 	}
 };
@@ -2586,10 +2583,10 @@ Xonomy.warnings = []; //array of {htmlID: "", text: ""}
 Xonomy.textByLang = function (str) {
 	//str = eg. "en: Delete | de: Löschen | fr: Supprimer"
 	if (!str) str = "";
-	var ret = str;
-	var segs = str.split("|");
-	for (var i = 0; i < segs.length; i++) {
-		var seg = segs[i].trim();
+	let ret = str;
+	const segs = str.split("|");
+	for (let i = 0; i < segs.length; i++) {
+		const seg = segs[i].trim();
 		if (seg.indexOf(Xonomy.lang + ":") == 0) {
 			ret = seg.substring((Xonomy.lang + ":").length, ret.length);
 		}
@@ -2633,9 +2630,9 @@ Xonomy.startKeyNav = function (keyboardEventCatcher, scrollableContainer) {
 	// Remove previous document keydown handler if any
 	if (Xonomy._docKeydownHandler) document.removeEventListener("keydown", Xonomy._docKeydownHandler);
 	Xonomy._docKeydownHandler = function (e) {
-		var isArrowOrSpace = [32, 37, 38, 39, 40].indexOf(e.keyCode) > -1;
-		var active = document.activeElement;
-		var isInputFocused = active && (
+		const isArrowOrSpace = [32, 37, 38, 39, 40].indexOf(e.keyCode) > -1;
+		const active = document.activeElement;
+		const isInputFocused = active && (
 			active.tagName === "INPUT" ||
 			active.tagName === "SELECT" ||
 			active.tagName === "TEXTAREA"
