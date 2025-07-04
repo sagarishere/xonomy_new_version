@@ -250,7 +250,7 @@ Xonomy.verifyDocSpecElement = function (name) { //make sure the DocSpec object h
 		}
 		else Xonomy.docSpec.elements[name] = {};
 	}
-	var spec = Xonomy.docSpec.elements[name];
+	const spec = Xonomy.docSpec.elements[name];
 	if (!spec.attributes || typeof (spec.attributes) != "object") spec.attributes = {};
 	if (!spec.menu || typeof (spec.menu) != "object") spec.menu = [];
 	if (!spec.inlineMenu || typeof (spec.inlineMenu) != "object") spec.inlineMenu = [];
@@ -271,12 +271,12 @@ Xonomy.verifyDocSpecElement = function (name) { //make sure the DocSpec object h
 	if (spec.title) spec.title = Xonomy.asFunction(spec.title, "");
 	for (var i = 0; i < spec.menu.length; i++) Xonomy.verifyDocSpecMenuItem(spec.menu[i]);
 	for (var i = 0; i < spec.inlineMenu.length; i++) Xonomy.verifyDocSpecMenuItem(spec.inlineMenu[i]);
-	for (var attributeName in spec.attributes) Xonomy.verifyDocSpecAttribute(name, attributeName);
+	for (const attributeName in spec.attributes) Xonomy.verifyDocSpecAttribute(name, attributeName);
 	spec.askerParameter = Xonomy.asFunction(spec.askerParameter, null);
 	spec.prominentChildren = Xonomy.asFunction(spec.prominentChildren, []);
 };
 Xonomy.verifyDocSpecAttribute = function (elementName, attributeName) { //make sure the DocSpec object has such an attribute, that the attribute has everything it needs
-	var elSpec = Xonomy.docSpec.elements[elementName];
+	const elSpec = Xonomy.docSpec.elements[elementName];
 	if (!elSpec.attributes[attributeName] || typeof (elSpec.attributes[attributeName]) != "object") {
 		if (Xonomy.docSpec.unknownAttribute) {
 			elSpec.attributes[attributeName] = (typeof (Xonomy.docSpec.unknownAttribute) === "function")
@@ -285,7 +285,7 @@ Xonomy.verifyDocSpecAttribute = function (elementName, attributeName) { //make s
 		}
 		else elSpec.attributes[attributeName] = {};
 	}
-	var spec = elSpec.attributes[attributeName];
+	const spec = elSpec.attributes[attributeName];
 	if (!spec.asker || typeof (spec.asker) != "function") spec.asker = function () { return "" };
 	spec.askerParameter = Xonomy.asFunction(spec.askerParameter, null);
 	if (!spec.menu || typeof (spec.menu) != "object") spec.menu = [];
@@ -294,7 +294,7 @@ Xonomy.verifyDocSpecAttribute = function (elementName, attributeName) { //make s
 	spec.shy = Xonomy.asFunction(spec.shy, false);
 	if (spec.displayName) spec.displayName = Xonomy.asFunction(spec.displayName, "");
 	if (spec.title) spec.title = Xonomy.asFunction(spec.title, "");
-	for (var i = 0; i < spec.menu.length; i++) Xonomy.verifyDocSpecMenuItem(spec.menu[i]);
+	for (let i = 0; i < spec.menu.length; i++) Xonomy.verifyDocSpecMenuItem(spec.menu[i]);
 };
 Xonomy.verifyDocSpecMenuItem = function (menuItem) { //make sure the menu item has all it needs
 	menuItem.caption = Xonomy.asFunction(menuItem.caption, "?");
@@ -312,18 +312,18 @@ Xonomy.docSpec = null;
 Xonomy.refresh = function () {
 	// Remove empty text nodes if the parent element is not allowed to have text
 	document.querySelectorAll('.xonomy .textnode').forEach(function (el) {
-		var parent = el.closest('.element');
-		var parentName = parent ? parent.getAttribute('data-name') : null;
-		var elSpec = parentName ? Xonomy.docSpec.elements[parentName] : null;
+		const parent = el.closest('.element');
+		const parentName = parent ? parent.getAttribute('data-name') : null;
+		const elSpec = parentName ? Xonomy.docSpec.elements[parentName] : null;
 		if (elSpec && !elSpec.hasText(Xonomy.harvestElement(parent))) {
 			if (el.getAttribute('data-value') === "") {
 				el.remove();
 			} else {
-				var origText = el.getAttribute('data-value');
-				var trimmedText = origText.trim();
+				const origText = el.getAttribute('data-value');
+				const trimmedText = origText.trim();
 				if (trimmedText !== origText) {
-					var jsText = { type: "text", value: trimmedText };
-					var html = Xonomy.renderText(jsText);
+					const jsText = { type: "text", value: trimmedText };
+					const html = Xonomy.renderText(jsText);
 					el.outerHTML = html;
 				}
 			}
@@ -340,23 +340,23 @@ Xonomy.refresh = function () {
 	});
 	// Ensure each child element of hasText element has empty text nodes on either side
 	document.querySelectorAll('.xonomy .element.hasText > .children > .element').forEach(function (el) {
-		var prev = el.previousElementSibling;
+		const prev = el.previousElementSibling;
 		if (!prev || !prev.classList.contains('textnode')) {
 			el.insertAdjacentHTML('beforebegin', Xonomy.renderText({ type: "text", value: "" }));
 		}
-		var next = el.nextElementSibling;
+		const next = el.nextElementSibling;
 		if (!next || !next.classList.contains('textnode')) {
 			el.insertAdjacentHTML('afterend', Xonomy.renderText({ type: "text", value: "" }));
 		}
 	});
 	// Merge adjacent text nodes
-	var merged = false;
+	let merged = false;
 	while (!merged) {
 		merged = true;
-		var textnodes = Array.from(document.querySelectorAll('.xonomy .textnode'));
-		for (var i = 0; i < textnodes.length; i++) {
-			var thisNode = textnodes[i];
-			var nextNode = thisNode.nextElementSibling;
+		const textnodes = Array.from(document.querySelectorAll('.xonomy .textnode'));
+		for (let i = 0; i < textnodes.length; i++) {
+			const thisNode = textnodes[i];
+			const nextNode = thisNode.nextElementSibling;
 			if (nextNode && nextNode.classList.contains('textnode')) {
 				var js1 = Xonomy.harvestText(thisNode);
 				var js2 = Xonomy.harvestText(nextNode);
@@ -370,14 +370,15 @@ Xonomy.refresh = function () {
 	}
 	// Reorder attributes if necessary
 	document.querySelectorAll('.xonomy .attribute').forEach(function (el) {
-		var atName = el.getAttribute('data-name');
-		var elName = el.parentNode.parentNode.parentNode.getAttribute('data-name');
-		var elSpec = Xonomy.docSpec.elements[elName];
-		var mustBeAfter = [];
+		const atName = el.getAttribute('data-name');
+		const elName = el.parentNode.parentNode.parentNode.getAttribute('data-name');
+		const elSpec = Xonomy.docSpec.elements[elName];
+		const mustBeAfter = [];
 		for (var sibName in elSpec.attributes) {
 			if (sibName === atName) break; else mustBeAfter.push(sibName);
 		}
-		var mustBeBefore = [], seen = false;
+		const mustBeBefore = [];
+		let seen = false;
 		for (var sibName in elSpec.attributes) {
 			if (sibName === atName) seen = true; else if (seen) mustBeBefore.push(sibName);
 		}
@@ -385,7 +386,7 @@ Xonomy.refresh = function () {
 			var ok;
 			do {
 				ok = true;
-				var prev = el.previousElementSibling;
+				let prev = el.previousElementSibling;
 				while (prev && mustBeBefore.includes(prev.getAttribute('data-name'))) {
 					prev.parentNode.insertBefore(el, prev);
 					ok = false;
@@ -397,7 +398,7 @@ Xonomy.refresh = function () {
 			var ok;
 			do {
 				ok = true;
-				var next = el.nextElementSibling;
+				let next = el.nextElementSibling;
 				while (next && mustBeAfter.includes(next.getAttribute('data-name'))) {
 					next.parentNode.insertBefore(next, el);
 					ok = false;
@@ -423,22 +424,22 @@ Xonomy.refresh = function () {
 	});
 	// Refresh display names, display values and captions
 	document.querySelectorAll('.xonomy .element').forEach(function (el) {
-		var elSpec = Xonomy.docSpec.elements[el.getAttribute('data-name')];
+		const elSpec = Xonomy.docSpec.elements[el.getAttribute('data-name')];
 		if (elSpec.displayName) el.querySelector('.tag .name').innerHTML = Xonomy.textByLang(elSpec.displayName(Xonomy.harvestElement(el)));
 		if (elSpec.caption) {
 			var jsEl = Xonomy.harvestElement(el);
-			var inlinecaption = el.querySelector('.inlinecaption');
+			const inlinecaption = el.querySelector('.inlinecaption');
 			if (inlinecaption) inlinecaption.innerHTML = Xonomy.textByLang(elSpec.caption(jsEl));
 		}
 		if (elSpec.displayValue) {
 			var jsEl = Xonomy.harvestElement(el);
 			if (!jsEl.hasElements()) {
-				var children = el.querySelector('.children');
+				const children = el.querySelector('.children');
 				if (children) children.innerHTML = Xonomy.textByLang(Xonomy.renderDisplayText(jsEl.getText(), elSpec.displayValue(jsEl)));
 			}
 		}
 		el.querySelectorAll('.tag.opening > .attributes > .attribute').forEach(function (attrEl) {
-			var atSpec = elSpec.attributes[attrEl.getAttribute('data-name')];
+			const atSpec = elSpec.attributes[attrEl.getAttribute('data-name')];
 			if (atSpec.displayName) attrEl.querySelector('.name').innerHTML = Xonomy.textByLang(atSpec.displayName(Xonomy.harvestAttribute(attrEl)));
 			if (atSpec.displayValue) attrEl.querySelector('.value').innerHTML = Xonomy.textByLang(atSpec.displayValue(Xonomy.harvestAttribute(attrEl)));
 			if (atSpec.caption) attrEl.querySelector('.inlinecaption').innerHTML = "&nbsp;" + Xonomy.textByLang(atSpec.caption(Xonomy.harvestAttribute(attrEl))) + "&nbsp;";
@@ -449,9 +450,9 @@ Xonomy.refresh = function () {
 Xonomy.harvestCache = {};
 Xonomy.harvest = function () { //harvests the contents of an editor
 	//Returns xml-as-string.
-	var rootElement = document.querySelector('.xonomy .element');
-	var js = Xonomy.harvestElement(rootElement);
-	for (var key in Xonomy.namespaces) {
+	const rootElement = document.querySelector('.xonomy .element');
+	const js = Xonomy.harvestElement(rootElement);
+	for (const key in Xonomy.namespaces) {
 		if (!js.hasAttribute(key)) js.attributes.push({
 			type: "attribute",
 			name: key,
@@ -1013,10 +1014,10 @@ Xonomy.click = function (htmlID, what) {
 		Xonomy.currentHtmlId = htmlID;
 		Xonomy.currentFocus = what;
 
-		var charOn = document.querySelectorAll('.xonomy .char.on');
+		const charOn = document.querySelectorAll('.xonomy .char.on');
 		charOn.forEach(function (el) { el.classList.remove('on'); });
-		var elem = document.getElementById(htmlID);
-		var isReadOnly = elem.classList.contains("readonly") || elem.closest('.readonly') !== null;
+		const elem = document.getElementById(htmlID);
+		const isReadOnly = elem.classList.contains("readonly") || elem.closest('.readonly') !== null;
 		if (!isReadOnly && (what == "openingTagName" || what == "closingTagName")) {
 			elem.classList.add("current"); //make the element current
 			var content = Xonomy.elementMenu(htmlID); //compose bubble content
@@ -1025,7 +1026,7 @@ Xonomy.click = function (htmlID, what) {
 				if (what == "openingTagName") Xonomy.showBubble(elem.querySelector('> .tag.opening > .name'));
 				if (what == "closingTagName") Xonomy.showBubble(elem.querySelector('> .tag.closing > .name'));
 			}
-			var surrogateElem = Xonomy.harvestElement(elem);
+			const surrogateElem = Xonomy.harvestElement(elem);
 			// Trigger custom event
 			var event = new CustomEvent('xonomy-click-element', { detail: surrogateElem });
 			elem.dispatchEvent(event);
@@ -1037,14 +1038,14 @@ Xonomy.click = function (htmlID, what) {
 				document.body.appendChild(Xonomy.makeBubble(content)); //create bubble
 				Xonomy.showBubble(elem.querySelector('> .name'));
 			}
-			var surrogateAttr = Xonomy.harvestAttribute(elem);
+			const surrogateAttr = Xonomy.harvestAttribute(elem);
 			var event = new CustomEvent('xonomy-click-attribute', { detail: surrogateAttr });
 			elem.dispatchEvent(event);
 		}
 		if (!isReadOnly && what == "attributeValue") {
-			var valueContainer = elem.querySelector('> .valueContainer');
+			const valueContainer = elem.querySelector('> .valueContainer');
 			if (valueContainer) valueContainer.classList.add("current"); //make attribute value current
-			var name = elem.getAttribute("data-name"); //obtain attribute's name
+			const name = elem.getAttribute("data-name"); //obtain attribute's name
 			var value = elem.getAttribute("data-value"); //obtain current value
 			var elName = elem.closest('.element').getAttribute('data-name');
 			Xonomy.verifyDocSpecAttribute(elName, name);
@@ -1055,7 +1056,7 @@ Xonomy.click = function (htmlID, what) {
 				document.body.appendChild(Xonomy.makeBubble(content)); //create bubble
 				Xonomy.showBubble(elem.querySelector('> .valueContainer > .value'));
 				Xonomy.answer = function (val) {
-					var html = Xonomy.renderAttribute({ type: "attribute", name: name, value: val }, elName);
+					const html = Xonomy.renderAttribute({ type: "attribute", name: name, value: val }, elName);
 					elem.outerHTML = html;
 					Xonomy.changed();
 					window.setTimeout(function () { Xonomy.clickoff(); Xonomy.setFocus(document.getElementById(htmlID).id, what) }, 100);
@@ -1078,15 +1079,15 @@ Xonomy.click = function (htmlID, what) {
 				document.body.appendChild(Xonomy.makeBubble(content)); //create bubble
 				Xonomy.showBubble(elem.querySelector('> .value'));
 				Xonomy.answer = function (val) {
-					var jsText = { type: "text", value: val };
-					var html = Xonomy.renderText(jsText);
-					var prevHtmlId, prevWhat;
-					var prevElem = elem.previousElementSibling;
+					const jsText = { type: "text", value: val };
+					const html = Xonomy.renderText(jsText);
+					let prevHtmlId, prevWhat;
+					const prevElem = elem.previousElementSibling;
 					if (prevElem && prevElem.classList.contains('element')) {
 						prevHtmlId = prevElem.id;
 						prevWhat = "closingTagName";
 					} else {
-						var closestElem = elem.closest('.element');
+						const closestElem = elem.closest('.element');
 						prevHtmlId = closestElem ? closestElem.id : null;
 						prevWhat = "openingTagName";
 					}
@@ -1106,20 +1107,20 @@ Xonomy.click = function (htmlID, what) {
 		}
 		if (what == "warner") {
 			var content = ""; //compose bubble content
-			for (var iWarning = 0; iWarning < Xonomy.warnings.length; iWarning++) {
-				var warning = Xonomy.warnings[iWarning];
+			for (const warningElement of Xonomy.warnings) {
+				const warning = warningElement;
 				if (warning.htmlID == htmlID) {
 					content += "<div class='warning'>" + Xonomy.formatCaption(Xonomy.textByLang(warning.text)) + "</div>";
 				}
 			}
 			document.body.appendChild(Xonomy.makeBubble(content)); //create bubble
-			var warnerInside = elem.querySelector('.warner .inside');
+			const warnerInside = elem.querySelector('.warner .inside');
 			if (warnerInside) Xonomy.showBubble(warnerInside); //anchor bubble to warner
 		}
 		if (what == "rollouter") {
-			var tagOpening = elem.querySelector('.tag.opening');
-			var attributes = tagOpening ? tagOpening.querySelector('.attributes') : null;
-			var rollouter = tagOpening ? tagOpening.querySelector('.rollouter') : null;
+			const tagOpening = elem.querySelector('.tag.opening');
+			const attributes = tagOpening ? tagOpening.querySelector('.attributes') : null;
+			const rollouter = tagOpening ? tagOpening.querySelector('.rollouter') : null;
 			if (attributes && attributes.querySelector('.shy')) {
 				if (rollouter && rollouter.classList.contains('rolledout')) {
 					rollouter.classList.remove('rolledout');
@@ -1256,7 +1257,7 @@ Xonomy.showBubble = function (anchor) {
 
 	// Key navigation for menu items if keyNav is enabled
 	if (Xonomy.keyNav) {
-		var focusDivs = bubble.querySelectorAll("div.focusme");
+		const focusDivs = bubble.querySelectorAll("div.focusme");
 		focusDivs.forEach(function (div) {
 			div.onkeyup = null;
 			div.addEventListener("keyup", function (event) {
@@ -1475,7 +1476,7 @@ Xonomy.toggleSubmenu = function (menuItem) {
 		let display = window.getComputedStyle(element).display;
 		if (display === 'none') display = 'block';
 		element.style.display = display;
-		let height = element.offsetHeight;
+		const height = element.offsetHeight;
 		element.style.height = 0;
 		element.style.paddingTop = 0;
 		element.style.paddingBottom = 0;
@@ -1498,7 +1499,7 @@ Xonomy.toggleSubmenu = function (menuItem) {
 			if (typeof callback === 'function') callback();
 		}, duration);
 	}
-	var menuItemEl = menuItem;
+	const menuItemEl = menuItem;
 	if (menuItemEl.classList.contains('expanded')) {
 		var submenu = menuItemEl.querySelector('.submenu');
 		if (submenu) {
@@ -1522,17 +1523,17 @@ Xonomy.toggleSubmenu = function (menuItem) {
 Xonomy.internalMenu = function (htmlID, items, harvest, getter, indices) {
 	Xonomy.harvestCache = {};
 	indices = indices || [];
-	var fragments = items.map(function (item, i) {
+	const fragments = items.map(function (item, i) {
 		Xonomy.verifyDocSpecMenuItem(item);
-		var jsMe = harvest(document.getElementById(htmlID));
-		var includeIt = !item.hideIf(jsMe);
-		var html = "";
+		const jsMe = harvest(document.getElementById(htmlID));
+		const includeIt = !item.hideIf(jsMe);
+		let html = "";
 		if (includeIt) {
 			indices.push(i);
-			var icon = ""; if (item.icon) icon = "<span class='icon'><img src='" + item.icon + "'/></span> ";
-			var key = ""; if (item.keyTrigger && item.keyCaption) key = "<span class='keyCaption'>" + Xonomy.textByLang(item.keyCaption) + "</span>";
+			let icon = ""; if (item.icon) icon = "<span class='icon'><img src='" + item.icon + "'/></span> ";
+			let key = ""; if (item.keyTrigger && item.keyCaption) key = "<span class='keyCaption'>" + Xonomy.textByLang(item.keyCaption) + "</span>";
 			if (item.menu) {
-				var internalHtml = Xonomy.internalMenu(htmlID, item.menu, harvest, getter, indices);
+				const internalHtml = Xonomy.internalMenu(htmlID, item.menu, harvest, getter, indices);
 				if (internalHtml != "<div class='submenu'></div>") {
 					html += "<div class='menuItem" + (item.expanded(jsMe) ? " expanded" : "") + "'>";
 					html += "<div class='menuLabel focusme' tabindex='0' onkeydown='if(Xonomy.keyNav && [37, 39].indexOf(event.which)>-1) Xonomy.toggleSubmenu(this.parentNode)' onclick='Xonomy.toggleSubmenu(this.parentNode)'>" + icon + Xonomy.formatCaption(Xonomy.textByLang(item.caption(jsMe))) + "</div>";
@@ -1548,7 +1549,7 @@ Xonomy.internalMenu = function (htmlID, items, harvest, getter, indices) {
 		}
 		return html;
 	});
-	var cls = !indices.length ? 'menu' : 'submenu';
+	const cls = !indices.length ? 'menu' : 'submenu';
 	return fragments.length
 		? "<div class='" + cls + "'>" + fragments.join("") + "</div>"
 		: "";
@@ -1914,21 +1915,21 @@ Xonomy.editRaw = function (htmlID, parameter) {
 };
 Xonomy.duplicateElement = function (htmlID) {
 	Xonomy.clickoff();
-	var html = document.getElementById(htmlID).outerHTML;
-	var prefixID = Xonomy.nextID();
+	let html = document.getElementById(htmlID).outerHTML;
+	const prefixID = Xonomy.nextID();
 	html = html.replace(/ id=['"]/g, function (x) { return x + prefixID + "_" });
 	html = html.replace(/Xonomy\.click\(['"]/g, function (x) { return x + prefixID + "_" });
 	html = html.replace(/Xonomy\.plusminus\(['"]/g, function (x) { return x + prefixID + "_" });
 
 	// Create a DOM element from the HTML string
-	var tempDiv = document.createElement('div');
+	const tempDiv = document.createElement('div');
 	tempDiv.innerHTML = html;
-	var newElem = tempDiv.firstElementChild;
+	const newElem = tempDiv.firstElementChild;
 	newElem.style.opacity = 0;
 	newElem.style.display = '';
 
 	// Insert the new element after the original
-	var origElem = document.getElementById(htmlID);
+	const origElem = document.getElementById(htmlID);
 	if (origElem.nextSibling) {
 		origElem.parentNode.insertBefore(newElem, origElem.nextSibling);
 	} else {
@@ -2355,7 +2356,7 @@ Xonomy.drag = function (ev) { //called when dragging starts
 	// for more details @see:
 	//   http://stackoverflow.com/questions/19639969/html5-dragend-event-firing-immediately
 	ev.dataTransfer.effectAllowed = "move"; //only allow moving (and not eg. copying]
-	var htmlID = ev.target.parentNode.parentNode.id;
+	const htmlID = ev.target.parentNode.parentNode.id;
 	ev.dataTransfer.setData("text", htmlID);
 	setTimeout(function () {
 		Xonomy.clickoff();
@@ -2387,13 +2388,13 @@ Xonomy.dragOut = function (ev) {
 };
 Xonomy.drop = function (ev) {
 	ev.preventDefault();
-	var node = document.getElementById(Xonomy.draggingID); //the thing we are moving
+	const node = document.getElementById(Xonomy.draggingID); //the thing we are moving
 	if (ev.currentTarget.classList.contains("layby")) {
 		// Hide node (for fade-in)
 		node.style.opacity = 0;
 		node.style.display = "";
 		// Append to layby content
-		var laybyContent = document.querySelector(".xonomy .layby > .content");
+		const laybyContent = document.querySelector(".xonomy .layby > .content");
 		if (laybyContent) laybyContent.appendChild(node);
 		// Fade in animation
 		let opacity = 0;
@@ -2417,7 +2418,7 @@ Xonomy.drop = function (ev) {
 		node.style.opacity = 0;
 		node.style.display = "";
 		// Replace drop target's parent with node
-		var targetParent = ev.target.parentNode;
+		const targetParent = ev.target.parentNode;
 		if (targetParent && targetParent.parentNode) {
 			targetParent.parentNode.replaceChild(node, targetParent);
 		}
@@ -2463,8 +2464,8 @@ Xonomy.dragend = function (ev) {
 };
 
 Xonomy.openCloseLayby = function () { //open the layby if it's full, close it if it's empty
-	var laybyContentChildren = document.querySelectorAll('.xonomy .layby > .content > *');
-	var laybyElements = document.querySelectorAll('.xonomy .layby');
+	const laybyContentChildren = document.querySelectorAll('.xonomy .layby > .content > *');
+	const laybyElements = document.querySelectorAll('.xonomy .layby');
 	if (laybyContentChildren.length > 0) {
 		laybyElements.forEach(function (el) {
 			el.classList.remove('closed');
@@ -2603,7 +2604,7 @@ Xonomy.keyNav = false;
 Xonomy.startKeyNav = function (keyboardEventCatcher, scrollableContainer) {
 	Xonomy.keyNav = true;
 	// Resolve keyboardEventCatcher
-	var keyboardCatcherElem = null;
+	let keyboardCatcherElem = null;
 	if (keyboardEventCatcher instanceof Element) {
 		keyboardCatcherElem = keyboardEventCatcher;
 	} else if (typeof keyboardEventCatcher === "string" && keyboardEventCatcher.trim() !== "") {
@@ -2722,7 +2723,7 @@ Xonomy.key = function (event) {
 			} else if ((event.ctrlKey || event.metaKey) && (["ArrowLeft", "ArrowRight"].indexOf(event.key) > -1 || [37, 39].indexOf(event.keyCode) > -1)) { //arrow keys with Ctrl or Cmd (Mac OS)
 				event.preventDefault();
 				event.stopImmediatePropagation();
-				var el = document.getElementById(Xonomy.currentHtmlId);
+				const el = document.getElementById(Xonomy.currentHtmlId);
 				if (el && el.classList.contains("element") && !el.classList.contains("uncollapsible")) {
 					if ((event.key === "ArrowRight" || event.keyCode === 39) && el.classList.contains("collapsed")) { //expand it!
 						Xonomy.plusminus(Xonomy.currentHtmlId);
@@ -2735,7 +2736,7 @@ Xonomy.key = function (event) {
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				if (!Xonomy.currentHtmlId) { //nothing is current yet
-					var firstElem = document.querySelector(".xonomy .element");
+					const firstElem = document.querySelector(".xonomy .element");
 					if (firstElem) Xonomy.setFocus(firstElem.id, "openingTagName");
 				} else if (document.querySelectorAll(".xonomy .focused").length === 0) { //something is current but nothing is focused yet
 					Xonomy.setFocus(Xonomy.currentHtmlId, Xonomy.currentFocus);
@@ -2754,9 +2755,9 @@ Xonomy.key = function (event) {
 };
 Xonomy.keyboardMenu = function (event) {
 	Xonomy.harvestCache = {};
-	var obj = document.getElementById(Xonomy.currentHtmlId);
-	var jsMe = null;
-	var menu = null;
+	const obj = document.getElementById(Xonomy.currentHtmlId);
+	let jsMe = null;
+	let menu = null;
 	if (!obj) return false;
 	if (obj.classList.contains("element")) {
 		jsMe = Xonomy.harvestElement(obj);
@@ -2764,9 +2765,9 @@ Xonomy.keyboardMenu = function (event) {
 		menu = Xonomy.docSpec.elements[elName].menu;
 	} else if (obj.classList.contains("attribute")) {
 		jsMe = Xonomy.harvestAttribute(obj);
-		var atName = obj.getAttribute("data-name");
+		const atName = obj.getAttribute("data-name");
 		// Find closest ancestor with class 'element'
-		var parent = obj.parentElement;
+		let parent = obj.parentElement;
 		while (parent && (!parent.classList || !parent.classList.contains('element'))) {
 			parent = parent.parentElement;
 		}
@@ -2776,15 +2777,15 @@ Xonomy.keyboardMenu = function (event) {
 	if (menu) {
 		Xonomy.harvestCache = {};
 		var findMenuItem = function (menu) {
-			var ret = null;
-			for (var i = 0; i < menu.length; i++) {
+			let ret = null;
+			for (let i = 0; i < menu.length; i++) {
 				if (menu[i].menu) ret = findMenuItem(menu[i].menu);
 				else if (menu[i].keyTrigger && !menu[i].hideIf(jsMe) && menu[i].keyTrigger(event)) ret = menu[i];
 				if (ret) break;
 			}
 			return ret;
 		};
-		var menuItem = findMenuItem(menu);
+		const menuItem = findMenuItem(menu);
 		if (menuItem) {
 			Xonomy.callMenuFunction(menuItem, Xonomy.currentHtmlId);
 			Xonomy.clickoff();
@@ -2798,19 +2799,19 @@ Xonomy.goDown = function () {
 	if (Xonomy.currentFocus != "openingTagName" && Xonomy.currentFocus != "closingTagName" && Xonomy.currentFocus != "text" && Xonomy.currentFocus != "char") {
 		Xonomy.goRight();
 	} else {
-		var el = document.getElementById(Xonomy.currentHtmlId);
+		const el = document.getElementById(Xonomy.currentHtmlId);
 		let me = el;
 		if (Xonomy.currentFocus == "openingTagName") {
 			me = el.querySelector('.tag.opening');
 		}
 		if (Xonomy.currentFocus == "closingTagName") {
-			var closings = el.querySelectorAll('.tag.closing');
+			const closings = el.querySelectorAll('.tag.closing');
 			me = closings[closings.length - 1];
 		}
 
 		// Get all .xonomy .focusable:visible
-		var allCandidates = Array.from(document.querySelectorAll('.xonomy .focusable'));
-		var candidates = allCandidates.filter(function (c) {
+		const allCandidates = Array.from(document.querySelectorAll('.xonomy .focusable'));
+		let candidates = allCandidates.filter(function (c) {
 			// Only visible elements
 			return c.offsetParent !== null;
 		});
@@ -2827,18 +2828,18 @@ Xonomy.goDown = function () {
 
 		// If openingTagName and oneliner, remove .tag.closing and .children * and .textnode inside this element
 		if (Xonomy.currentFocus == "openingTagName" && el.classList.contains("oneliner")) {
-			var toRemove = el.querySelectorAll('.tag.closing, .children *');
+			const toRemove = el.querySelectorAll('.tag.closing, .children *');
 			candidates = candidates.filter(function (c) {
 				return !Array.from(toRemove).includes(c);
 			});
-			var textnodes = el.querySelectorAll('.textnode');
+			const textnodes = el.querySelectorAll('.textnode');
 			candidates = candidates.filter(function (c) {
 				return !Array.from(textnodes).includes(c);
 			});
 		}
 		// Remove .prominentChildren *
 		if (Xonomy.currentFocus == "openingTagName") {
-			var promChildren = el.querySelectorAll('.prominentChildren *');
+			const promChildren = el.querySelectorAll('.prominentChildren *');
 			candidates = candidates.filter(function (c) {
 				return !Array.from(promChildren).includes(c);
 			});
@@ -2854,26 +2855,26 @@ Xonomy.goDown = function () {
 		if (el.classList.contains("textnode") && !(el.closest('.prominentChildren')) && document.querySelector('.xonomy').classList.contains('nerd')) {
 			var closestElement = el.closest('.element');
 			var tagClosings = closestElement ? closestElement.querySelectorAll('.tag.closing') : [];
-			var visibleTagClosings = Array.from(tagClosings).filter(function (c) { return c.offsetParent !== null; });
+			const visibleTagClosings = Array.from(tagClosings).filter(function (c) { return c.offsetParent !== null; });
 			if (visibleTagClosings.length > 0) {
-				var last = visibleTagClosings[visibleTagClosings.length - 1];
+				const last = visibleTagClosings[visibleTagClosings.length - 1];
 				candidates = [last];
 			}
 		}
 		// If textnode and .xonomy has class laic, jump to first .focusable:visible in next .element
 		if (el.classList.contains("textnode") && document.querySelector('.xonomy').classList.contains('laic')) {
 			var closestElement = el.closest('.element');
-			var nextElement = closestElement ? closestElement.nextElementSibling : null;
+			const nextElement = closestElement ? closestElement.nextElementSibling : null;
 			if (nextElement) {
-				var nextFocusables = Array.from(nextElement.querySelectorAll('.focusable')).filter(function (c) { return c.offsetParent !== null; });
+				const nextFocusables = Array.from(nextElement.querySelectorAll('.focusable')).filter(function (c) { return c.offsetParent !== null; });
 				if (nextFocusables.length > 0) {
 					candidates = [nextFocusables[0]];
 				}
 			}
 		}
 		// Find index of me in candidates
-		var idx = candidates.indexOf(me);
-		var next = candidates[idx + 1];
+		const idx = candidates.indexOf(me);
+		const next = candidates[idx + 1];
 		if (next) {
 			if (next.classList.contains("opening")) Xonomy.setFocus(next.closest(".element").id, "openingTagName");
 			else if (next.classList.contains("closing")) Xonomy.setFocus(next.closest(".element").id, "closingTagName");
@@ -2885,20 +2886,20 @@ Xonomy.goUp = function () {
 	if (Xonomy.currentFocus != "openingTagName" && Xonomy.currentFocus != "closingTagName" && Xonomy.currentFocus != "char" && Xonomy.currentFocus != "text") {
 		Xonomy.goLeft();
 	} else {
-		var el = document.getElementById(Xonomy.currentHtmlId);
-		var me = el;
+		const el = document.getElementById(Xonomy.currentHtmlId);
+		let me = el;
 		if (Xonomy.currentFocus == "openingTagName") {
 			var opening = el.querySelector('.tag.opening');
 			if (opening) me = opening;
 		}
 		if (Xonomy.currentFocus == "closingTagName") {
-			var closings = el.querySelectorAll('.tag.closing');
+			const closings = el.querySelectorAll('.tag.closing');
 			if (closings.length > 0) me = closings[closings.length - 1];
 		}
 
 		// Get all .xonomy .focusable:visible
-		var allCandidates = Array.from(document.querySelectorAll('.xonomy .focusable'));
-		var candidates = allCandidates.filter(function (c) {
+		const allCandidates = Array.from(document.querySelectorAll('.xonomy .focusable'));
+		let candidates = allCandidates.filter(function (c) {
 			return c.offsetParent !== null;
 		});
 		// Remove .attributeName, .attributeValue, .childrenCollapsed, .rollouter
@@ -2910,17 +2911,17 @@ Xonomy.goUp = function () {
 		});
 		// Remove .element .oneliner .tag.closing
 		candidates = candidates.filter(function (c) {
-			var parent = c.closest('.element.oneliner');
+			const parent = c.closest('.element.oneliner');
 			return !(parent && c.classList.contains('tag') && c.classList.contains('closing'));
 		});
 		// Remove .element .oneliner .textnode
 		candidates = candidates.filter(function (c) {
-			var parent = c.closest('.element.oneliner');
+			const parent = c.closest('.element.oneliner');
 			return !(parent && c.classList.contains('textnode'));
 		});
 		// Remove .element .collapsed .tag.closing
 		candidates = candidates.filter(function (c) {
-			var parent = c.closest('.element.collapsed');
+			const parent = c.closest('.element.collapsed');
 			return !(parent && c.classList.contains('tag') && c.classList.contains('closing'));
 		});
 		// Remove .char
@@ -2928,23 +2929,23 @@ Xonomy.goUp = function () {
 
 		// If el is .char, set candidates to closest .textnode and el
 		if (el.classList.contains('char')) {
-			var textnode = el.closest('.textnode');
+			const textnode = el.closest('.textnode');
 			if (textnode) candidates = [textnode, el];
 		}
 		// If el is .textnode and in .prominentChildren, add all .xonomy .prominentChildren .textnode
 		if (el.classList.contains('textnode') && el.closest('.prominentChildren')) {
-			var promTextnodes = Array.from(document.querySelectorAll('.xonomy .prominentChildren .textnode'));
+			const promTextnodes = Array.from(document.querySelectorAll('.xonomy .prominentChildren .textnode'));
 			candidates = candidates.concat(promTextnodes);
 		}
 		// If el is .textnode and not in .prominentChildren, set candidates to closest .element .tag.opening and el
 		if (el.classList.contains('textnode') && !el.closest('.prominentChildren')) {
-			var closestElement = el.closest('.element');
+			const closestElement = el.closest('.element');
 			var opening = closestElement ? closestElement.querySelector('.tag.opening') : null;
 			if (opening) candidates = [opening, el];
 		}
 		// If me is .closing and el is .hasText, remove all children except first from el's .children
 		if (me.classList.contains('closing') && el.classList.contains('hasText')) {
-			var children = el.querySelector('.children');
+			const children = el.querySelector('.children');
 			if (children) {
 				var notFirst = Array.from(children.children).slice(1);
 				candidates = candidates.filter(function (c) {
@@ -2954,10 +2955,10 @@ Xonomy.goUp = function () {
 		}
 		// If me is .opening and previous .element has .hasText, remove all children except first from that element's .children
 		if (me.classList.contains('opening')) {
-			var prevElement = el.closest('.element');
+			const prevElement = el.closest('.element');
 			if (prevElement && prevElement.previousElementSibling && prevElement.previousElementSibling.classList.contains('element') && prevElement.previousElementSibling.classList.contains('hasText')) {
-				var siblingID = prevElement.previousElementSibling.id;
-				var siblingChildren = prevElement.previousElementSibling.querySelector('.children');
+				const siblingID = prevElement.previousElementSibling.id;
+				const siblingChildren = prevElement.previousElementSibling.querySelector('.children');
 				if (siblingChildren) {
 					var notFirst = Array.from(siblingChildren.children).slice(1);
 					candidates = candidates.filter(function (c) {
@@ -2970,9 +2971,9 @@ Xonomy.goUp = function () {
 		if (!candidates.includes(me)) candidates.push(me);
 
 		// Find index of me in candidates
-		var idx = candidates.indexOf(me);
+		const idx = candidates.indexOf(me);
 		if (idx > 0) {
-			var next = candidates[idx - 1];
+			const next = candidates[idx - 1];
 			if (next.classList.contains("opening")) Xonomy.setFocus(next.closest(".element").id, "openingTagName");
 			else if (next.classList.contains("closing")) Xonomy.setFocus(next.closest(".element").id, "closingTagName");
 			else if (next.classList.contains("textnode")) Xonomy.setFocus(next.id, "text");
@@ -2980,52 +2981,52 @@ Xonomy.goUp = function () {
 	}
 };
 Xonomy.goRight = function () {
-	var el = document.getElementById(Xonomy.currentHtmlId);
-	var me = el;
+	const el = document.getElementById(Xonomy.currentHtmlId);
+	let me = el;
 	if (Xonomy.currentFocus == "openingTagName") {
-		var opening = el.querySelector(".tag.opening");
+		const opening = el.querySelector(".tag.opening");
 		if (opening) me = opening;
 	}
 	if (Xonomy.currentFocus == "closingTagName") {
-		var closings = el.querySelectorAll(".tag.closing");
+		const closings = el.querySelectorAll(".tag.closing");
 		if (closings.length > 0) me = closings[closings.length - 1];
 	}
 	if (Xonomy.currentFocus == "attributeName") {
-		var attrName = el.querySelector(".attributeName");
+		const attrName = el.querySelector(".attributeName");
 		if (attrName) me = attrName;
 	}
 	if (Xonomy.currentFocus == "attributeValue") {
-		var attrValue = el.querySelector(".attributeValue");
+		const attrValue = el.querySelector(".attributeValue");
 		if (attrValue) me = attrValue;
 	}
 	if (Xonomy.currentFocus == "childrenCollapsed") {
 		// .childrenCollapsed but not inside .prominentChildren
-		var all = Array.from(el.querySelectorAll(":scope > .childrenCollapsed"));
-		var filtered = all.filter(function (c) {
+		const all = Array.from(el.querySelectorAll(":scope > .childrenCollapsed"));
+		const filtered = all.filter(function (c) {
 			return !c.closest(".prominentChildren");
 		});
 		if (filtered.length > 0) me = filtered[0];
 	}
 	if (Xonomy.currentFocus == "rollouter") {
-		var rollouter = el.querySelector(".rollouter");
+		const rollouter = el.querySelector(".rollouter");
 		if (rollouter) me = rollouter;
 	}
 
 	// Get all .xonomy .focusable:visible
-	var allCandidates = Array.from(document.querySelectorAll('.xonomy .focusable'));
-	var candidates = allCandidates.filter(function (c) {
+	const allCandidates = Array.from(document.querySelectorAll('.xonomy .focusable'));
+	let candidates = allCandidates.filter(function (c) {
 		return c.offsetParent !== null;
 	});
 	// Remove .char
 	candidates = candidates.filter(function (c) { return !c.classList.contains('char'); });
 	// Add visible .char inside .hasInlineMenu > .children > .textnode
-	var chars = Array.from(document.querySelectorAll('.hasInlineMenu > .children > .textnode .char'));
+	let chars = Array.from(document.querySelectorAll('.hasInlineMenu > .children > .textnode .char'));
 	chars = chars.filter(function (c) { return c.offsetParent !== null; });
 	candidates = candidates.concat(chars);
 
 	// Find index of me in candidates
-	var idx = candidates.indexOf(me);
-	var next = candidates[idx + 1];
+	const idx = candidates.indexOf(me);
+	const next = candidates[idx + 1];
 	if (next) {
 		if (next.classList.contains("attributeName")) Xonomy.setFocus(next.closest(".attribute").id, "attributeName");
 		else if (next.classList.contains("attributeValue")) Xonomy.setFocus(next.closest(".attribute").id, "attributeValue");
@@ -3038,54 +3039,54 @@ Xonomy.goRight = function () {
 	}
 };
 Xonomy.goLeft = function () {
-	var el = document.getElementById(Xonomy.currentHtmlId);
-	var me = el;
+	const el = document.getElementById(Xonomy.currentHtmlId);
+	let me = el;
 	if (Xonomy.currentFocus == "openingTagName") {
-		var opening = el.querySelector(".tag.opening");
+		const opening = el.querySelector(".tag.opening");
 		if (opening) me = opening;
 	}
 	if (Xonomy.currentFocus == "closingTagName") {
-		var closings = el.querySelectorAll(".tag.closing");
+		const closings = el.querySelectorAll(".tag.closing");
 		if (closings.length > 0) me = closings[closings.length - 1];
 	}
 	if (Xonomy.currentFocus == "attributeName") {
-		var attrName = el.querySelector(".attributeName");
+		const attrName = el.querySelector(".attributeName");
 		if (attrName) me = attrName;
 	}
 	if (Xonomy.currentFocus == "attributeValue") {
-		var attrValue = el.querySelector(".attributeValue");
+		const attrValue = el.querySelector(".attributeValue");
 		if (attrValue) me = attrValue;
 	}
 	if (Xonomy.currentFocus == "childrenCollapsed") {
 		// .childrenCollapsed but not inside .prominentChildren
-		var all = Array.from(el.querySelectorAll(":scope > .childrenCollapsed"));
-		var filtered = all.filter(function (c) {
+		const all = Array.from(el.querySelectorAll(":scope > .childrenCollapsed"));
+		const filtered = all.filter(function (c) {
 			return !c.closest(".prominentChildren");
 		});
 		if (filtered.length > 0) me = filtered[0];
 	}
 	if (Xonomy.currentFocus == "rollouter") {
-		var rollouter = el.querySelector(".rollouter");
+		const rollouter = el.querySelector(".rollouter");
 		if (rollouter) me = rollouter;
 	}
 
 	// Get all .xonomy .focusable:visible
-	var allCandidates = Array.from(document.querySelectorAll('.xonomy .focusable'));
-	var candidates = allCandidates.filter(function (c) {
+	const allCandidates = Array.from(document.querySelectorAll('.xonomy .focusable'));
+	let candidates = allCandidates.filter(function (c) {
 		return c.offsetParent !== null;
 	});
 	// Remove .char
 	candidates = candidates.filter(function (c) { return !c.classList.contains('char'); });
 	// Add visible .char inside .hasInlineMenu > .children > .textnode
-	var chars = Array.from(document.querySelectorAll('.hasInlineMenu > .children > .textnode .char'));
+	let chars = Array.from(document.querySelectorAll('.hasInlineMenu > .children > .textnode .char'));
 	chars = chars.filter(function (c) { return c.offsetParent !== null; });
 	candidates = candidates.concat(chars);
 	// Always add me to candidates if not present
 	if (!candidates.includes(me)) candidates.push(me);
 
 	// Find index of me in candidates
-	var idx = candidates.indexOf(me);
-	var next = candidates[idx - 1];
+	const idx = candidates.indexOf(me);
+	const next = candidates[idx - 1];
 	if (next) {
 		if (next.classList.contains("attributeName")) Xonomy.setFocus(next.closest(".attribute").id, "attributeName");
 		else if (next.classList.contains("attributeValue")) Xonomy.setFocus(next.closest(".attribute").id, "attributeValue");
