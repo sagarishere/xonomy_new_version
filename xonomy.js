@@ -1555,18 +1555,18 @@ Xonomy.internalMenu = function (htmlID, items, harvest, getter, indices) {
 		let html = "";
 		if (includeIt) {
 			indices.push(i);
-			let icon = ""; if (item.icon) icon = "<span class='icon'><img src='" + item.icon + "'/></span> ";
-			let key = ""; if (item.keyTrigger && item.keyCaption) key = "<span class='keyCaption'>" + Xonomy.textByLang(item.keyCaption) + "</span>";
+			const icon = item.icon ? "<span class='icon'><img src='" + item.icon + "'/></span> " : "";
+			const key = item.keyTrigger && item.keyCaption ? "<span class='keyCaption'>" + Xonomy.textByLang(item.keyCaption) + "</span>" : "";
 			if (item.menu) {
 				const internalHtml = Xonomy.internalMenu(htmlID, item.menu, harvest, getter, indices);
 				if (internalHtml != "<div class='submenu'></div>") {
-					html += "<div class='menuItem" + (item.expanded(jsMe) ? " expanded" : "") + "'>";
-					html += "<div class='menuLabel focusme' tabindex='0' onkeydown='if(Xonomy.keyNav && [37, 39].indexOf(event.which)>-1) Xonomy.toggleSubmenu(this.parentNode)' onclick='Xonomy.toggleSubmenu(this.parentNode)'>" + icon + Xonomy.formatCaption(Xonomy.textByLang(item.caption(jsMe))) + "</div>";
+					html += `<div class='menuItem${item.expanded(jsMe) ? " expanded" : ""}'>`;
+					html += `<div class='menuLabel focusme' tabindex='0' onkeydown='if(Xonomy.keyNav && [37, 39].indexOf(event.which)>-1) Xonomy.toggleSubmenu(this.parentNode)' onclick='Xonomy.toggleSubmenu(this.parentNode)'>${icon}${Xonomy.formatCaption(Xonomy.textByLang(item.caption(jsMe)))}</div>`;
 					html += internalHtml;
 					html += "</div>";
 				}
 			} else {
-				html += "<div class='menuItem focusme' tabindex='0' onclick='Xonomy.callMenuFunction(" + getter(indices) + ", \"" + htmlID + "\")'>";
+				html += `<div class='menuItem focusme' tabindex='0' onclick='Xonomy.callMenuFunction(${getter(indices)}, "${htmlID}")'>`;
 				html += key + icon + Xonomy.formatCaption(Xonomy.textByLang(item.caption(jsMe)));
 				html += "</div>";
 			}
@@ -1574,9 +1574,9 @@ Xonomy.internalMenu = function (htmlID, items, harvest, getter, indices) {
 		}
 		return html;
 	});
-	const cls = !indices.length ? 'menu' : 'submenu';
+	const cls = indices.length ? 'submenu' : 'menu';
 	return fragments.length
-		? "<div class='" + cls + "'>" + fragments.join("") + "</div>"
+		? `<div class='${cls}'>${fragments.join("")}</div>`
 		: "";
 };
 Xonomy.attributeMenu = function (htmlID) {
@@ -1604,7 +1604,7 @@ Xonomy.elementMenu = function (htmlID) {
 	const elName = elem ? elem.getAttribute("data-name") : null; //obtain element's name
 	const spec = Xonomy.docSpec.elements[elName];
 	function getter(indices) {
-		return 'Xonomy.docSpec.elements["' + elName + '"].menu[' + indices.join('].menu[') + ']';
+		return `Xonomy.docSpec.elements["${elName}"].menu[${indices.join('].menu[')}]`;
 	}
 	return Xonomy.internalMenu(htmlID, spec.menu, Xonomy.harvestElement, getter);
 };
@@ -1614,7 +1614,7 @@ Xonomy.inlineMenu = function (htmlID) {
 	const elName = elem ? elem.getAttribute("data-name") : null; //obtain element's name
 	const spec = Xonomy.docSpec.elements[elName];
 	function getter(indices) {
-		return 'Xonomy.docSpec.elements["' + elName + '"]' + '.inlineMenu[' + indices.join('].menu[') + ']';
+		return `Xonomy.docSpec.elements["${elName}"].inlineMenu[${indices.join('].menu[')}]`;
 	}
 	return Xonomy.internalMenu(htmlID, spec.inlineMenu, Xonomy.harvestElement, getter);
 };
@@ -2277,9 +2277,9 @@ Xonomy.insertDropTargets = function (htmlID) {
 	document.querySelectorAll('.xonomy .children > .element.readonly .elementDropper').forEach(dropper => dropper.remove());
 
 	// Helper: harvest cache for localDropOnly, mustBeBefore, mustBeAfter
-	var harvestCache = {};
-	var harvestElement = function (div) {
-		var htmlID = div.id;
+	const harvestCache = {};
+	const harvestElement = function (div) {
+		const htmlID = div.id;
 		if (!harvestCache[htmlID]) harvestCache[htmlID] = Xonomy.harvestElement(div);
 		return harvestCache[htmlID];
 	};
@@ -2346,8 +2346,8 @@ Xonomy.insertDropTargets = function (htmlID) {
 		const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
 		droppers.forEach(dropper => {
 			jsElement.internalParent = harvestElement(dropper.parentNode.parentNode); // pretend the element's parent is the dropper's parent
-			var mustBeBefore = elSpec.mustBeBefore(jsElement);
-			for (var ii = 0; ii < mustBeBefore.length; ii++) {
+			const mustBeBefore = elSpec.mustBeBefore(jsElement);
+			for (let ii = 0; ii < mustBeBefore.length; ii++) {
 				if (prevAllWithDataName(dropper, mustBeBefore[ii]).length > 0) {
 					dropper.remove();
 					break;
@@ -2361,8 +2361,8 @@ Xonomy.insertDropTargets = function (htmlID) {
 		const droppers = Array.from(document.querySelectorAll('.xonomy .elementDropper'));
 		droppers.forEach(dropper => {
 			jsElement.internalParent = harvestElement(dropper.parentNode.parentNode); // pretend the element's parent is the dropper's parent
-			var mustBeAfter = elSpec.mustBeAfter(jsElement);
-			for (var ii = 0; ii < mustBeAfter.length; ii++) {
+			const mustBeAfter = elSpec.mustBeAfter(jsElement);
+			for (let ii = 0; ii < mustBeAfter.length; ii++) {
 				if (nextAllWithDataName(dropper, mustBeAfter[ii]).length > 0) {
 					dropper.remove();
 					break;
@@ -2404,7 +2404,7 @@ Xonomy.dragOut = function (ev) {
 		ev.currentTarget.classList.remove("activeDropper");
 	} else {
 		// Remove 'activeDropper' from all elements inside .xonomy
-		var activeDroppers = document.querySelectorAll(".xonomy .activeDropper");
+		const activeDroppers = document.querySelectorAll(".xonomy .activeDropper");
 		activeDroppers.forEach(function (el) {
 			el.classList.remove("activeDropper");
 		});
@@ -2436,7 +2436,6 @@ Xonomy.drop = function (ev) {
 				Xonomy.changed();
 			}
 		}
-		requestAnimationFrame(fadeInStep);
 	} else {
 		// Hide node (for fade-in)
 		node.style.opacity = 0;
@@ -2462,8 +2461,8 @@ Xonomy.drop = function (ev) {
 				Xonomy.changed();
 			}
 		}
-		requestAnimationFrame(fadeInStep);
 	}
+	requestAnimationFrame(fadeInStep);
 	Xonomy.openCloseLayby();
 	Xonomy.recomputeLayby();
 };
@@ -2637,7 +2636,7 @@ Xonomy.startKeyNav = function (keyboardEventCatcher, scrollableContainer) {
 	if (!keyboardCatcherElem) keyboardCatcherElem = document.querySelector(".xonomy");
 
 	// Resolve scrollableContainer
-	var scrollableElem = null;
+	let scrollableElem = null;
 	if (scrollableContainer instanceof Element) {
 		scrollableElem = scrollableContainer;
 	} else if (typeof scrollableContainer === "string" && scrollableContainer.trim() !== "") {
