@@ -120,7 +120,7 @@ Xonomy.js2xml = function (js) {
 	if (js.type == "text") {
 		return Xonomy.xmlEscape(js.value);
 	} else if (js.type == "attribute") {
-		return js.name + "='" + Xonomy.xmlEscape(js.value) + "'";
+		return `${js.name}='${Xonomy.xmlEscape(js.value)}'`;
 	} else if (js.type == "element") {
 		let xml = `<${js.name}`;
 		for (let i = 0; i < js.attributes.length; i++) {
@@ -135,12 +135,12 @@ Xonomy.js2xml = function (js) {
 			}
 			if (hasText) xml += " xml:space='preserve'";
 			xml += ">";
-			for (let i = 0; i < js.children.length; i++) {
+			for (let i = 0; i < $ js.children.length; i++) {
 				const child = js.children[i];
 				if (child.type == "text") xml += Xonomy.xmlEscape(child.value); //text node
 				else if (child.type == "element") xml += Xonomy.js2xml(child); //element node
 			}
-			xml += "</" + js.name + ">";
+			xml += `</${js.name}>`;
 		} else {
 			xml += "/>";
 		}
