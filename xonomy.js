@@ -168,18 +168,15 @@ Xonomy.enrichElement = function (jsElement) {
 		return ret;
 	};
 	jsElement.hasChildElement = function (name) {
-		let ret = false;
 		for (const child of this.children) {
-			if (child.name == name) ret = true;
+			if (child.name == name) return true;
 		}
-		return ret;
+		return false;
 	};
 	jsElement.getChildElements = function (name) {
 		const ret = [];
 		for (const child of this.children) {
-			if (child.type == "element") {
-				if (child.name == name) ret.push(child);
-			}
+			if (child.type == "element" && child.name == name) ret.push(child);
 		}
 		return ret;
 	};
@@ -242,8 +239,8 @@ Xonomy.enrichElement = function (jsElement) {
 		} else {
 			this.attributes.push({
 				type: "attribute",
-				name: name,
-				value: value,
+				name,
+				value,
 				htmlID: null,
 				parent: function () { return this; }
 			});
@@ -337,7 +334,7 @@ Xonomy.verifyDocSpecMenuItem = function (menuItem) { //make sure the menu item h
 };
 
 Xonomy.nextID = function () {
-	return "xonomy" + (++Xonomy.lastIDNum);
+	return `xonomy${++Xonomy.lastIDNum}`;
 };
 Xonomy.lastIDNum = 0;
 
