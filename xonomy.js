@@ -449,7 +449,6 @@ Xonomy.refresh = function () {
 Xonomy.harvestCache = {};
 Xonomy.harvest = function () { //harvests the contents of an editor
 	//Returns xml-as-string.
-	// var rootElement = $(".xonomy .element").first().toArray()[0];
 	var rootElement = document.querySelector('.xonomy .element');
 	var js = Xonomy.harvestElement(rootElement);
 	for (var key in Xonomy.namespaces) {
@@ -463,32 +462,29 @@ Xonomy.harvest = function () { //harvests the contents of an editor
 	return Xonomy.js2xml(js);
 }
 Xonomy.harvestElement = function (htmlElement, jsParent) {
-	var htmlID = htmlElement.id;
+	const htmlID = htmlElement.id;
 	if (!Xonomy.harvestCache[htmlID]) {
-		var js = new Xonomy.surrogate(jsParent);
+		let js = new Xonomy.surrogate(jsParent);
 		js.type = "element";
 		js.name = htmlElement.getAttribute("data-name");
 		js.htmlID = htmlElement.id;
 		js.attributes = [];
-		// var htmlAttributes = $(htmlElement).find(".tag.opening > .attributes").toArray()[0];
-		var htmlAttributes = htmlElement.querySelector('.tag.opening > .attributes');
+		const htmlAttributes = htmlElement.querySelector('.tag.opening > .attributes');
 		if (htmlAttributes) {
 			for (var i = 0; i < htmlAttributes.childNodes.length; i++) {
-				var htmlAttribute = htmlAttributes.childNodes[i];
+				const htmlAttribute = htmlAttributes.childNodes[i];
 				if (htmlAttribute.nodeType === 1 && htmlAttribute.classList.contains("attribute")) js["attributes"].push(Xonomy.harvestAttribute(htmlAttribute, js));
 			}
 		}
 		js.children = [];
-		// var htmlChildren = $(htmlElement).children(".prominentChildren").toArray()[0];
-		var htmlProminentChildren = Array.prototype.find.call(htmlElement.children, function (child) { return child.classList && child.classList.contains('prominentChildren'); });
+		const htmlProminentChildren = Array.prototype.find.call(htmlElement.children, function (child) { return child.classList && child.classList.contains('prominentChildren'); });
 		if (htmlProminentChildren) {
 			for (var i = 0; i < htmlProminentChildren.childNodes.length; i++) {
 				var htmlChild = htmlProminentChildren.childNodes[i];
 				if (htmlChild.nodeType === 1) js["children"].push(Xonomy.harvestElement(htmlChild, js));
 			}
 		}
-		// var htmlChildren = $(htmlElement).children(".children").toArray()[0];
-		var htmlChildren = Array.prototype.find.call(htmlElement.children, function (child) { return child.classList && child.classList.contains('children'); });
+		const htmlChildren = Array.prototype.find.call(htmlElement.children, function (child) { return child.classList && child.classList.contains('children'); });
 		if (htmlChildren) {
 			for (var i = 0; i < htmlChildren.childNodes.length; i++) {
 				var htmlChild = htmlChildren.childNodes[i];
@@ -502,9 +498,9 @@ Xonomy.harvestElement = function (htmlElement, jsParent) {
 	return Xonomy.harvestCache[htmlID];
 };
 Xonomy.harvestAttribute = function (htmlAttribute, jsParent) {
-	var htmlID = htmlAttribute.id;
+	const htmlID = htmlAttribute.id;
 	if (!Xonomy.harvestCache[htmlID]) {
-		var js = new Xonomy.surrogate(jsParent);
+		const js = new Xonomy.surrogate(jsParent);
 		js.type = "attribute";
 		js.name = htmlAttribute.getAttribute("data-name");
 		js.htmlID = htmlAttribute.id;
@@ -525,18 +521,18 @@ Xonomy.surrogate.prototype.parent = function () {
 }
 
 Xonomy.harvestText = function (htmlText, jsParent) {
-	var js = new Xonomy.surrogate(jsParent);
+	const js = new Xonomy.surrogate(jsParent);
 	js.type = "text";
 	js.htmlID = htmlText.id;
 	js.value = htmlText.getAttribute("data-value");
 	return js;
 }
 Xonomy.harvestParentOf = function (js) {
-	var jsParent = null;
+	let jsParent = null;
 	if (js.htmlID) {
-		var elem = document.getElementById(js.htmlID);
+		const elem = document.getElementById(js.htmlID);
 		if (elem) {
-			var parent = elem.parentElement;
+			let parent = elem.parentElement;
 			while (parent && (!parent.classList || !parent.classList.contains('element'))) {
 				parent = parent.parentElement;
 			}
@@ -566,26 +562,24 @@ Xonomy.render = function (data, editor, docSpec) { //renders the contents of an 
 
 	//Make sure editor refers to an HTML element, if it doesn't already:
 	if (typeof (editor) == "string") editor = document.getElementById(editor);
-	// if (!$(editor).hasClass("xonomy")) $(editor).addClass("xonomy"); //make sure it has class "xonomy"
+    //make sure it has class "xonomy"
 	if (!editor.classList.contains("xonomy")) editor.classList.add("xonomy");
-	// $(editor).addClass(Xonomy.mode);
+
 	if (!editor.classList.contains(Xonomy.mode)) editor.classList.add(Xonomy.mode);
 
-	// $(editor).hide();
 	editor.style.display = "none";
 	editor.innerHTML = Xonomy.renderElement(data, editor);
-	// $(editor).show();
 	editor.style.display = "";
 
 	if (docSpec.allowLayby) {
-		var laybyHtml = "<div class='layby closed empty' onclick='if(this.classList.contains(\"closed\")) Xonomy.openLayby()' ondragover='Xonomy.dragOver(event)' ondragleave='Xonomy.dragOut(event)' ondrop='Xonomy.drop(event)''>";
+		let laybyHtml = "<div class='layby closed empty' onclick='if(this.classList.contains(\"closed\")) Xonomy.openLayby()' ondragover='Xonomy.dragOver(event)' ondragleave='Xonomy.dragOut(event)' ondrop='Xonomy.drop(event)''>";
 		laybyHtml += "<span class='button closer' onclick='Xonomy.closeLayby();'>&nbsp;</span>";
 		laybyHtml += "<span class='button purger' onclick='Xonomy.emptyLayby()'>&nbsp;</span>";
 		laybyHtml += "<div class='content'></div>";
 		laybyHtml += "<div class='message'>" + Xonomy.textByLang(docSpec.laybyMessage) + "</div>";
 		laybyHtml += "</div>";
-		// $(laybyHtml).appendTo($(editor));
-		var tempDiv = document.createElement('div');
+
+		const tempDiv = document.createElement('div');
 		tempDiv.innerHTML = laybyHtml;
 		while (tempDiv.firstChild) {
 			editor.appendChild(tempDiv.firstChild);
@@ -593,15 +587,11 @@ Xonomy.render = function (data, editor, docSpec) { //renders the contents of an 
 	}
 
 	if (docSpec.allowModeSwitching) {
-		// $("<div class='modeSwitcher'><span class='nerd'></span><span class='laic'></span></div>").appendTo($(editor)).on("click", function (e) {
-		//	if (Xonomy.mode == "nerd") { Xonomy.setMode("laic"); } else { Xonomy.setMode("nerd"); }
-		//	if (docSpec.onModeSwitch) docSpec.onModeSwitch(Xonomy.mode);
-		// });
-		var modeSwitcher = document.createElement('div');
+		const modeSwitcher = document.createElement('div');
 		modeSwitcher.className = 'modeSwitcher';
-		var nerdSpan = document.createElement('span');
+		const nerdSpan = document.createElement('span');
 		nerdSpan.className = 'nerd';
-		var laicSpan = document.createElement('span');
+		const laicSpan = document.createElement('span');
 		laicSpan.className = 'laic';
 		modeSwitcher.appendChild(nerdSpan);
 		modeSwitcher.appendChild(laicSpan);
@@ -613,14 +603,10 @@ Xonomy.render = function (data, editor, docSpec) { //renders the contents of an 
 	}
 
 	//Make sure the "click off" handler is attached:
-	// $(document.body).off("click", Xonomy.clickoff);
-	// $(document.body).on("click", Xonomy.clickoff);
 	document.body.removeEventListener("click", Xonomy.clickoff);
 	document.body.addEventListener("click", Xonomy.clickoff);
 
 	//Make sure the "drag end" handler is attached:
-	// $(document.body).off("dragend", Xonomy.dragend);
-	// $(document.body).on("dragend", Xonomy.dragend);
 	document.body.removeEventListener("dragend", Xonomy.dragend);
 	document.body.addEventListener("dragend", Xonomy.dragend);
 
@@ -628,12 +614,12 @@ Xonomy.render = function (data, editor, docSpec) { //renders the contents of an 
 	Xonomy.validate();
 };
 Xonomy.renderElement = function (element) {
-	var htmlID = Xonomy.nextID();
+	const htmlID = Xonomy.nextID();
 	Xonomy.verifyDocSpecElement(element.name);
-	var spec = Xonomy.docSpec.elements[element.name];
-	var classNames = "element";
+	const spec = Xonomy.docSpec.elements[element.name];
+	let classNames = "element";
 	if (spec.canDropTo && spec.canDropTo.length > 0) classNames += " draggable";
-	var hasText = spec.hasText(element);
+	const hasText = spec.hasText(element);
 	if (hasText) classNames += " hasText";
 	if (spec.inlineMenu && spec.inlineMenu.length > 0) classNames += " hasInlineMenu";
 	if (spec.oneliner(element)) classNames += " oneliner";
@@ -645,11 +631,11 @@ Xonomy.renderElement = function (element) {
 	if (spec.isInvisible && spec.isInvisible(element)) { classNames += " invisible"; }
 	if (spec.isReadOnly && spec.isReadOnly(element)) { readonly = true; classNames += " readonly"; }
 	if (spec.menu.length > 0) classNames += " hasMenu"; //not always accurate: whether an element has a menu is actually determined at runtime
-	var displayName = element.name;
+	let displayName = element.name;
 	if (spec.displayName) displayName = Xonomy.textByLang(spec.displayName(element));
-	var title = "";
+	let title = "";
 	if (spec.title) title = Xonomy.textByLang(spec.title(element));
-	var html = "";
+	let html = "";
 	html += '<div data-name="' + element.name + '" id="' + htmlID + '" class="' + classNames + '">';
 	html += '<span class="connector">';
 	html += '<span class="plusminus" onclick="Xonomy.plusminus(\'' + htmlID + '\')"></span>';
@@ -685,7 +671,7 @@ Xonomy.renderElement = function (element) {
 	if (spec.displayValue && !element.hasElements()) {
 		html += Xonomy.renderDisplayText(element.getText(), spec.displayValue(element));
 	} else {
-		var prevChildType = "";
+		let prevChildType = "";
 		if (hasText && (element.children.length == 0 || element.children[0].type == "element")) {
 			html += Xonomy.renderText({ type: "text", value: "" }); //if inline layout, insert empty text node between two elements
 		}
@@ -727,16 +713,16 @@ Xonomy.renderElement = function (element) {
 	return html;
 };
 Xonomy.renderAttribute = function (attribute, optionalParentName) {
-	var htmlID = Xonomy.nextID();
+	const htmlID = Xonomy.nextID();
 	classNames = "attribute";
-	var readonly = false;
+	let readonly = false;
 
-	var displayName = attribute.name;
-	var displayValue = Xonomy.xmlEscape(attribute.value);
-	var caption = "";
-	var title = "";
+	let displayName = attribute.name;
+	let displayValue = Xonomy.xmlEscape(attribute.value);
+	let caption = "";
+	let title = "";
 	if (optionalParentName) {
-		var spec = Xonomy.docSpec.elements[optionalParentName].attributes[attribute.name];
+		const spec = Xonomy.docSpec.elements[optionalParentName].attributes[attribute.name];
 		if (spec) {
 			if (spec.displayName) displayName = Xonomy.textByLang(spec.displayName(attribute));
 			if (spec.displayValue) displayValue = Xonomy.textByLang(spec.displayValue(attribute));
@@ -748,14 +734,14 @@ Xonomy.renderAttribute = function (attribute, optionalParentName) {
 		}
 	}
 
-	var html = "";
+	let html = "";
 	html += '<span data-name="' + attribute.name + '" data-value="' + Xonomy.xmlEscape(attribute.value) + '" id="' + htmlID + '" class="' + classNames + '">';
 	html += '<span class="punc"> </span>';
-	var onclick = ''; if (!readonly) onclick = ' onclick="Xonomy.click(\'' + htmlID + '\', \'attributeName\')"';
+	var onclick = !readonly ? ' onclick="Xonomy.click(\'' + htmlID + '\', \'attributeName\')"' : '';	
 	html += '<span class="warner"><span class="inside" onclick="Xonomy.click(\'' + htmlID + '\', \'warner\')"></span></span>';
 	html += '<span class="name attributeName focusable" title="' + title + '"' + onclick + '>' + displayName + '</span>';
 	html += '<span class="punc">=</span>';
-	var onclick = ''; if (!readonly) onclick = ' onclick="Xonomy.click(\'' + htmlID + '\', \'attributeValue\')"';
+	var onclick = !readonly ? ' onclick="Xonomy.click(\'' + htmlID + '\', \'attributeValue\')"' : '';	
 	html += '<span class="valueContainer attributeValue focusable"' + onclick + '>';
 	html += '<span class="punc">"</span>';
 	html += '<span class="value">' + displayValue + '</span>';
@@ -767,25 +753,25 @@ Xonomy.renderAttribute = function (attribute, optionalParentName) {
 	return html;
 };
 Xonomy.renderText = function (text) {
-	var htmlID = Xonomy.nextID();
-	var classNames = "textnode focusable";
+	const htmlID = Xonomy.nextID();
+	let classNames = "textnode focusable";
 	if ($.trim(text.value) == "") classNames += " whitespace";
 	if (text.value == "") classNames += " empty";
-	var html = "";
+	let html = "";
 	html += '<div id="' + htmlID + '" data-value="' + Xonomy.xmlEscape(text.value) + '" class="' + classNames + '">';
 	html += '<span class="connector"></span>';
-	var txt = Xonomy.chewText(text.value);
+	const txt = Xonomy.chewText(text.value);
 	html += '<span class="value" onclick="Xonomy.click(\'' + htmlID + '\', \'text\')"><span class="insertionPoint"><span class="inside"></span></span><span class="dots"></span>' + txt + '</span>';
 	html += '</div>';
 	text.htmlID = htmlID;
 	return html;
 }
 Xonomy.renderDisplayText = function (text, displayText) {
-	var htmlID = Xonomy.nextID();
-	var classNames = "textnode";
+	const htmlID = Xonomy.nextID();
+	let classNames = "textnode";
 	if ($.trim(displayText) == "") classNames += " whitespace";
 	if (displayText == "") classNames += " empty";
-	var html = "";
+	let html = "";
 	html += '<div id="' + htmlID + '" data-value="' + Xonomy.xmlEscape(text) + '" class="' + classNames + '">';
 	html += '<span class="connector"></span>';
 	html += '<span class="value" onclick="Xonomy.click(\'' + htmlID + '\', \'text\')"><span class="insertionPoint"><span class="inside"></span></span><span class="dots"></span>' + Xonomy.textByLang(displayText) + '</span>';
@@ -795,14 +781,14 @@ Xonomy.renderDisplayText = function (text, displayText) {
 }
 
 Xonomy.chewText = function (txt) {
-	var ret = "";
+	let ret = "";
 	ret += "<span class='word'>"; //start word
-	for (var i = 0; i < txt.length; i++) {
+	for (let i = 0; i < txt.length; i++) {
 		if (txt[i] == " ") ret += "</span>"; //end word
 		var t = Xonomy.xmlEscape(txt[i])
 		if (i == 0 && t == " ") t = "<span class='space'>&middot;</span>"; //leading space
 		if (i == txt.length - 1 && t == " ") t = "<span class='space'>&middot;</span>"; //trailing space
-		var id = Xonomy.nextID();
+		const id = Xonomy.nextID();
 		ret += "<span id='" + id + "' class='char focusable' onclick='if((event.ctrlKey||event.metaKey) && $(this).closest(\".element\").hasClass(\"hasInlineMenu\")) Xonomy.charClick(this)'>" + t + "<span class='selector'><span class='inside' onclick='Xonomy.charClick(this.parentNode.parentNode)'></span></span></span>";
 		if (txt[i] == " ") ret += "<span class='word'>"; //start word
 	}
@@ -2803,7 +2789,7 @@ Xonomy.goDown = function () {
 		Xonomy.goRight();
 	} else {
 		var el = document.getElementById(Xonomy.currentHtmlId);
-		var me = el;
+		let me = el;
 		if (Xonomy.currentFocus == "openingTagName") {
 			me = el.querySelector('.tag.opening');
 		}
