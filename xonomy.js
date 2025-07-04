@@ -1722,21 +1722,7 @@ Xonomy.newElementChild = function (htmlID, parameter) {
 	Xonomy.changed();
 
 	// Fade in animation
-	let opacity = 0;
-	const fadeDuration = 400; // ms
-	let start = null;
-	function fadeInStep(timestamp) {
-		if (!start) start = timestamp;
-		const elapsed = timestamp - start;
-		opacity = Math.min(elapsed / fadeDuration, 1);
-		newElem.style.opacity = opacity;
-		if (elapsed < fadeDuration) {
-			requestAnimationFrame(fadeInStep);
-		} else {
-			newElem.style.opacity = 1;
-		}
-	}
-	requestAnimationFrame(fadeInStep);
+	Xonomy.fadeIn(newElem, 400);
 
 	window.setTimeout(function () { Xonomy.setFocus(newElem.id, "openingTagName"); }, 100);
 };
@@ -1827,21 +1813,7 @@ Xonomy.newElementBefore = function (htmlID, parameter) {
 	Xonomy.changed();
 
 	// Fade in animation (same as newElementChild)
-	let opacity = 0;
-	const fadeDuration = 400; // ms
-	let start = null;
-	function fadeInStep(timestamp) {
-		if (!start) start = timestamp;
-		const elapsed = timestamp - start;
-		opacity = Math.min(elapsed / fadeDuration, 1);
-		newElem.style.opacity = opacity;
-		if (elapsed < fadeDuration) {
-			requestAnimationFrame(fadeInStep);
-		} else {
-			newElem.style.opacity = 1;
-		}
-	}
-	requestAnimationFrame(fadeInStep);
+	Xonomy.fadeIn(newElem, 400);
 
 	window.setTimeout(function () { Xonomy.setFocus(newElem.id, "openingTagName"); }, 100);
 };
@@ -1868,21 +1840,7 @@ Xonomy.newElementAfter = function (htmlID, parameter) {
 	Xonomy.changed();
 
 	// Fade in animation (same as newElementChild)
-	let opacity = 0;
-	const fadeDuration = 400; // ms
-	let start = null;
-	function fadeInStep(timestamp) {
-		if (!start) start = timestamp;
-		const elapsed = timestamp - start;
-		opacity = Math.min(elapsed / fadeDuration, 1);
-		newElem.style.opacity = opacity;
-		if (elapsed < fadeDuration) {
-			requestAnimationFrame(fadeInStep);
-		} else {
-			newElem.style.opacity = 1;
-		}
-	}
-	requestAnimationFrame(fadeInStep);
+	Xonomy.fadeIn(newElem, 400);
 
 	window.setTimeout(function () { Xonomy.setFocus(newElem.id, "openingTagName"); }, 100);
 };
@@ -1963,21 +1921,7 @@ Xonomy.duplicateElement = function (htmlID) {
 	Xonomy.changed();
 
 	// Fade in animation (same as newElementChild)
-	let opacity = 0;
-	const fadeDuration = 400; // ms
-	let start = null;
-	function fadeInStep(timestamp) {
-		if (!start) start = timestamp;
-		const elapsed = timestamp - start;
-		opacity = Math.min(elapsed / fadeDuration, 1);
-		newElem.style.opacity = opacity;
-		if (elapsed < fadeDuration) {
-			requestAnimationFrame(fadeInStep);
-		} else {
-			newElem.style.opacity = 1;
-		}
-	}
-	requestAnimationFrame(fadeInStep);
+	Xonomy.fadeIn(newElem, 400);
 
 	window.setTimeout(function () { Xonomy.setFocus(newElem.id, "openingTagName"); }, 100);
 };
@@ -1996,23 +1940,7 @@ Xonomy.moveElementUp = function (htmlID) {
 			dropper.parentNode.replaceChild(me, dropper);
 			Xonomy.changed();
 			// Fade in animation
-			me.style.opacity = 0;
-			me.style.display = '';
-			let opacity = 0;
-			const fadeDuration = 400;
-			let start = null;
-			function fadeInStep(timestamp) {
-				if (!start) start = timestamp;
-				const elapsed = timestamp - start;
-				opacity = Math.min(elapsed / fadeDuration, 1);
-				me.style.opacity = opacity;
-				if (elapsed < fadeDuration) {
-					requestAnimationFrame(fadeInStep);
-				} else {
-					me.style.opacity = 1;
-				}
-			}
-			requestAnimationFrame(fadeInStep);
+			Xonomy.fadeIn(me, 400);
 		}
 		Xonomy.dragend();
 	}
@@ -2031,23 +1959,7 @@ Xonomy.moveElementDown = function (htmlID) {
 			dropper.parentNode.replaceChild(me, dropper);
 			Xonomy.changed();
 			// Fade in animation
-			me.style.opacity = 0;
-			me.style.display = '';
-			let opacity = 0;
-			const fadeDuration = 400;
-			let start = null;
-			function fadeInStep(timestamp) {
-				if (!start) start = timestamp;
-				const elapsed = timestamp - start;
-				opacity = Math.min(elapsed / fadeDuration, 1);
-				me.style.opacity = opacity;
-				if (elapsed < fadeDuration) {
-					requestAnimationFrame(fadeInStep);
-				} else {
-					me.style.opacity = 1;
-				}
-			}
-			requestAnimationFrame(fadeInStep);
+			Xonomy.fadeIn(me, 400);
 		}
 		Xonomy.dragend();
 	}
@@ -2421,21 +2333,7 @@ Xonomy.drop = function (ev) {
 		const laybyContent = document.querySelector(".xonomy .layby > .content");
 		if (laybyContent) laybyContent.appendChild(node);
 		// Fade in animation
-		let opacity = 0;
-		const fadeDuration = 400;
-		let start = null;
-		function fadeInStep(timestamp) {
-			if (!start) start = timestamp;
-			const elapsed = timestamp - start;
-			opacity = Math.min(elapsed / fadeDuration, 1);
-			node.style.opacity = opacity;
-			if (elapsed < fadeDuration) {
-				requestAnimationFrame(fadeInStep);
-			} else {
-				node.style.opacity = 1;
-				Xonomy.changed();
-			}
-		}
+		Xonomy.fadeIn(node, 400, function () { Xonomy.changed(); });
 	} else {
 		// Hide node (for fade-in)
 		node.style.opacity = 0;
@@ -2446,23 +2344,8 @@ Xonomy.drop = function (ev) {
 			targetParent.parentNode.replaceChild(node, targetParent);
 		}
 		// Fade in animation
-		let opacity = 0;
-		const fadeDuration = 400;
-		let start = null;
-		function fadeInStep(timestamp) {
-			if (!start) start = timestamp;
-			const elapsed = timestamp - start;
-			opacity = Math.min(elapsed / fadeDuration, 1);
-			node.style.opacity = opacity;
-			if (elapsed < fadeDuration) {
-				requestAnimationFrame(fadeInStep);
-			} else {
-				node.style.opacity = 1;
-				Xonomy.changed();
-			}
-		}
+		Xonomy.fadeIn(node, 400, function () { Xonomy.changed(); });
 	}
-	requestAnimationFrame(fadeInStep);
 	Xonomy.openCloseLayby();
 	Xonomy.recomputeLayby();
 };
@@ -2562,21 +2445,7 @@ Xonomy.newElementLayby = function (xml) {
 	Xonomy.refresh();
 
 	// Fade in animation (same as other new element functions)
-	let opacity = 0;
-	const fadeDuration = 400; // ms
-	let start = null;
-	function fadeInStep(timestamp) {
-		if (!start) start = timestamp;
-		const elapsed = timestamp - start;
-		opacity = Math.min(elapsed / fadeDuration, 1);
-		newElem.style.opacity = opacity;
-		if (elapsed < fadeDuration) {
-			requestAnimationFrame(fadeInStep);
-		} else {
-			newElem.style.opacity = 1;
-		}
-	}
-	requestAnimationFrame(fadeInStep);
+	Xonomy.fadeIn(newElem, 400);
 
 	Xonomy.openCloseLayby();
 	Xonomy.recomputeLayby();
@@ -3155,5 +3024,26 @@ Xonomy.triggerElementClickEvent = function (htmlID) {
 	// Trigger custom event
 	var event = new CustomEvent('xonomy-click-element', { detail: surrogateElem });
 	elem.dispatchEvent(event);
+};
+
+// Utility function for fade-in animation
+Xonomy.fadeIn = function (element, duration, callback) {
+	element.style.opacity = 0;
+	element.style.display = '';
+	let opacity = 0;
+	let start = null;
+	function fadeInStep(timestamp) {
+		if (!start) start = timestamp;
+		const elapsed = timestamp - start;
+		opacity = Math.min(elapsed / duration, 1);
+		element.style.opacity = opacity;
+		if (elapsed < duration) {
+			requestAnimationFrame(fadeInStep);
+		} else {
+			element.style.opacity = 1;
+			if (typeof callback === 'function') callback();
+		}
+	}
+	requestAnimationFrame(fadeInStep);
 };
 
