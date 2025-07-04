@@ -1441,7 +1441,6 @@
 /*Read-only stuff*/
 .xonomy.laic .readonly * {
   color: #aaaaaa !important;
-  cursor: default !important;
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
@@ -1637,7 +1636,7 @@
   margin-left: 0px;
 }
 #xonomyBubble.laic #xonomyBubbleContent div.menuItem.current {
-  x-background-color: #ffffdd;
+  background-color: #ffffdd;
 }
 #xonomyBubble.laic #xonomyBubbleContent div.menuItem:hover {
   background-color: #f6f6f6;
@@ -1675,14 +1674,12 @@
 }
 #xonomyBubble.laic #xonomyBubbleContent input.textbox {
   font-family: monospace;
-  font-size: 1rem;
   width: 400px;
   border: 1px solid #dddddd;
   font-size: 0.85rem;
 }
 #xonomyBubble.laic #xonomyBubbleContent textarea.textbox {
   font-family: monospace;
-  font-size: 1rem;
   width: 400px;
   height: 100px;
   border: 1px solid #dddddd;
@@ -1787,7 +1784,6 @@
   right: 0px;
   padding: 10px 10px 0px 10px;
   background-color: #fffef4;
-  z-index: 12;
   border-left: 3px solid #cccccc;
   z-index: 9;
 }
@@ -1890,8 +1886,7 @@
   background-color: transparent !important;
 }
 
-/**/
-
+/*Nerd mode*/
 .xonomy.nerd .prominentChildren:empty {
   display: none !important;
 }
