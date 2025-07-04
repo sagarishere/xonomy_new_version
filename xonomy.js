@@ -557,7 +557,11 @@ Xonomy.render = function (data, editor, docSpec) { //renders the contents of an 
 	Xonomy.namespaces = {};
 
 	//Convert doc to a JavaScript object, if it isn't a JavaScript object already:
-	if (typeof (data) == "string") data = $.parseXML(data);
+	if (typeof (data) == "string") {
+		// Use DOMParser instead of $.parseXML
+		var parser = new window.DOMParser();
+		data = parser.parseFromString(data, "application/xml");
+	}
 	if (data.documentElement) data = Xonomy.xml2js(data);
 
 	//Make sure editor refers to an HTML element, if it doesn't already:
@@ -755,7 +759,7 @@ Xonomy.renderAttribute = function (attribute, optionalParentName) {
 Xonomy.renderText = function (text) {
 	const htmlID = Xonomy.nextID();
 	let classNames = "textnode focusable";
-	if ($.trim(text.value) == "") classNames += " whitespace";
+	if (String(text.value).trim() == "") classNames += " whitespace";
 	if (text.value == "") classNames += " empty";
 	let html = "";
 	html += '<div id="' + htmlID + '" data-value="' + Xonomy.xmlEscape(text.value) + '" class="' + classNames + '">';
@@ -769,7 +773,7 @@ Xonomy.renderText = function (text) {
 Xonomy.renderDisplayText = function (text, displayText) {
 	const htmlID = Xonomy.nextID();
 	let classNames = "textnode";
-	if ($.trim(displayText) == "") classNames += " whitespace";
+	if (String(displayText).trim() == "") classNames += " whitespace";
 	if (displayText == "") classNames += " empty";
 	let html = "";
 	html += '<div id="' + htmlID + '" data-value="' + Xonomy.xmlEscape(text) + '" class="' + classNames + '">';
