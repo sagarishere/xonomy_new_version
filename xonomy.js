@@ -2656,12 +2656,12 @@ Xonomy.setFocus = function (htmlID, what) {
 			el.classList.remove('focused');
 		});
 		if (what == "attributeValue") {
-			var valueContainer = document.querySelector(`#${CSS.escape(htmlID)} > .valueContainer`);
+			const valueContainer = document.querySelector(`#${CSS.escape(htmlID)} > .valueContainer`);
 			if (valueContainer) {
 				valueContainer.classList.add('current', 'focused');
 			}
 		} else {
-			var mainElem = document.getElementById(htmlID);
+			const mainElem = document.getElementById(htmlID);
 			if (mainElem) {
 				mainElem.classList.add('current', 'focused');
 			}
@@ -2669,19 +2669,19 @@ Xonomy.setFocus = function (htmlID, what) {
 		Xonomy.currentHtmlId = htmlID;
 		Xonomy.currentFocus = what;
 		if (Xonomy.currentFocus == "openingTagName") {
-			var opening = document.querySelector(`#${CSS.escape(htmlID)} > .tag.opening`);
+			const opening = document.querySelector(`#${CSS.escape(htmlID)} > .tag.opening`);
 			if (opening) opening.classList.add('focused');
 		}
 		if (Xonomy.currentFocus == "closingTagName") {
-			var closings = document.querySelectorAll(`#${CSS.escape(htmlID)} > .tag.closing`);
+			const closings = document.querySelectorAll(`#${CSS.escape(htmlID)} > .tag.closing`);
 			if (closings.length > 0) closings[closings.length - 1].classList.add('focused');
 		}
 		if (Xonomy.currentFocus == "childrenCollapsed") {
-			var childrenCollapsed = document.querySelectorAll(`#${CSS.escape(htmlID)} > .childrenCollapsed`);
+			const childrenCollapsed = document.querySelectorAll(`#${CSS.escape(htmlID)} > .childrenCollapsed`);
 			if (childrenCollapsed.length > 0) childrenCollapsed[childrenCollapsed.length - 1].classList.add('focused');
 		}
 		if (Xonomy.currentFocus == "rollouter") {
-			var rollouters = document.querySelectorAll(`#${CSS.escape(htmlID)} > .tag.opening > .rollouter`);
+			const rollouters = document.querySelectorAll(`#${CSS.escape(htmlID)} > .tag.opening > .rollouter`);
 			if (rollouters.length > 0) rollouters[rollouters.length - 1].classList.add('focused');
 		}
 	}
