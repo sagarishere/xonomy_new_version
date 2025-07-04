@@ -197,7 +197,7 @@ Xonomy.enrichElement = function (jsElement) {
 		return ret;
 	};
 	jsElement.getText = function () {
-		var txt = "";
+		let txt = "";
 		for (var i = 0; i < this.children.length; i++) {
 			if (this.children[i].type == "text") txt += this.children[i].value;
 			else if (this.children[i].type == "element") txt += this.children[i].getText();
@@ -1643,28 +1643,15 @@ Xonomy.deleteElement = function (htmlID, parameter) {
 	const obj = document.getElementById(htmlID);
 	const parentID = obj.parentNode.parentNode.id;
 
-	// Vanilla JS fadeOut
-	let opacity = 1;
-	const fadeDuration = 400; // ms
-	let start = null;
-	function fadeOutStep(timestamp) {
-		if (!start) start = timestamp;
-		const elapsed = timestamp - start;
-		opacity = Math.max(1 - (elapsed / fadeDuration), 0);
-		obj.style.opacity = opacity;
-		if (elapsed < fadeDuration) {
-			requestAnimationFrame(fadeOutStep);
-		} else {
-			obj.style.opacity = 0;
-			const parentNode = obj.parentNode;
-			parentNode.removeChild(obj);
-			Xonomy.changed();
-			if (!parentNode.closest('.layby')) {
-				window.setTimeout(function () { Xonomy.setFocus(parentID, "openingTagName"); }, 100);
-			}
+	// Use fadeOut utility
+	Xonomy.fadeOut(obj, 400, function () {
+		const parentNode = obj.parentNode;
+		parentNode.removeChild(obj);
+		Xonomy.changed();
+		if (!parentNode.closest('.layby')) {
+			window.setTimeout(function () { Xonomy.setFocus(parentID, "openingTagName"); }, 100);
 		}
-	}
-	requestAnimationFrame(fadeOutStep);
+	});
 };
 Xonomy.newAttribute = function (htmlID, parameter) {
 	Xonomy.clickoff();
@@ -3047,3 +3034,22 @@ Xonomy.fadeIn = function (element, duration, callback) {
 	requestAnimationFrame(fadeInStep);
 };
 
+// Utility function for fade-out animation
+Xonomy.fadeOut = function (element, duration, callback) {
+	element.style.opacity = 1;
+	let opacity = 1;
+	let start = null;
+	function fadeOutStep(timestamp) {
+		if (!start) start = timestamp;
+		const elapsed = timestamp - start;
+		opacity = Math.max(1 - (elapsed / duration), 0);
+		element.style.opacity = opacity;
+		if (elapsed < duration) {
+			requestAnimationFrame(fadeOutStep);
+		} else {
+			element.style.opacity = 0;
+			if (typeof callback === 'function') callback();
+		}
+	}
+	requestAnimationFrame(fadeOutStep);
+};
