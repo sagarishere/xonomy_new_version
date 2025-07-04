@@ -135,7 +135,7 @@ Xonomy.js2xml = function (js) {
 			}
 			if (hasText) xml += " xml:space='preserve'";
 			xml += ">";
-			for (let i = 0; i < $ js.children.length; i++) {
+			for (let i = 0; i < js.children.length; i++) {
 				const child = js.children[i];
 				if (child.type == "text") xml += Xonomy.xmlEscape(child.value); //text node
 				else if (child.type == "element") xml += Xonomy.js2xml(child); //element node
