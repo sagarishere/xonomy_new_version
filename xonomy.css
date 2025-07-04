@@ -967,9 +967,6 @@
   padding: 0px;
   margin: 0px;
 }
-.xonomy.laic .element.oneliner > .children > .textnode {
-  display: inline-block;
-}
 .xonomy.laic .element.oneliner.hasInlineMenu {
 }
 .xonomy.laic .element.oneliner.hasInlineMenu > .children {
