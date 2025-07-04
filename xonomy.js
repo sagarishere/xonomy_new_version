@@ -48,38 +48,74 @@ Xonomy.isNamespaceDeclaration = function (attributeName) {
 Xonomy.namespaces = {}; //eg. "xmlns:mbm": "http://lexonista.com"
 
 Xonomy.xml2js = function (xml, jsParent) {
-	if (typeof (xml) == "string") {
-		xml = (new window.DOMParser()).parseFromString(xml, "application/xml");
-	}
-	if (xml.documentElement) xml = xml.documentElement;
-	let js = new Xonomy.surrogate(jsParent);
-	js.type = "element";
-	js.name = xml.nodeName;
-	js.htmlID = "";
-	js.attributes = [];
-	for (var i = 0; i < xml.attributes.length; i++) {
-		var attr = xml.attributes[i];
-		if (!Xonomy.isNamespaceDeclaration(attr.nodeName)) {
-			if (attr.name != "xml:space") {
-				js["attributes"].push({ type: "attribute", name: attr.nodeName, value: attr.value, htmlID: "", parent: function () { return js }, });
+	try {
+		if (typeof xml === "string") {
+			xml = (new window.DOMParser()).parseFromString(xml, "application/xml");
+			const parserError = xml.getElementsByTagName("parsererror");
+			if (parserError.length > 0) {
+				throw new Error("XML parsing failed: " + parserError[0].textContent);
 			}
-		} else {
-			Xonomy.namespaces[attr.nodeName] = attr.value;
 		}
+
+		if (!xml) {
+			throw new Error("Invalid XML input");
+		}
+
+		if (xml.documentElement) xml = xml.documentElement;
+
+		const js = new Xonomy.surrogate(jsParent);
+		js.type = "element";
+		js.name = xml.nodeName;
+		js.htmlID = "";
+		js.attributes = [];
+		js.children = [];
+
+		const createParentFunction = (parentRef) => () => parentRef;
+
+		// Process attributes
+		Array.from(xml.attributes).forEach(attr => {
+			if (!Xonomy.isNamespaceDeclaration(attr.nodeName)) {
+				if (attr.name !== "xml:space") {
+					js.attributes.push({
+						type: "attribute",
+						name: attr.nodeName,
+						value: attr.value,
+						htmlID: "",
+						parent: createParentFunction(js)
+					});
+				}
+			} else {
+				Xonomy.namespaces[attr.nodeName] = attr.value;
+			}
+		});
+
+		// Process child nodes
+		Array.from(xml.childNodes).forEach(child => {
+			switch (child.nodeType) {
+				case Node.ELEMENT_NODE:
+					js.children.push(Xonomy.xml2js(child, js));
+					break;
+				case Node.TEXT_NODE:
+					if (child.nodeValue.trim()) {
+						js.children.push({
+							type: "text",
+							value: child.nodeValue,
+							htmlID: "",
+							parent: createParentFunction(js)
+						});
+					}
+					break;
+			}
+		});
+
+		return Xonomy.enrichElement(js);
+
+	} catch (error) {
+		console.error("Xonomy.xml2js error:", error);
+		return null;
 	}
-	js.children = [];
-	for (var i = 0; i < xml.childNodes.length; i++) {
-		var child = xml.childNodes[i];
-		if (child.nodeType == 1) { //element node
-			js["children"].push(Xonomy.xml2js(child, js));
-		}
-		if (child.nodeType == 3) { //text node
-			js["children"].push({ type: "text", value: child.nodeValue, htmlID: "", parent: function () { return js }, });
-		}
-	}
-	js = Xonomy.enrichElement(js);
-	return js;
 };
+
 Xonomy.js2xml = function (js) {
 	if (js.type == "text") {
 		return Xonomy.xmlEscape(js.value);
