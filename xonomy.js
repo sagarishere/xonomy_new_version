@@ -798,8 +798,8 @@ Xonomy.chewText = function (txt) {
 Xonomy.charClick = function (c) {
 	Xonomy.clickoff();
 	// Check if c or any ancestor has class 'readonly'
-	var isReadOnly = false;
-	var parent = c;
+	let isReadOnly = false;
+	let parent = c;
 	while (parent) {
 		if (parent.classList && parent.classList.contains('readonly')) {
 			isReadOnly = true;
@@ -809,34 +809,34 @@ Xonomy.charClick = function (c) {
 	}
 	if (!isReadOnly) {
 		Xonomy.notclick = true;
-		var charsOn = document.querySelectorAll('.xonomy .char.on');
+		const charsOn = document.querySelectorAll('.xonomy .char.on');
 		if (
 			charsOn.length == 1 &&
 			charsOn[0].closest('.element') === c.closest('.element')
 		) {
-			var element = charsOn[0].closest('.element');
-			var chars = Array.prototype.slice.call(element.querySelectorAll('.char'));
-			var iFrom = chars.indexOf(charsOn[0]);
-			var iTill = chars.indexOf(c);
+			const element = charsOn[0].closest('.element');
+			const chars = Array.prototype.slice.call(element.querySelectorAll('.char'));
+			let iFrom = chars.indexOf(charsOn[0]);
+			let iTill = chars.indexOf(c);
 			if (iFrom > iTill) { var temp = iFrom; iFrom = iTill; iTill = temp; }
-			for (var i = 0; i < chars.length; i++) {
+			for (let i = 0; i < chars.length; i++) {
 				if (i >= iFrom && i <= iTill) chars[i].classList.add('on');
 			}
 			// Save for later the info Xonomy needs to know what to wrap:
-			var textFrom = chars[iFrom].closest('.textnode');
-			var textTill = chars[iTill].closest('.textnode');
+			const textFrom = chars[iFrom].closest('.textnode');
+			const textTill = chars[iTill].closest('.textnode');
 			Xonomy.textFromID = textFrom ? textFrom.id : null;
 			Xonomy.textTillID = textTill ? textTill.id : null;
-			var charsFromText = textFrom ? Array.prototype.slice.call(textFrom.querySelectorAll('.char')) : [];
-			var charsTillText = textTill ? Array.prototype.slice.call(textTill.querySelectorAll('.char')) : [];
+			const charsFromText = textFrom ? Array.prototype.slice.call(textFrom.querySelectorAll('.char')) : [];
+			const charsTillText = textTill ? Array.prototype.slice.call(textTill.querySelectorAll('.char')) : [];
 			Xonomy.textFromIndex = charsFromText.indexOf(chars[iFrom]);
 			Xonomy.textTillIndex = charsTillText.indexOf(chars[iTill]);
 			// Show inline menu etc:
-			var htmlID = element.id;
-			var content = Xonomy.inlineMenu(htmlID);
+			const htmlID = element.id;
+			const content = Xonomy.inlineMenu(htmlID);
 			if (content != "" && content != "<div class='menu'></div>") {
 				document.body.appendChild(Xonomy.makeBubble(content));
-				var charsOnList = element.querySelectorAll('.char.on');
+				const charsOnList = element.querySelectorAll('.char.on');
 				if (charsOnList.length > 0) Xonomy.showBubble(charsOnList[charsOnList.length - 1]);
 			}
 			Xonomy.clearChars = true;
@@ -851,13 +851,13 @@ Xonomy.charClick = function (c) {
 Xonomy.wrap = function (htmlID, param) {
 	Xonomy.clickoff();
 	Xonomy.destroyBubble();
-	var xml = param.template;
-	var ph = param.placeholder;
-	var jsElement = Xonomy.harvestElement(document.getElementById(htmlID));
+	let xml = param.template;
+	const ph = param.placeholder;
+	const jsElement = Xonomy.harvestElement(document.getElementById(htmlID));
 	if (Xonomy.textFromID == Xonomy.textTillID) { //abc --> a<XYZ>b</XYZ>c
-		var jsOld = Xonomy.harvestText(document.getElementById(Xonomy.textFromID));
+		const jsOld = Xonomy.harvestText(document.getElementById(Xonomy.textFromID));
 		var txtOpen = jsOld.value.substring(0, Xonomy.textFromIndex);
-		var txtMiddle = jsOld.value.substring(Xonomy.textFromIndex, Xonomy.textTillIndex + 1);
+		const txtMiddle = jsOld.value.substring(Xonomy.textFromIndex, Xonomy.textTillIndex + 1);
 		var txtClose = jsOld.value.substring(Xonomy.textTillIndex + 1);
 		xml = xml.replace(ph, Xonomy.xmlEscape(txtMiddle));
 		var html = "";
@@ -872,18 +872,18 @@ Xonomy.wrap = function (htmlID, param) {
 		}
 		window.setTimeout(function () { Xonomy.setFocus(newID, "openingTagName"); }, 100);
 	} else { //ab<...>cd --> a<XYZ>b<...>c</XYZ>d
-		var jsOldOpen = Xonomy.harvestText(document.getElementById(Xonomy.textFromID));
-		var jsOldClose = Xonomy.harvestText(document.getElementById(Xonomy.textTillID));
+		const jsOldOpen = Xonomy.harvestText(document.getElementById(Xonomy.textFromID));
+		const jsOldClose = Xonomy.harvestText(document.getElementById(Xonomy.textTillID));
 		var txtOpen = jsOldOpen.value.substring(0, Xonomy.textFromIndex);
-		var txtMiddleOpen = jsOldOpen.value.substring(Xonomy.textFromIndex);
-		var txtMiddleClose = jsOldClose.value.substring(0, Xonomy.textTillIndex + 1);
+		const txtMiddleOpen = jsOldOpen.value.substring(Xonomy.textFromIndex);
+		const txtMiddleClose = jsOldClose.value.substring(0, Xonomy.textTillIndex + 1);
 		var txtClose = jsOldClose.value.substring(Xonomy.textTillIndex + 1);
 		xml = xml.replace(ph, Xonomy.xmlEscape(txtMiddleOpen) + ph);
 		// Vanilla JS nextUntil implementation
-		var startElem = document.getElementById(Xonomy.textFromID);
-		var endElem = document.getElementById(Xonomy.textTillID);
-		var current = startElem.nextElementSibling;
-		var nodesToRemove = [];
+		const startElem = document.getElementById(Xonomy.textFromID);
+		const endElem = document.getElementById(Xonomy.textTillID);
+		let current = startElem.nextElementSibling;
+		const nodesToRemove = [];
 		while (current && current !== endElem) {
 			if (current.classList.contains("element")) {
 				xml = xml.replace(ph, Xonomy.js2xml(Xonomy.harvestElement(current)) + ph);
@@ -913,11 +913,11 @@ Xonomy.wrap = function (htmlID, param) {
 	Xonomy.changed();
 };
 Xonomy.unwrap = function (htmlID, param) {
-	var elem = document.getElementById(htmlID);
-	var parentID = elem.parentNode.parentNode.id;
+	const elem = document.getElementById(htmlID);
+	const parentID = elem.parentNode.parentNode.id;
 	Xonomy.clickoff();
-	var children = elem.querySelectorAll(':scope > .children > *');
-	var fragment = document.createDocumentFragment();
+	const children = elem.querySelectorAll(':scope > .children > *');
+	const fragment = document.createDocumentFragment();
 	children.forEach(function (child) {
 		fragment.appendChild(child);
 	});
@@ -927,8 +927,8 @@ Xonomy.unwrap = function (htmlID, param) {
 };
 
 Xonomy.plusminus = function (htmlID, forceExpand) {
-	var element = document.getElementById(htmlID);
-	var children = element.querySelector('.children');
+	const element = document.getElementById(htmlID);
+	const children = element.querySelector('.children');
 	if (element.classList.contains("collapsed")) {
 		if (children) children.style.display = 'none';
 		element.classList.remove("collapsed");
@@ -956,7 +956,7 @@ Xonomy.plusminus = function (htmlID, forceExpand) {
 		}
 	}
 	window.setTimeout(function () {
-		var currentElem = document.getElementById(Xonomy.currentHtmlId);
+		const currentElem = document.getElementById(Xonomy.currentHtmlId);
 		if (currentElem && currentElem.querySelector('.opening')) {
 			Xonomy.setFocus(Xonomy.currentHtmlId, "openingTagName");
 		} else {
