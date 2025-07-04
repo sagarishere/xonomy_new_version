@@ -40,11 +40,10 @@ Xonomy.xmlUnscape = function (value) {
 		.replace(/&amp;/g, '&');
 };
 Xonomy.isNamespaceDeclaration = function (attributeName) {
-	//Tells you whether an attribute name is a namespace declaration.
-	var ret = false;
-	if (attributeName == "xmlns") ret = true;
-	if (attributeName.length >= 6 && attributeName.substring(0, 6) == "xmlns:") ret = true;
-	return ret;
+	if (!attributeName || typeof attributeName !== 'string') {
+		return false;
+	}
+	return attributeName === "xmlns" || attributeName.startsWith("xmlns:");
 };
 Xonomy.namespaces = {}; //eg. "xmlns:mbm": "http://lexonista.com"
 
@@ -53,7 +52,7 @@ Xonomy.xml2js = function (xml, jsParent) {
 		xml = (new window.DOMParser()).parseFromString(xml, "application/xml");
 	}
 	if (xml.documentElement) xml = xml.documentElement;
-	var js = new Xonomy.surrogate(jsParent);
+	let js = new Xonomy.surrogate(jsParent);
 	js.type = "element";
 	js.name = xml.nodeName;
 	js.htmlID = "";
