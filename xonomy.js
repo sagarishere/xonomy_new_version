@@ -1054,17 +1054,7 @@ Xonomy.click = function (htmlID, what) {
 		const elem = document.getElementById(htmlID);
 		const isReadOnly = elem.classList.contains("readonly") || elem.closest('.readonly') !== null;
 		if (!isReadOnly && (what == "openingTagName" || what == "closingTagName")) {
-			elem.classList.add("current"); //make the element current
-			var content = Xonomy.elementMenu(htmlID); //compose bubble content
-			if (content != "" && content != "<div class='menu'></div>") {
-				document.body.appendChild(Xonomy.makeBubble(content)); //create bubble
-				if (what == "openingTagName") Xonomy.showBubble(elem.querySelector('> .tag.opening > .name'));
-				if (what == "closingTagName") Xonomy.showBubble(elem.querySelector('> .tag.closing > .name'));
-			}
-			const surrogateElem = Xonomy.harvestElement(elem);
-			// Trigger custom event
-			var event = new CustomEvent('xonomy-click-element', { detail: surrogateElem });
-			elem.dispatchEvent(event);
+			Xonomy.handleElementClick(htmlID, what);
 		}
 		if (!isReadOnly && what == "attributeName") {
 			elem.classList.add("current"); //make the attribute current
@@ -3132,5 +3122,40 @@ Xonomy.goLeft = function () {
 		else if (next.classList.contains("rollouter")) Xonomy.setFocus(next.closest(".element").id, "rollouter");
 		else if (next.classList.contains("char")) Xonomy.setFocus(next.id, "char");
 	}
+};
+
+Xonomy.handleElementClick = function (htmlID, what) {
+	if (Xonomy.isElementReadOnly(htmlID)) return;
+	Xonomy.setElementCurrent(htmlID);
+	Xonomy.showElementMenuBubble(htmlID, what);
+	Xonomy.triggerElementClickEvent(htmlID);
+};
+
+Xonomy.isElementReadOnly = function (htmlID) {
+	const elem = document.getElementById(htmlID);
+	return elem.classList.contains("readonly") || elem.closest('.readonly') !== null;
+};
+
+Xonomy.setElementCurrent = function (htmlID) {
+	const elem = document.getElementById(htmlID);
+	elem.classList.add("current");
+};
+
+Xonomy.showElementMenuBubble = function (htmlID, what) {
+	const elem = document.getElementById(htmlID);
+	var content = Xonomy.elementMenu(htmlID); //compose bubble content
+	if (content != "" && content != "<div class='menu'></div>") {
+		document.body.appendChild(Xonomy.makeBubble(content)); //create bubble
+		if (what == "openingTagName") Xonomy.showBubble(elem.querySelector('> .tag.opening > .name'));
+		if (what == "closingTagName") Xonomy.showBubble(elem.querySelector('> .tag.closing > .name'));
+	}
+};
+
+Xonomy.triggerElementClickEvent = function (htmlID) {
+	const elem = document.getElementById(htmlID);
+	const surrogateElem = Xonomy.harvestElement(elem);
+	// Trigger custom event
+	var event = new CustomEvent('xonomy-click-element', { detail: surrogateElem });
+	elem.dispatchEvent(event);
 };
 
