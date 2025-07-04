@@ -1009,7 +1009,7 @@ Xonomy.click = function (htmlID, what) {
 		Xonomy.lastClickWhat = what;
 		Xonomy.currentHtmlId = htmlID;
 		Xonomy.currentFocus = what;
-		// $(".xonomy .char.on").removeClass("on");
+
 		var charOn = document.querySelectorAll('.xonomy .char.on');
 		charOn.forEach(function (el) { el.classList.remove('on'); });
 		var elem = document.getElementById(htmlID);
@@ -1221,7 +1221,7 @@ Xonomy.showBubble = function (anchor) {
 		bubble.classList.add("rightAnchored");
 		placement.right = (screenWidth - offset.left) + "px";
 	}
-	// Set placement styles (vanilla JS replacement for $bubble.css(placement))
+
 	bubble.style.top = placement.top || "";
 	bubble.style.bottom = placement.bottom || "";
 	bubble.style.left = placement.left || "";
