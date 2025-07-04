@@ -902,6 +902,7 @@
 }
 .xonomy.laic .element.oneliner > .children > .textnode {
   margin-top: 0px;
+  display: inline-block;
 }
 .xonomy.laic .element > .children > .textnode > .value {
   display: inline-block;
@@ -976,9 +977,6 @@
   margin: 0px;
 }
 .xonomy.laic .element.oneliner > .children > .textnode {
-  display: inline-block;
-}
-.xonomy.laic .element.oneliner > .children > .textnode > .value {
   display: inline-block;
 }
 .xonomy.laic .element.oneliner.hasInlineMenu {
