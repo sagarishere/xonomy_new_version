@@ -589,7 +589,7 @@ Xonomy.render = function (data, editor, docSpec) { //renders the contents of an 
 
 	//Convert doc to a JavaScript object, if it isn't a JavaScript object already:
 	if (typeof (data) == "string") {
-		var parser = new window.DOMParser();
+		const parser = new window.DOMParser();
 		data = parser.parseFromString(data, "application/xml");
 	}
 	if (data.documentElement) data = Xonomy.xml2js(data);
@@ -699,8 +699,8 @@ Xonomy.renderElement = function (element) {
 		}
 		html += "</span>";
 	}
-	if (spec.caption && !spec.oneliner(element)) html += "<span class='inlinecaption'>" + Xonomy.textByLang(spec.caption(element)) + "</span>";
-	html += '<span class="childrenCollapsed focusable" onclick="Xonomy.plusminus(\'' + htmlID + '\', true)">&middot;&middot;&middot;</span>';
+	if (spec.caption && !spec.oneliner(element)) html += `<span class='inlinecaption'>${Xonomy.textByLang(spec.caption(element))}</span>`;
+	html += `<span class="childrenCollapsed focusable" onclick="Xonomy.plusminus('${htmlID}', true)">&middot;&middot;&middot;</span>`;
 	html += '<div class="children">';
 	if (spec.displayValue && !element.hasElements()) {
 		html += Xonomy.renderDisplayText(element.getText(), spec.displayValue(element));
@@ -725,10 +725,10 @@ Xonomy.renderElement = function (element) {
 		}
 	}
 	html += '</div>';
-	html += '<span class="tag closing focusable" style="background-color: ' + spec.backgroundColour(element) + ';">';
+	html += `<span class="tag closing focusable" style="background-color: ${spec.backgroundColour(element)};">`;
 	html += '<span class="punc">&lt;</span>';
 	html += '<span class="punc">/</span>';
-	html += '<span class="name" onclick="Xonomy.click(\'' + htmlID + '\', \'closingTagName\')">' + displayName + '</span>';
+	html += `<span class="name" onclick="Xonomy.click('${htmlID}', 'closingTagName')">${displayName}</span>`;
 	html += '<span class="punc">&gt;</span>';
 	html += '</span>';
 	if (spec.oneliner(element)) {
@@ -741,7 +741,7 @@ Xonomy.renderElement = function (element) {
 		}
 		html += "</span>";
 	}
-	if (spec.caption && spec.oneliner(element)) html += "<span class='inlinecaption'>" + Xonomy.textByLang(spec.caption(element)) + "</span>";
+	if (spec.caption && spec.oneliner(element)) html += `<span class='inlinecaption'>${Xonomy.textByLang(spec.caption(element))}</span>`;
 	html += '</div>';
 	element.htmlID = htmlID;
 	return html;
@@ -769,19 +769,19 @@ Xonomy.renderAttribute = function (attribute, optionalParentName) {
 	}
 
 	let html = "";
-	html += '<span data-name="' + attribute.name + '" data-value="' + Xonomy.xmlEscape(attribute.value) + '" id="' + htmlID + '" class="' + classNames + '">';
+	html += `<span data-name="${attribute.name}" data-value="${Xonomy.xmlEscape(attribute.value)}" id="${htmlID}" class="${classNames}">`;
 	html += '<span class="punc"> </span>';
 	var onclick = !readonly ? ' onclick="Xonomy.click(\'' + htmlID + '\', \'attributeName\')"' : '';
-	html += '<span class="warner"><span class="inside" onclick="Xonomy.click(\'' + htmlID + '\', \'warner\')"></span></span>';
-	html += '<span class="name attributeName focusable" title="' + title + '"' + onclick + '>' + displayName + '</span>';
+	html += `<span class="warner"><span class="inside" onclick="Xonomy.click('${htmlID}', 'warner')"></span></span>`;
+	html += `<span class="name attributeName focusable" title="${title}"${onclick}>${displayName}</span>`;
 	html += '<span class="punc">=</span>';
-	var onclick = !readonly ? ' onclick="Xonomy.click(\'' + htmlID + '\', \'attributeValue\')"' : '';
-	html += '<span class="valueContainer attributeValue focusable"' + onclick + '>';
+	var onclick = !readonly ? ` onclick="Xonomy.click('${htmlID}', 'attributeValue')"` : '';
+	html += `<span class="valueContainer attributeValue focusable"${onclick}>`;
 	html += '<span class="punc">"</span>';
-	html += '<span class="value">' + displayValue + '</span>';
+	html += `<span class="value">${displayValue}</span>`;
 	html += '<span class="punc">"</span>';
 	html += '</span>';
-	if (caption) html += "<span class='inlinecaption'>" + caption + "</span>";
+	if (caption) html += `<span class='inlinecaption'>${caption}</span>`;
 	html += '</span>';
 	attribute.htmlID = htmlID;
 	return html;
@@ -792,10 +792,10 @@ Xonomy.renderText = function (text) {
 	if (String(text.value).trim() == "") classNames += " whitespace";
 	if (text.value == "") classNames += " empty";
 	let html = "";
-	html += '<div id="' + htmlID + '" data-value="' + Xonomy.xmlEscape(text.value) + '" class="' + classNames + '">';
+	html += `<div id="${htmlID}" data-value="${Xonomy.xmlEscape(text.value)}" class="${classNames}">`;
 	html += '<span class="connector"></span>';
 	const txt = Xonomy.chewText(text.value);
-	html += '<span class="value" onclick="Xonomy.click(\'' + htmlID + '\', \'text\')"><span class="insertionPoint"><span class="inside"></span></span><span class="dots"></span>' + txt + '</span>';
+	html += `<span class="value" onclick="Xonomy.click('${htmlID}', 'text')"><span class="insertionPoint"><span class="inside"></span></span><span class="dots"></span>${txt}</span>`;
 	html += '</div>';
 	text.htmlID = htmlID;
 	return html;
@@ -806,9 +806,9 @@ Xonomy.renderDisplayText = function (text, displayText) {
 	if (String(displayText).trim() == "") classNames += " whitespace";
 	if (displayText == "") classNames += " empty";
 	let html = "";
-	html += '<div id="' + htmlID + '" data-value="' + Xonomy.xmlEscape(text) + '" class="' + classNames + '">';
+	html += `<div id="${htmlID}" data-value="${Xonomy.xmlEscape(text)}" class="${classNames}">`;
 	html += '<span class="connector"></span>';
-	html += '<span class="value" onclick="Xonomy.click(\'' + htmlID + '\', \'text\')"><span class="insertionPoint"><span class="inside"></span></span><span class="dots"></span>' + Xonomy.textByLang(displayText) + '</span>';
+	html += `<span class="value" onclick="Xonomy.click('${htmlID}', 'text')"><span class="insertionPoint"><span class="inside"></span></span><span class="dots"></span>${Xonomy.textByLang(displayText)}</span>`;
 	html += '</div>';
 	text.htmlID = htmlID;
 	return html;
@@ -823,7 +823,7 @@ Xonomy.chewText = function (txt) {
 		if (i == 0 && t == " ") t = "<span class='space'>&middot;</span>"; //leading space
 		if (i == txt.length - 1 && t == " ") t = "<span class='space'>&middot;</span>"; //trailing space
 		const id = Xonomy.nextID();
-		ret += "<span id='" + id + "' class='char focusable' onclick='if((event.ctrlKey||event.metaKey) && this.closest(\".element\") && this.closest(\".element\").classList.contains(\"hasInlineMenu\")) Xonomy.charClick(this)'>" + t + "<span class='selector'><span class='inside' onclick='Xonomy.charClick(this.parentNode.parentNode)'></span></span></span>";
+		ret += `<span id='${id}' class='char focusable' onclick='if((event.ctrlKey||event.metaKey) && this.closest(".element") && this.closest(".element").classList.contains("hasInlineMenu")) Xonomy.charClick(this)'>${t}<span class='selector'><span class='inside' onclick='Xonomy.charClick(this.parentNode.parentNode)'></span></span></span>`;
 		if (txt[i] == " ") ret += "<span class='word'>"; //start word
 	}
 	ret += "</span>"; //end word
@@ -963,38 +963,111 @@ Xonomy.unwrap = function (htmlID, param) {
 Xonomy.plusminus = function (htmlID, forceExpand) {
 	const element = document.getElementById(htmlID);
 	const children = element.querySelector('.children');
-	if (element.classList.contains("collapsed")) {
-		if (children) children.style.display = 'none';
-		element.classList.remove("collapsed");
-		if (element.classList.contains("oneliner")) {
-			if (children) {
-				children.style.display = '';
+	// Helper functions for animation
+	function fadeIn(el, duration = 200, display = '') {
+		el.style.opacity = 0;
+		el.style.display = display;
+		let last = +new Date();
+		const tick = function () {
+			el.style.opacity = +el.style.opacity + (new Date() - last) / duration;
+			last = +new Date();
+			if (+el.style.opacity < 1) {
+				(window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+			} else {
+				el.style.opacity = 1;
 			}
-		} else {
-			if (children) {
-				children.style.display = '';
+		};
+		tick();
+	}
+	function fadeOut(el, duration = 200, callback) {
+		el.style.opacity = 1;
+		let last = +new Date();
+		const tick = function () {
+			el.style.opacity = +el.style.opacity - (new Date() - last) / duration;
+			last = +new Date();
+			if (+el.style.opacity > 0) {
+				(window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+			} else {
+				el.style.opacity = 0;
+				el.style.display = 'none';
+				if (typeof callback === 'function') callback();
+			}
+		};
+		tick();
+	}
+	function slideDown(el, duration = 200, display = '') {
+		el.style.removeProperty('display');
+		let computedDisplay = window.getComputedStyle(el).display;
+		if (computedDisplay === 'none') computedDisplay = display || 'block';
+		el.style.display = computedDisplay;
+		const height = el.offsetHeight;
+		el.style.overflow = 'hidden';
+		el.style.height = '0px';
+		el.offsetHeight; // force repaint
+		el.style.transition = `height ${duration}ms`;
+		el.style.height = height + 'px';
+		setTimeout(function () {
+			el.style.removeProperty('height');
+			el.style.removeProperty('overflow');
+			el.style.removeProperty('transition');
+		}, duration);
+	}
+	function slideUp(el, duration = 200, callback) {
+		el.style.height = el.offsetHeight + 'px';
+		el.style.overflow = 'hidden';
+		el.offsetHeight; // force repaint
+		el.style.transition = `height ${duration}ms`;
+		el.style.height = '0px';
+		setTimeout(function () {
+			el.style.display = 'none';
+			el.style.removeProperty('height');
+			el.style.removeProperty('overflow');
+			el.style.removeProperty('transition');
+			if (typeof callback === 'function') callback();
+		}, duration);
+	}
+	// Expand
+	if (element.classList.contains('collapsed')) {
+		if (children) {
+			children.style.display = 'none';
+		}
+		element.classList.remove('collapsed');
+		if (children) {
+			if (element.classList.contains('oneliner')) {
+				fadeIn(children, 200, '');
+			} else {
+				slideDown(children, 200, '');
 			}
 		}
 	} else if (!forceExpand) {
 		Xonomy.updateCollapsoid(htmlID);
-		if (element.classList.contains("oneliner")) {
-			if (children) {
-				children.style.display = 'none';
+		if (children) {
+			if (element.classList.contains('oneliner')) {
+				fadeOut(children, 200, function () {
+					element.classList.add('collapsed');
+				});
+			} else {
+				slideUp(children, 200, function () {
+					element.classList.add('collapsed');
+				});
 			}
-			element.classList.add("collapsed");
-		} else {
-			if (children) {
-				children.style.display = 'none';
-			}
-			element.classList.add("collapsed");
 		}
 	}
-	window.setTimeout(function () {
+	// Focus logic: check for visible .opening
+	setTimeout(function () {
 		const currentElem = document.getElementById(Xonomy.currentHtmlId);
-		if (currentElem && currentElem.querySelector('.opening')) {
-			Xonomy.setFocus(Xonomy.currentHtmlId, "openingTagName");
+		let openingVisible = false;
+		if (currentElem) {
+			const opening = currentElem.querySelector('.opening');
+			if (opening) {
+				const style = window.getComputedStyle(opening);
+				openingVisible = style.display !== 'none' && style.visibility !== 'hidden' && opening.offsetParent !== null;
+			}
+		}
+		if (openingVisible) {
+			Xonomy.setFocus(Xonomy.currentHtmlId, 'openingTagName');
 		} else {
-			Xonomy.setFocus(Xonomy.currentHtmlId, "childrenCollapsed");
+			Xonomy.setFocus(Xonomy.currentHtmlId, 'childrenCollapsed');
 		}
 	}, 300);
 };
