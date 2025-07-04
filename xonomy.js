@@ -135,8 +135,7 @@ Xonomy.js2xml = function (js) {
 			}
 			if (hasText) xml += " xml:space='preserve'";
 			xml += ">";
-			for (let i = 0; i < js.children.length; i++) {
-				const child = js.children[i];
+			for (const child of js.children) {
 				if (child.type == "text") xml += Xonomy.xmlEscape(child.value); //text node
 				else if (child.type == "element") xml += Xonomy.js2xml(child); //element node
 			}
@@ -149,11 +148,10 @@ Xonomy.js2xml = function (js) {
 };
 Xonomy.enrichElement = function (jsElement) {
 	jsElement.hasAttribute = function (name) {
-		let ret = false;
-		for (var i = 0; i < this.attributes.length; i++) {
-			if (this.attributes[i].name == name) ret = true;
+		for (const attribute of this.attributes) {
+			if (attribute.name == name) return true;
 		}
-		return ret;
+		return false;
 	};
 	jsElement.getAttribute = function (name) {
 		let ret = null;
