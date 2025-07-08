@@ -1418,8 +1418,8 @@ Xonomy.askRemote = function (defaultString, param, jsMe) {
 	}
 	html += Xonomy.wyc(param.url, function (picklist) {
 		const items = [];
-		if (param.add) for (var i = 0; i < param.add.length; i++) items.push(param.add[i]);
-		for (var i = 0; i < picklist.length; i++) items.push(picklist[i]);
+		if (param.add) for (let i = 0; i < param.add.length; i++) items.push(param.add[i]);
+		for (let i = 0; i < picklist.length; i++) items.push(picklist[i]);
 		return Xonomy.pickerMenu(items, defaultString);
 	});
 	Xonomy.lastAskerParam = param;
@@ -1439,9 +1439,9 @@ Xonomy.remoteSearch = function (searchUrl, urlPlaceholder, defaultString) {
 		tempDiv.innerHTML = Xonomy.wyc(searchUrl, function (picklist) {
 			const items = [];
 			if (text == "" && Xonomy.lastAskerParam.add) {
-				for (var i = 0; i < Xonomy.lastAskerParam.add.length; i++) items.push(Xonomy.lastAskerParam.add[i]);
+				for (let i = 0; i < Xonomy.lastAskerParam.add.length; i++) items.push(Xonomy.lastAskerParam.add[i]);
 			}
-			for (var i = 0; i < picklist.length; i++) items.push(picklist[i]);
+			for (let i = 0; i < picklist.length; i++) items.push(picklist[i]);
 			return Xonomy.pickerMenu(items, defaultString);
 		});
 		menuElem.replaceWith(tempDiv.firstChild);
