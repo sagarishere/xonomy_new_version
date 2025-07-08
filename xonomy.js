@@ -299,8 +299,8 @@ Xonomy.verifyDocSpecElement = function (name) { //make sure the DocSpec object h
 	spec.backgroundColour = Xonomy.asFunction(spec.backgroundColour, "");
 	if (spec.displayName) spec.displayName = Xonomy.asFunction(spec.displayName, "");
 	if (spec.title) spec.title = Xonomy.asFunction(spec.title, "");
-	for (var i = 0; i < spec.menu.length; i++) Xonomy.verifyDocSpecMenuItem(spec.menu[i]);
-	for (var i = 0; i < spec.inlineMenu.length; i++) Xonomy.verifyDocSpecMenuItem(spec.inlineMenu[i]);
+	for (let i = 0; i < spec.menu.length; i++) Xonomy.verifyDocSpecMenuItem(spec.menu[i]);
+	for (let i = 0; i < spec.inlineMenu.length; i++) Xonomy.verifyDocSpecMenuItem(spec.inlineMenu[i]);
 	for (const attributeName in spec.attributes) Xonomy.verifyDocSpecAttribute(name, attributeName);
 	spec.askerParameter = Xonomy.asFunction(spec.askerParameter, null);
 	spec.prominentChildren = Xonomy.asFunction(spec.prominentChildren, []);
@@ -403,12 +403,12 @@ Xonomy.refresh = function () {
 		const elName = el.parentNode.parentNode.parentNode.getAttribute('data-name');
 		const elSpec = Xonomy.docSpec.elements[elName];
 		const mustBeAfter = [];
-		for (var sibName in elSpec.attributes) {
+		for (let sibName in elSpec.attributes) {
 			if (sibName === atName) break; else mustBeAfter.push(sibName);
 		}
 		const mustBeBefore = [];
 		let seen = false;
-		for (var sibName in elSpec.attributes) {
+		for (let sibName in elSpec.attributes) {
 			if (sibName === atName) seen = true; else if (seen) mustBeBefore.push(sibName);
 		}
 		if (mustBeBefore.length > 0) {
@@ -679,7 +679,7 @@ Xonomy.renderElement = function (element) {
 	html += '<span class="warner"><span class="inside" onclick="Xonomy.click(\'' + htmlID + '\', \'warner\')"></span></span>';
 	html += '<span class="name" title="' + title + '" onclick="Xonomy.click(\'' + htmlID + '\', \'openingTagName\')">' + displayName + '</span>';
 	html += '<span class="attributes">';
-	for (var i = 0; i < element.attributes.length; i++) {
+	for (let i = 0; i < element.attributes.length; i++) {
 		Xonomy.verifyDocSpecAttribute(element.name, element.attributes[i].name);
 		html += Xonomy.renderAttribute(element.attributes[i], element.name);
 	}
@@ -1813,7 +1813,7 @@ Xonomy.elementReorder = function (htmlID) {
 		var ok;
 		do {
 			ok = true;
-			for (var ii = 0; ii < mustBeBefore.length; ii++) {
+			for (let ii = 0; ii < mustBeBefore.length; ii++) {
 				const prevs = prevAllWithDataName(that, mustBeBefore[ii]);
 				if (prevs.length > 0) {
 					// Move 'that' before its previous sibling
@@ -1832,7 +1832,7 @@ Xonomy.elementReorder = function (htmlID) {
 		var ok;
 		do {
 			ok = true;
-			for (var ii = 0; ii < mustBeAfter.length; ii++) {
+			for (let ii = 0; ii < mustBeAfter.length; ii++) {
 				const nexts = nextAllWithDataName(that, mustBeAfter[ii]);
 				if (nexts.length > 0) {
 					// Move 'that' after its next sibling
@@ -2087,7 +2087,7 @@ Xonomy.mergeElements = function (elDead, elLive) {
 	if (elLive && elLive.type == "element") {
 		const domLive = document.getElementById(elLive.htmlID);
 		// Merge attributes
-		for (var i = 0; i < elDead.attributes.length; i++) {
+		for (let i = 0; i < elDead.attributes.length; i++) {
 			const atDead = elDead.attributes[i];
 			if (!elLive.hasAttribute(atDead.name) || elLive.getAttributeValue(atDead.name) == "") {
 				elLive.setAttribute(atDead.name, atDead.value);
@@ -2119,7 +2119,7 @@ Xonomy.mergeElements = function (elDead, elLive) {
 					if (spaceNode) domLiveChildren.appendChild(spaceNode);
 				}
 			}
-			for (var i = 0; i < elDead.children.length; i++) {
+			for (let i = 0; i < elDead.children.length; i++) {
 				elLive.children.push(elDead.children[i]);
 				var childHtmlID = elDead.children[i].htmlID;
 				if (childHtmlID) {
@@ -2128,7 +2128,7 @@ Xonomy.mergeElements = function (elDead, elLive) {
 				}
 			}
 		} else { //if no text, merge their children one by one
-			for (var i = 0; i < elDead.children.length; i++) {
+			for (let i = 0; i < elDead.children.length; i++) {
 				const xmlDeadChild = Xonomy.js2xml(elDead.children[i]);
 				var has = false;
 				for (let y = 0; y < elLive.children.length; y++) {
