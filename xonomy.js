@@ -691,8 +691,8 @@ Xonomy.renderElement = function (element) {
 	html += '</span>';
 	if (!spec.oneliner(element)) {
 		html += "<span class='prominentChildren'>";
-		for (var i = 0; i < element.children.length; i++) {
-			var child = element.children[i];
+		for (let i = 0; i < element.children.length; i++) {
+			const child = element.children[i];
 			if (child.type == "element") { //element node
 				if (spec.prominentChildren && spec.prominentChildren(element).indexOf(child.name) > -1) html += Xonomy.renderElement(child);
 			}
@@ -709,8 +709,8 @@ Xonomy.renderElement = function (element) {
 		if (hasText && (element.children.length == 0 || element.children[0].type == "element")) {
 			html += Xonomy.renderText({ type: "text", value: "" }); //if inline layout, insert empty text node between two elements
 		}
-		for (var i = 0; i < element.children.length; i++) {
-			var child = element.children[i];
+		for (let i = 0; i < element.children.length; i++) {
+			const child = element.children[i];
 			if (hasText && prevChildType == "element" && child.type == "element") {
 				html += Xonomy.renderText({ type: "text", value: "" }); //if inline layout, insert empty text node between two elements
 			}
@@ -733,8 +733,8 @@ Xonomy.renderElement = function (element) {
 	html += '</span>';
 	if (spec.oneliner(element)) {
 		html += "<span class='prominentChildren'>";
-		for (var i = 0; i < element.children.length; i++) {
-			var child = element.children[i];
+		for (let i = 0; i < element.children.length; i++) {
+			const child = element.children[i];
 			if (child.type == "element") { //element node
 				if (spec.prominentChildren && spec.prominentChildren(element).indexOf(child.name) > -1) html += Xonomy.renderElement(child);
 			}
@@ -771,11 +771,11 @@ Xonomy.renderAttribute = function (attribute, optionalParentName) {
 	let html = "";
 	html += `<span data-name="${attribute.name}" data-value="${Xonomy.xmlEscape(attribute.value)}" id="${htmlID}" class="${classNames}">`;
 	html += '<span class="punc"> </span>';
-	var onclick = !readonly ? ' onclick="Xonomy.click(\'' + htmlID + '\', \'attributeName\')"' : '';
+	var onclick = readonly ? '' : ` onclick="Xonomy.click('${htmlID}', 'attributeName')"`;
 	html += `<span class="warner"><span class="inside" onclick="Xonomy.click('${htmlID}', 'warner')"></span></span>`;
 	html += `<span class="name attributeName focusable" title="${title}"${onclick}>${displayName}</span>`;
 	html += '<span class="punc">=</span>';
-	var onclick = !readonly ? ` onclick="Xonomy.click('${htmlID}', 'attributeValue')"` : '';
+	var onclick = readonly ? '' : ` onclick="Xonomy.click('${htmlID}', 'attributeValue')"`;
 	html += `<span class="valueContainer attributeValue focusable"${onclick}>`;
 	html += '<span class="punc">"</span>';
 	html += `<span class="value">${displayValue}</span>`;
@@ -1093,8 +1093,8 @@ Xonomy.updateCollapsoid = function (htmlID) {
 			});
 			if (!insideProminent) {
 				const txt = Xonomy.harvestText(textnode).value;
-				for (let i = 0; i < txt.length; i++) {
-					if (whisper.length < 35) whisper += txt[i]; else abbreviated = true;
+				for (const el2 of txt) {
+					if (whisper.length < 35) whisper += el2; else abbreviated = true;
 				}
 				whisper += " ";
 			}
@@ -1379,7 +1379,7 @@ Xonomy.askString = function (defaultString, askerParameter, jsMe) {
 	const width = (document.body.clientWidth * 0.5) - 75;
 	let html = "";
 	html += "<form onsubmit='Xonomy.answer(this.val.value); return false'>";
-	html += "<input name='val' class='textbox focusme' style='width: " + width + "px;' value='" + Xonomy.xmlEscape(defaultString) + "' onkeyup='Xonomy.notKeyUp=true'/>";
+	html += `<input name='val' class='textbox focusme' style='width: ${width}px;' value='${Xonomy.xmlEscape(defaultString)}' onkeyup='Xonomy.notKeyUp=true'/>`;
 	html += " <input type='submit' value='OK'>";
 	html += "</form>";
 	return html;
@@ -1388,7 +1388,7 @@ Xonomy.askLongString = function (defaultString, askerParameter, jsMe) {
 	const width = (document.body.clientWidth * 0.5) - 75;
 	let html = "";
 	html += "<form onsubmit='Xonomy.answer(this.val.value); return false'>";
-	html += "<textarea name='val' class='textbox focusme' spellcheck='false' style='width: " + width + "px; height: 150px;'>" + Xonomy.xmlEscape(defaultString) + "</textarea>";
+	html += `<textarea name='val' class='textbox focusme' spellcheck='false' style='width: ${width}px; height: 150px;'>${Xonomy.xmlEscape(defaultString)}</textarea>`;
 	html += "<div class='submitline'><input type='submit' value='OK'></div>";
 	html += "</form>";
 	return html;
@@ -1403,7 +1403,7 @@ Xonomy.askOpenPicklist = function (defaultString, picklist) {
 	let html = "";
 	html += Xonomy.pickerMenu(picklist, defaultString);
 	html += "<form class='undermenu' onsubmit='Xonomy.answer(this.val.value); return false'>";
-	html += "<input name='val' class='textbox focusme' value='" + (!isInPicklist ? Xonomy.xmlEscape(defaultString) : "") + "' onkeyup='Xonomy.notKeyUp=true'/>";
+	html += `<input name='val' class='textbox focusme' value='${isInPicklist ? "" : Xonomy.xmlEscape(defaultString)}' onkeyup='Xonomy.notKeyUp=true'/>`;
 	html += " <input type='submit' value='OK'>";
 	html += "</form>";
 	return html;
@@ -1411,10 +1411,10 @@ Xonomy.askOpenPicklist = function (defaultString, picklist) {
 Xonomy.askRemote = function (defaultString, param, jsMe) {
 	let html = "";
 	if (param.searchUrl || param.createUrl) {
-		html += "<form class='overmenu' onsubmit='return Xonomy.remoteSearch(\"" + Xonomy.xmlEscape(param.searchUrl, true) + "\", \"" + Xonomy.xmlEscape(param.urlPlaceholder, true) + "\", \"" + Xonomy.xmlEscape(Xonomy.jsEscape(defaultString)) + "\")'>";
+		html += `<form class='overmenu' onsubmit='return Xonomy.remoteSearch("${Xonomy.xmlEscape(param.searchUrl, true)}", "${Xonomy.xmlEscape(param.urlPlaceholder, true)}", "${Xonomy.xmlEscape(Xonomy.jsEscape(defaultString))}")'>`;
 		html += "<input name='val' class='textbox focusme' value=''/>";
-		if (param.searchUrl) html += " <button class='buttonSearch' onclick='return Xonomy.remoteSearch(\"" + Xonomy.xmlEscape(param.searchUrl, true) + "\", \"" + Xonomy.xmlEscape(param.urlPlaceholder, true) + "\", \"" + Xonomy.xmlEscape(Xonomy.jsEscape(defaultString)) + "\")'>&nbsp;</button>";
-		if (param.createUrl) html += " <button class='buttonCreate' onclick='return Xonomy.remoteCreate(\"" + Xonomy.xmlEscape(param.createUrl, true) + "\", \"" + Xonomy.xmlEscape((param.searchUrl ? param.searchUrl : param.url), true) + "\", \"" + Xonomy.xmlEscape(param.urlPlaceholder, true) + "\", \"" + Xonomy.xmlEscape(Xonomy.jsEscape(defaultString)) + "\")'>&nbsp;</button>";
+		if (param.searchUrl) html += ` <button class='buttonSearch' onclick='return Xonomy.remoteSearch("${Xonomy.xmlEscape(param.searchUrl, true)}", "${Xonomy.xmlEscape(param.urlPlaceholder, true)}", "${Xonomy.xmlEscape(Xonomy.jsEscape(defaultString))}")'>&nbsp;</button>`;
+		if (param.createUrl) html += ` <button class='buttonCreate' onclick='return Xonomy.remoteCreate("${Xonomy.xmlEscape(param.createUrl, true)}", "${Xonomy.xmlEscape((param.searchUrl ? param.searchUrl : param.url), true)}", "${Xonomy.xmlEscape(param.urlPlaceholder, true)}", "${Xonomy.xmlEscape(Xonomy.jsEscape(defaultString))}")'>&nbsp;</button>`;
 		html += "</form>";
 	}
 	html += Xonomy.wyc(param.url, function (picklist) {
@@ -1477,11 +1477,11 @@ Xonomy.remoteCreate = function (createUrl, searchUrl, urlPlaceholder, defaultStr
 Xonomy.pickerMenu = function (picklist, defaultString) {
 	let html = "";
 	html += "<div class='menu'>";
-	for (let i = 0; i < picklist.length; i++) {
-		var item = picklist[i];
+	for (const element of picklist) {
+		let item = element;
 		if (typeof (item) == "string") item = { value: item, caption: "" };
-		html += "<div class='menuItem focusme techno" + (item.value == defaultString ? " current" : "") + "' tabindex='1' onclick='Xonomy.answer(\"" + Xonomy.xmlEscape(item.value) + "\")'>";
-		var alone = true;
+		html += `<div class='menuItem focusme techno${item.value == defaultString ? " current" : ""}' tabindex='1' onclick='Xonomy.answer("${Xonomy.xmlEscape(item.value)}")'>`;
+		let alone = true;
 		html += "<span class='punc'>\"</span>";
 		if (item.displayValue) {
 			html += Xonomy.textByLang(item.displayValue);
@@ -1534,15 +1534,15 @@ Xonomy.wyc = function (url, callback) { //a "when-you-can" function for delayed 
 		}
 	});
 	if (!Xonomy.wycIsRunning && Xonomy.wycQueue.length > 0) Xonomy.wycQueue[0]();
-	return "<span class='wyc' id='" + wycID + "'></span>";
+	return `<span class='wyc' id='${wycID}'></span>`;
 };
 
 Xonomy.toggleSubmenu = function (menuItem) {
 	// Helper to slide up (collapse)
 	function slideUp(element, duration, callback) {
-		element.style.height = element.offsetHeight + 'px';
+		element.style.height = `${element.offsetHeight}px`;
 		element.style.transitionProperty = 'height, margin, padding';
-		element.style.transitionDuration = duration + 'ms';
+		element.style.transitionDuration = `${duration}ms`;
 		element.offsetHeight; // force repaint
 		element.style.overflow = 'hidden';
 		element.style.height = 0;
@@ -1577,9 +1577,9 @@ Xonomy.toggleSubmenu = function (menuItem) {
 		element.style.marginBottom = 0;
 		element.offsetHeight; // force repaint
 		element.style.transitionProperty = 'height, margin, padding';
-		element.style.transitionDuration = duration + 'ms';
+		element.style.transitionDuration = `${duration}ms`;
 		element.style.overflow = 'hidden';
-		element.style.height = height + 'px';
+		element.style.height = `${height}px`;
 		element.style.removeProperty('padding-top');
 		element.style.removeProperty('padding-bottom');
 		element.style.removeProperty('margin-top');
