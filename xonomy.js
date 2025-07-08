@@ -384,8 +384,7 @@ Xonomy.refresh = function () {
 	while (!merged) {
 		merged = true;
 		const textnodes = Array.from(document.querySelectorAll('.xonomy .textnode'));
-		for (let i = 0; i < textnodes.length; i++) {
-			const thisNode = textnodes[i];
+		for (const thisNode of textnodes) {
 			const nextNode = thisNode.nextElementSibling;
 			if (nextNode && nextNode.classList.contains('textnode')) {
 				var js1 = Xonomy.harvestText(thisNode);
@@ -502,7 +501,7 @@ Xonomy.harvestElement = function (htmlElement, jsParent) {
 		js.attributes = [];
 		const htmlAttributes = htmlElement.querySelector('.tag.opening > .attributes');
 		if (htmlAttributes) {
-			for (var i = 0; i < htmlAttributes.childNodes.length; i++) {
+			for (let i = 0; i < htmlAttributes.childNodes.length; i++) {
 				const htmlAttribute = htmlAttributes.childNodes[i];
 				if (htmlAttribute.nodeType === 1 && htmlAttribute.classList.contains("attribute")) js["attributes"].push(Xonomy.harvestAttribute(htmlAttribute, js));
 			}
@@ -510,15 +509,15 @@ Xonomy.harvestElement = function (htmlElement, jsParent) {
 		js.children = [];
 		const htmlProminentChildren = Array.prototype.find.call(htmlElement.children, function (child) { return child.classList && child.classList.contains('prominentChildren'); });
 		if (htmlProminentChildren) {
-			for (var i = 0; i < htmlProminentChildren.childNodes.length; i++) {
-				var htmlChild = htmlProminentChildren.childNodes[i];
+			for (let i = 0; i < htmlProminentChildren.childNodes.length; i++) {
+				const htmlChild = htmlProminentChildren.childNodes[i];
 				if (htmlChild.nodeType === 1) js["children"].push(Xonomy.harvestElement(htmlChild, js));
 			}
 		}
 		const htmlChildren = Array.prototype.find.call(htmlElement.children, function (child) { return child.classList && child.classList.contains('children'); });
 		if (htmlChildren) {
-			for (var i = 0; i < htmlChildren.childNodes.length; i++) {
-				var htmlChild = htmlChildren.childNodes[i];
+			for (let i = 0; i < htmlChildren.childNodes.length; i++) {
+				const htmlChild = htmlChildren.childNodes[i];
 				if (htmlChild.nodeType === 1 && htmlChild.classList.contains("element")) js["children"].push(Xonomy.harvestElement(htmlChild, js));
 				else if (htmlChild.nodeType === 1 && htmlChild.classList.contains("textnode")) js["children"].push(Xonomy.harvestText(htmlChild, js));
 			}
@@ -569,8 +568,8 @@ Xonomy.harvestParentOf = function (js) {
 			}
 			if (parent) {
 				jsParent = Xonomy.harvestElement(parent);
-				for (var i = 0; i < jsParent.attributes.length; i++) if (jsParent.attributes[i].htmlID == js.htmlID) jsParent.attributes[i] = js;
-				for (var i = 0; i < jsParent.children.length; i++) if (jsParent.children[i].htmlID == js.htmlID) jsParent.children[i] = js;
+				for (let i = 0; i < jsParent.attributes.length; i++) if (jsParent.attributes[i].htmlID == js.htmlID) jsParent.attributes[i] = js;
+				for (let i = 0; i < jsParent.children.length; i++) if (jsParent.children[i].htmlID == js.htmlID) jsParent.children[i] = js;
 			}
 		}
 	}
@@ -819,7 +818,7 @@ Xonomy.chewText = function (txt) {
 	ret += "<span class='word'>"; //start word
 	for (let i = 0; i < txt.length; i++) {
 		if (txt[i] == " ") ret += "</span>"; //end word
-		var t = Xonomy.xmlEscape(txt[i])
+		let t = Xonomy.xmlEscape(txt[i])
 		if (i == 0 && t == " ") t = "<span class='space'>&middot;</span>"; //leading space
 		if (i == txt.length - 1 && t == " ") t = "<span class='space'>&middot;</span>"; //trailing space
 		const id = Xonomy.nextID();
