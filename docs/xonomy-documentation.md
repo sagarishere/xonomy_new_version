@@ -694,3 +694,14 @@ menu: [
   ...
 ]
 ```
+
+By default, a hierarchical menu items is shown contracted (with the submenu hidden) and the user can
+expand it by clicking the plus/minus sign next to it. Hierarchical menu items can optionally have an
+expanded property which tells Xonomy to show the menu expanded (with the submenu shown) instead.
+The expanded property can either be a true or false value, or a function which takes a surrogate object
+representing the element or attribute and returns true or false.
+
+Note: In addition to element and attribute menus, Xonomy has inline menus which appear when the
+user has selected a stretch of text in a text node. These menus are found in an element
+specification’s inlineMenu property. We will deal with this in a separate chapter devoted to
+inline markup and mixed content (chapter 8).
