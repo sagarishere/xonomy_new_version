@@ -451,14 +451,91 @@ Finally, the `<item>` element specification has an `attributes` property. This i
 
 Well, congratulations, we’ve gotten to the end of this example! You now have a good idea of how Xonomy works. The rest of this document will delve deeper into some of the topics we touched above.
 
+### 2.3. Document Specification (docSpec) is not a DTD schema but is implicit schema
+
+“This document specification looks nothing like a DTD or an XML Schema! It doesn’t
+even say what the root element is or what children it can have! What’s going on?”
+Xonomy’s document specification isn’t meant to be a schema against which you could validate
+a document. Instead, it is intended as a specification of the actions and operations the user is
+allowed to perform on each element and attribute. In other words, a document specification in
+Xonomy is less abstract and more down-to-earth than a schema. It is not a schema, but a
+schema is implicit in it.
+Take for example the question ‘how does Xonomy know that the root element is `<list>`’. This
+isn’t stated explicitly anywhere in the document specification, but it is implied by the fact that
+the initial XML document you are passing to Xonomy.render has `<list>` as root element and
+that the document specification doesn’t allow the user to change or rename it.
+Similarly, take the question ‘how does Xonomy know what children `<list>` can have’.
+Although the document specification doesn’t say anywhere that a `<list>` can have zero or
+more `<item>` elements as its children, this is implicit in the fact that the document
+specification allows the user to add and delete `<item>` elements to/from the `<list>` element.
+So it turns out that a Xonomy document specification allows you to do pretty much everything
+a DTD or an XML Schema does, only in a more verbose and less abstract way. The verbosity is
+compensated by extra flexibility: you have direct control over the menus that appear when the
+user clicks on something, you have direct control over how the user is allowed to edit values,
+and so on.
+
+Note: In theory, it is possible to write a script that generates a Xonomy document specification from
+a DTD or from an XML Schema, but that would be a separate project.
+
 ---
 
 ## 3. Editing attribute values
 
+When a user clicks an attribute value, a pop-up box appears for the user to edit the value in. You have
+control over the contents of that box. Each attribute specification has a property called `asker`; this
+refers to a function which ‘asks’ the user for a value. An `asker` function returns HTML-as-string which
+Xonomy inserts into the pop-up box. Some `asker` functions take an additional argument, which you can
+assign to the attribute specification’s `askerParameter` property.
+
+If you fail to assign anything to the `asker` property, Xonomy will treat the attribute value as read-only,
+preventing the user from editing it.
+Xonomy comes with three predefined `asker` functions. We will have a look at them in the next three
+subchapters. and then we’ll explain how you can write your own `asker` functions.
+
 ### 3.1. `Xonomy.askString`
+
+```js
+attributes: {
+  "label": {
+    asker: Xonomy.askString,
+  },
+}
+```
+
+![Xonomy](./images/004.png)
+
+_This function allows the user to edit the value as a single-line string._
+
+### 3.2. Xonomy.askLongString
+
+```js
+attributes: {
+  "label": {
+    asker: Xonomy.askLongString,
+  },
+}
+```
+
+![Xonomy](./images/005.png)
+
+_This function allows the user to edit the value as a multi-line string which may contain line breaks._
+
+Note: This function is also used by Xonomy for editing text nodes.
 
 ---
 
-## 3. Editing attribute values
+3.3. Xonomy.askPicklist
 
-### 3.1. `Xonomy.askString`
+```js
+  attributes: {
+    "label": {
+      asker: Xonomy.askPicklist,
+      askerParameter: [
+        { value: "m", caption: "male" },
+        { value: "f", caption: "female" },
+      ],
+    },
+  },
+```
+
+![Xonomy](./images/006.png)
