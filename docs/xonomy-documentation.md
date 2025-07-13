@@ -607,3 +607,46 @@ Your user will intract with the contents of the pop-up box and, at some stage, h
 click on something or press a key to indicate that he or she wishes to set the attribute’s value. At that
 stage, your HTML must call the function `Xonomy.answer` whose one and only argument is the new value.
 This must again be a string.
+This is how Xonomy knows what the new value is.
+
+A good way to understand how an asker function is supposed to work is to look at the source code of
+one of Xonomy’s predefined asker functions – such as Xonomy.askString, which is reproduced for you
+here.
+
+```js
+Xonomy.askString = function (defaultString) {
+  let html = "";
+
+  html += "<form onsubmit='Xonomy.answer(this.val.value); return false'>";
+  html +=
+    "<input name='val' class='textbox focusme'value='" +
+    Xonomy.xmlEscape(defaultString) +
+    "'/>";
+  html += " <input type='submit' value='OK'>";
+  html += "</form>";
+
+  return html;
+};
+```
+
+### 3.7. Treating element content like an attribute
+
+Often in XML, the text nodes inside elements are free text which the user is supposed to type in. But
+sometimes you may want to constrain the contents of elements in the same way as you would constrain
+the contents of attributes. To this end, Xonomy allows you to assign askers to elements as well.
+
+```js
+let docSpec={
+  elements: {
+    title: {
+      ...
+      asker: Xonomy.askPicklist,
+      askerParameter: ["Introduction", "History", "Current Status", "Conclusion"],
+    },
+  },
+};
+```
+
+![Xonomy](./images/007.png)
+
+### 4. Controlling the contents of menus
