@@ -669,3 +669,28 @@ menu: [
   ...
 ]
 ```
+
+Menus can be hierarchical, too: just include another `menu` property instead of `action` and
+`actionParameter`:
+
+```js
+menu: [
+  {
+    caption: "...",
+    icon: "icon.png",
+    hideIf: ...,
+    expanded: ...,
+    menu: [
+      {
+        caption: "...",
+        icon: "icon.png",
+        action: ...,
+        actionParameter: ...,
+        hideIf: ...
+      },
+      ...
+    ]
+  },
+  ...
+]
+```
