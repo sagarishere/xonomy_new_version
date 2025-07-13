@@ -705,3 +705,67 @@ Note: In addition to element and attribute menus, Xonomy has inline menus which 
 user has selected a stretch of text in a text node. These menus are found in an element
 specification’s inlineMenu property. We will deal with this in a separate chapter devoted to
 inline markup and mixed content (chapter 8).
+
+### 4.1. Captions
+
+`caption: "Delete this element"`
+
+Each menu item has a caption containing a human-readable string that appears on the menu. If you
+quote XML tags and attributes in the caption, Xonomy will format them in a mono-space font; just make
+sure that tags are enclosed in angle brackets and attributes start with the @ character:
+
+```text
+  "Add a new <item>"
+  "Add a new <item @label=\"something\">"
+  "Add a new @label"
+  "Add a new @label=\"something\""
+```
+
+### 4.2. Actions and action parameters
+
+```js
+  action: Xonomy.newAttribute,
+  actionParameter: {name: "label", value: "something"}
+```
+
+The `action` property is a reference to an **`action function`**: a function that does something to the
+element or attribute on which it has been invoked. Most action functions need some additional data to
+do their work, and that data is to be found in the `actionParameter` property. Xonomy comes with
+several predefined action functions and you can also write your own. The following is a list of the
+predefined action functions. Instructions for writing your own functions can be found at the end of this
+chapter.
+
+**`Xonomy.deleteAttribute`**
+
+Can be used in: attribute menus.
+Deletes the attribute.
+
+**`Xonomy.newAttribute`**
+
+Can be used in: element menus.
+Adds a new attribute to the element.
+
+For `actionParameter`, assign `{name: "", value: ""}` where `name` is the name of the attribute and
+`value` is its initial value (which can be an empty string, of course).
+
+**`Xonomy.newElementChild`**
+
+Can be used in: element menus.
+Adds a new element as a child of the current element.
+
+If the current element already has children,
+the new child is added to the end (while respecting constraints mandated by `mustBeBefore` and
+`mustBeAfter`, if any – for that, see chapter 5).
+For `actionParameter`, assign XML-as-string: `"<element>...</element>"`. The XML can contain
+attributes, child nodes etc. Make sure the XML is well-formed!
+
+**`Xonomy.newElementBefore`**
+
+Can be used in: element menus.
+
+Adds a new sibling element immediately before the current element.
+
+If this results in a violation of the `mustBeBefore` and `mustBeAfter` constraints of the newly created element’s specification, then the element is moved to satisfy the requirements.
+
+For `actionParameter`, assign XML-as-string: `"<element>...</element>"`. The XML can contain
+attributes, child nodes etc. Make sure the XML is well-formed!
