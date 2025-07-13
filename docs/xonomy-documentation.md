@@ -539,3 +539,71 @@ Note: This function is also used by Xonomy for editing text nodes.
 ```
 
 ![Xonomy](./images/006.png)
+
+_This function allows the user to pick the value from a list. You must assign the list to the attribute
+specification’s `askerParameter` property._
+
+The list can be:
+
+- an array of strings,
+
+  ```js
+  ["m", "f"];
+  ```
+
+- or an array of objects where each has a value and an explanatory caption,
+
+  ```js
+  [
+    { value: "m", caption: "male" },
+    { value: "f", caption: "female" },
+  ];
+  ```
+
+- or a combination of both.
+
+  ```js
+  [{ value: "m", caption: "male" }, "f"];
+  ```
+
+Objects inside the array can have a value, a caption, and optionally a displayValue: a string which is
+displayed on the list instead of the actual value. You can use this to – for example – translate the values
+into another language for the user (while the real values stay hidden from the user’s view). The string
+can be a multilingual string (see Chapter 12).
+
+### 3.4. Xonomy.askOpenPicklist
+
+This function is a combination of `askString` and `askPicklist`: it encourages the user to pick a value
+from a list, but also allows him or her to type their own value in a textbox. The `askerParameter`
+property is the same as that of `askPicklist`.
+
+### 3.5. Xonomy.askRemote
+
+This asker works like `askPicklist` except that the data comes from an external source which Xonomy
+talks to via Ajax and JSON. More abou this in Chapter 13 where we talk about building applications
+which consume external metadata.
+
+### 3.6. Writing your own asker functions
+
+If the three predefined `asker` functions are not enough for you, you can create your own function and
+assign it to the asker property of an attribute specification. The function must take at least one and at
+most three arguments:
+
+1. As a first argument, Xonomy passes the current value of the attribute to your function. This is a
+   string.
+2. Whatever you assign to the attribute specification’s askerParameter property will be passed to
+   the asker function as a second argument. You have seen that the Xonomy.askPicklist function
+   uses this argument to know the contents of the picklist.
+3. The third argument is a surrogate object representing the attribute the asker function is being
+   invoked on. For surrogate objects see Chapter 10. From this you can traverse the entire XML
+   document. You can use this to customize the contents of the asker depending on the value of
+   some other attribute, say, or indeed on anything else in the XML document.
+
+The function must return `HTML-as-string`, which Xonomy will insert into the pop-up box. The HTML
+may contain an element with the class name `focusme`; Xonomy will automatically move input focus to
+the first such element it finds in the pop-up box.
+
+Your user will intract with the contents of the pop-up box and, at some stage, he or she will presumably
+click on something or press a key to indicate that he or she wishes to set the attribute’s value. At that
+stage, your HTML must call the function `Xonomy.answer` whose one and only argument is the new value.
+This must again be a string.
