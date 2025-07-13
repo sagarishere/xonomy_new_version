@@ -650,3 +650,9 @@ let docSpec={
 ![Xonomy](./images/007.png)
 
 ### 4. Controlling the contents of menus
+
+When a user clicks the name of an element or attribute, a menu appears, preseting the user with actions
+he or she can perform on the element or attribute. You have control over what appears in those menus.
+Element and attribute specifications have a property called menu; this is an array of objects called menu
+item specifications. Each menu item specification is a hash table with several properties that describe
+the menu item.
