@@ -656,3 +656,16 @@ he or she can perform on the element or attribute. You have control over what ap
 Element and attribute specifications have a property called menu; this is an array of objects called menu
 item specifications. Each menu item specification is a hash table with several properties that describe
 the menu item.
+
+```js
+menu: [
+  {
+    caption: "...",
+    icon: "icon.png",
+    action: ...,
+    actionParameter: ...,
+    hideIf: ...
+  },
+  ...
+]
+```
