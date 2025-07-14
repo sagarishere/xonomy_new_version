@@ -769,3 +769,100 @@ If this results in a violation of the `mustBeBefore` and `mustBeAfter` constrain
 
 For `actionParameter`, assign XML-as-string: `"<element>...</element>"`. The XML can contain
 attributes, child nodes etc. Make sure the XML is well-formed!
+
+**`Xonomy.newElementAfter`**
+
+Can be used in: element menus.
+
+Adds a new sibling element immediately after the current element.
+
+If this results in a violation of the `mustBeBefore` and `mustBeAfter` constraints of the newly created element’s specification, then the element is moved to satisfy the requirements.
+
+For `actionParameter`, assign XML-as-string: `"<element>...</element>"`. The XML can contain
+attributes, child nodes etc. Make sure the XML is well-formed!
+
+**`Xonomy.deleteElement`**
+
+Can be used in: element menus.
+Deletes the element.
+
+**`Xonomy.editRaw`**
+
+Can be used in: element menus.
+
+Opens a window in which the user can edit the element (its name, its attributes and all its descendant text nodes and elements) as plain text in raw XML or in an arbitrary markdown notation which you specify in the `actionParameter`.
+
+-> For `actionParameter`, assign a JavaScript object which has at least one of these two methods which Xonomy will call immediately before editing starts:
+
+- `fromJs: function(jsElement){ ... }`: A function which takes the element (passed as a surrogate object) and returns a markdown representation of it (as a string).
+- `fromXml: function(xml){ ... }`: A function which takes the element (passed as XML-as-string) and returns a markdown
+  representation of it. If you want the user to be able to edit the raw XML, just return xml unchanged.
+
+-> and at least of these two methods which will be called immediately after editing ends (after the
+user clicks the OK button):
+
+- `toJs: function(txt, origElement){ ... }`
+  A function which takes a plain-text representation of the element (in raw XML or in your
+  own markdown notation) and returns a surrogate object representing the element which
+  will replace the original element in the XML document. The original element, as it was
+  before editing started, is passed to this function (as a surrogate object) in case the
+  function is needed.
+- `toXml: function(txt, origElement){ ... }`
+  A function which takes a plain-text representation of the element (in raw XML or in your
+  own markdown notation) and returns XML-as-string representing the element which will
+  replace the original element in the XML document. The original element, as it was before
+  editing started, is passed to this function (as a surrogate object) in case the function is
+  needed. If you have allowed the user to edit the raw XML, just `return txt` unchanged.
+
+**`Xonomy.duplicateElement`**
+
+Can be used in: element menus.
+Creates a copy of the current element, inserts the copy into the document as a following sibling of the current element, and makes the copy the current element.
+
+No `actionParameter` needed.
+
+**`Xonomy.moveElementUp`**
+**`Xonomy.moveElementDown`**
+
+Can be used in: element menus.
+Moves the element up (= towards the beginning of the XML document) or down (= towards the end of the XML document) to the nearest place where it can be dragged and dropped. This is the same as actually grabbing the element with the mouse and then dragging and dropping it onto the nearest drop target before it or after it. If there are no potential drop targets then nothing will happen.
+
+No actionParameter needed.
+
+Additionally, Xonomy provides handy helper functions `canMoveElementUp` and `canMoveElementDown` which you can use to automatically hide the menu item when there is no potential drop target (see also chapter 4.3 below):
+
+```js
+hideIf: function(jsMe){ return !Xonomy.canMoveElementUp(jsMe.htmlID) }
+hideIf: function(jsMe){ return !Xonomy.canMoveElementDown(jsMe.htmlID) }
+```
+
+**`Xonomy.mergeWithPrevious`**
+**`Xonomy.mergeWithNext`**
+
+Can be used in: element menus.
+Moves all attributes, child elements and text nodes from the current element (the “source
+parent”) to its preceding or following sibling (the “target parent”) and deletes the source parent.
+
+No `actionParameter` needed.
+
+When moving attributes, the following rules are observed:
+
+- If the target parent does not have an attribute of that name, then the attribute is moved to the target parent.
+- If the target parent has an attribute of that name but its value is an empty string, then the target parent’s attribute is replaced with the source parent’s attribute.
+- If the target parent has a non-empty attribute of that name, then nothing happens.
+
+When moving child elements and text nodes, the following rules are observed:
+
+- (1) If either the
+  target parent or the source parent or both are supposed to have text (= their element
+  specifications have hasText set to true) then the contents of the source element is appended to
+  the contents of the target element, with a space in between if the target parent’s content is nonemty.
+  (2) If neither of the two parents is supposed to have text, then each of the source parent’s
+  children is moved into the target parent if and only if the target parent does not already have a
+  child whose XML serialization is exactly equal.
+  Eventually, the target element’s children are re-ordered to satisfy their element specifications’
+  mustBeBefore and mustBeAfter constraints.
+
+Note: Additionally, Xonomy has two predefined action functions for working with inline markup:
+Xonomy.wrap and Xonomy.unwrap. These are explained in the chapter that deals with inline
+markup, which is chapter 8.
